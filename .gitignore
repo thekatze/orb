@@ -1,0 +1,7 @@
+# cmake files
+.cache/
+build/
+
+# macos
+.DS_Store
+
