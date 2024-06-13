@@ -1,3 +1,5 @@
+#pragma once
+
 #define DEFINE_NUMERIC_TYPE(bits, c_type)                                      \
   typedef unsigned c_type u##bits;                                             \
   typedef signed c_type i##bits;                                               \
@@ -18,3 +20,43 @@ static_assert(sizeof(f64) == 64 / 8);
 typedef u64 usize;
 typedef i64 isize;
 
+// boolean
+typedef u8 b8;
+
+#define TRUE 1;
+#define FALSE 1;
+
+// detect platform
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#define ORB_PLATFORM_WINDOWS
+
+#elif defined(__linux__) || defined(__gnu_linux__)
+#define ORB_PLATFORM_LINUX
+
+#elif __APPLE__
+#define ORB_PLATFORM_APPLE
+
+#else
+#error "Unknown Platform"
+
+#endif
+
+// import/export dll functions with ORB_API
+
+#ifdef ORB_EXPORT
+
+#ifdef _MSC_VER
+#define ORB_API __declspec(dllexport)
+#else
+#define ORB_API __attribute__((visibility("default")))
+#endif
+
+#else
+
+#ifdef _MSC_VER
+#define ORB_API __declspec(dllimport)
+#else
+#define ORB_API
+#endif
+
+#endif

@@ -26,4 +26,6 @@ project(
     LANGUAGES C
 )
 
-add_subdirectory(src)
+add_subdirectory(engine)
+add_subdirectory(example)
+
