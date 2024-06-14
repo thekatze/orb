@@ -1,9 +1,16 @@
 #include "logger.h"
+#include "asserts.h"
 
 #include <stdarg.h>
 // TODO: replace with platform layer call
 #include <stdio.h>
 #include <string.h>
+
+void report_assertion_failure(const char *expression, const char *message,
+                              const char *file, i32 line) {
+  orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure: %s: '%s'", file, line,
+          expression, message);
+}
 
 b8 orb_logger_init() {
   // TODO: init log to file
