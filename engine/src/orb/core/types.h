@@ -34,7 +34,7 @@ typedef u8 b8;
 #define ORB_PLATFORM_LINUX
 
 #elif __APPLE__
-#define ORB_PLATFORM_APPLE
+#define ORB_PLATFORM_MAC
 
 #else
 #error "Unknown Platform"

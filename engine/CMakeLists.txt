@@ -2,7 +2,7 @@ set(orb_INCLUDE_DIR "${CMAKE_HOME_DIRECTORY}/engine/src/" PARENT_SCOPE)
 
 add_library(orb 
     ./src/orb/core/logger.c
-    ./src/orb/platform/platform.c 
+    ./src/orb/platform/platform_mac.c 
 )
 
 target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_RELEASE=0 ORB_ASSERTIONS_ENABLED)
