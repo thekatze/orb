@@ -12,5 +12,16 @@ int main(void) {
 
   ORB_DEBUG_ASSERT(1 == 1, "math still works");
 
+  platform_state state;
+
+  if (!orb_platform_init(&state, "orb engine", 100, 100, 1600, 900)) {
+    return 1;
+  }
+
+  while (orb_platform_events_pump(&state)) {
+  }
+
+  orb_platform_shutdown(&state);
+
   return 0;
 }

@@ -1,8 +1,8 @@
 #include "logger.h"
+#include "../platform/platform.h"
 #include "asserts.h"
 
 #include <stdarg.h>
-// TODO: replace with platform layer call
 #include <stdio.h>
 #include <string.h>
 
@@ -40,8 +40,9 @@ void orb_log(log_level level, const char *message, ...) {
   char out_message[max_message_len];
   sprintf(out_message, "%s%s\n", level_strings[level], formatted_message);
 
-  // b8 is_error = level < LOG_LEVEL_WARN;
-
-  // TODO: platform-specific output
-  printf("%s", out_message);
+  if (level < LOG_LEVEL_WARN) {
+    orb_platform_console_write_error(out_message, (u8)level);
+  } else {
+    orb_platform_console_write(out_message, (u8)level);
+  }
 }

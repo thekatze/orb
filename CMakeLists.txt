@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 SET(CMAKE_C_STANDARD 23)
 
-SET(CMAKE_C_FLAGS "-ggdb -Werror -Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wstrict-overflow=5 -Wwrite-strings -Waggregate-return -Wcast-qual -Wswitch-enum -Wconversion -Wunreachable-code")
+SET(CMAKE_C_FLAGS "-ggdb -Werror -Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wstrict-overflow=5 -Wwrite-strings -Wcast-qual -Wswitch-enum -Wconversion -Wunreachable-code")
 
 # -fsanitize=address doesnt work on my arm mac, try on other pc
 if (APPLE)

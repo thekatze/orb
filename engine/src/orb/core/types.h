@@ -23,8 +23,8 @@ typedef i64 isize;
 // boolean
 typedef u8 b8;
 
-#define TRUE 1;
-#define FALSE 1;
+#define TRUE 1
+#define FALSE 0
 
 // detect platform
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
