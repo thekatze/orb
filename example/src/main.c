@@ -1,27 +1,20 @@
-#include <orb/core/asserts.h>
-#include <orb/core/logger.h>
-#include <orb/platform/platform.h>
+#include <orb/core/application.h>
 
 int main(void) {
-  ORB_TRACE("normal thing happened, we got PI: %f", 3.14f);
-  ORB_DEBUG("we might be interested");
-  ORB_INFO("window opened");
-  ORB_WARN("swapchain out of date");
-  ORB_ERROR("event loop broke");
-  ORB_FATAL("computer dead");
+  application_state app = {0};
+  application_config config = {
+      .name = "orb engine",
+      .x = 100,
+      .y = 100,
+      .width = 1600,
+      .height = 900,
+  };
 
-  ORB_DEBUG_ASSERT(1 == 1, "math still works");
-
-  platform_state state;
-
-  if (!orb_platform_init(&state, "orb engine", 100, 100, 1600, 900)) {
+  if (!orb_application_create(&app, &config)) {
     return 1;
   }
 
-  while (orb_platform_events_pump(&state)) {
+  if (!orb_application_run(&app)) {
+    return 1;
   }
-
-  orb_platform_shutdown(&state);
-
-  return 0;
 }
