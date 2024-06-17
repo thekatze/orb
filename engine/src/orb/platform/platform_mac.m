@@ -355,7 +355,8 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 b8 orb_platform_init(platform_state *platform, const char *application_name,
                      i32 x, i32 y, i32 width, i32 height) {
   // application_config *typed_config = (application_config *)config;
-
+  platform->internal_state = orb_platform_allocate(sizeof(internal_state), FALSE);
+  state_ptr = platform->internal_state;
   state_ptr->device_pixel_ratio = 1.0f;
 
   @autoreleasepool {
