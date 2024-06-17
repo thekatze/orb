@@ -6,13 +6,12 @@ typedef struct platform_state {
   void *internal_state;
 } platform_state;
 
-b8 orb_platform_init(platform_state *platform_state,
-                     const char *application_name, i32 x, i32 y, i32 width,
+b8 orb_platform_init(const char *application_name, i32 x, i32 y, i32 width,
                      i32 height);
 
-void orb_platform_shutdown(platform_state *platform_state);
+void orb_platform_shutdown(void);
 
-b8 orb_platform_events_pump(platform_state *platform_state);
+b8 orb_platform_events_pump(void);
 
 void *orb_platform_allocate(u64 size, b8 aligned);
 void orb_platform_free(void *block, b8 aligned);

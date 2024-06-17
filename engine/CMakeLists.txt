@@ -1,10 +1,12 @@
 set(orb_INCLUDE_DIR "${CMAKE_HOME_DIRECTORY}/engine/src/" PARENT_SCOPE)
 
+enable_language(OBJC)
+
 add_library(orb 
     ./src/orb/core/logger.c
     ./src/orb/core/application.c
 
-    ./src/orb/platform/platform_mac.c 
+    ./src/orb/platform/platform_mac.m
     ./src/orb/platform/platform_linux.c
 )
 
@@ -15,5 +17,7 @@ if(LINUX)
 
     target_include_directories(orb PRIVATE "${X11_INCLUDE_DIR}")
     target_link_libraries(orb PRIVATE "${X11_LIBRARIES}" X11::xcb X11::X11_xcb)
+elseif(APPLE)
+    target_link_libraries(orb PRIVATE "-framework Foundation -framework AppKit -framework QuartzCore")
 endif()
 

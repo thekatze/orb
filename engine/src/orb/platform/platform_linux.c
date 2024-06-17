@@ -1,11 +1,13 @@
 #include "platform.h"
-#include <bits/time.h>
-#include <stdint.h>
-#include <xcb/xproto.h>
 
 #ifdef ORB_PLATFORM_LINUX
 
 #include "../core/logger.h"
+
+// TODO: Validate if these are needed
+#include <bits/time.h>
+#include <stdint.h>
+#include <xcb/xproto.h>
 
 #include <X11/XKBlib.h>
 #include <X11/Xlib-xcb.h>

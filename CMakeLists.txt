@@ -13,10 +13,6 @@ endif()
 
 SET(CMAKE_C_FLAGS_RELEASE "-O2")
 
-if (APPLE)
-    set(CMAKE_C_COMPILER "/opt/homebrew/opt/gcc/bin/gcc-14")
-endif()
-
 # for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
