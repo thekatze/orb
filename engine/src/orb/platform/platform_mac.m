@@ -463,21 +463,21 @@ b8 orb_platform_init(platform_state *platform, const char *application_name,
 void orb_platform_shutdown(platform_state *platform) {
   if (state_ptr) {
     @autoreleasepool {
+      // HACK: just let the os free this, this currently causes a segfault
+      // [state_ptr->window orderOut:nil];
 
-      [state_ptr->window orderOut:nil];
+      // [state_ptr->window setDelegate:nil];
+      // [state_ptr->wnd_delegate release];
 
-      [state_ptr->window setDelegate:nil];
-      [state_ptr->wnd_delegate release];
+      // [state_ptr->view release];
+      // state_ptr->view = nil;
 
-      [state_ptr->view release];
-      state_ptr->view = nil;
+      // [state_ptr->window close];
+      // state_ptr->window = nil;
 
-      [state_ptr->window close];
-      state_ptr->window = nil;
-
-      [NSApp setDelegate:nil];
-      [state_ptr->app_delegate release];
-      state_ptr->app_delegate = nil;
+      // [NSApp setDelegate:nil];
+      // [state_ptr->app_delegate release];
+      // state_ptr->app_delegate = nil;
 
     } // autoreleasepool
   }
