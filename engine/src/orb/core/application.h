@@ -2,26 +2,18 @@
 
 #include "types.h"
 
-#include "../platform/platform.h"
+// forward declare because of circular dependency
+struct game;
 
 typedef struct application_config {
   i16 x;
   i16 y;
-  i16 width;
-  i16 height;
+  u16 width;
+  u16 height;
 
   const char *name;
 } application_config;
 
-typedef struct application_state {
-  b8 is_initialized;
-  b8 is_running;
-  b8 is_suspended;
-  i16 width;
-  i16 height;
-  f64 last_tick;
-} application_state;
 
-ORB_API b8 orb_application_create(application_state *app,
-                                  application_config *config);
-ORB_API b8 orb_application_run(application_state *app);
+ORB_API b8 orb_application_create(struct game* game_instance);
+ORB_API b8 orb_application_run();

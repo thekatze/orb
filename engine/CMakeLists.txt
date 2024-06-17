@@ -1,13 +1,17 @@
 set(orb_INCLUDE_DIR "${CMAKE_HOME_DIRECTORY}/engine/src/" PARENT_SCOPE)
 
-enable_language(OBJC)
+SET(MAC_PLATFORM_SRC "")
+if (APPLE) 
+    enable_language(OBJC)
+    SET(MAC_PLATFORM_SRC "./src/orb/platform/platform_mac.m")
+endif()
 
 add_library(orb 
     ./src/orb/core/logger.c
     ./src/orb/core/application.c
 
-    ./src/orb/platform/platform_mac.m
     ./src/orb/platform/platform_linux.c
+    "${MAC_PLATFORM_SRC}"
 )
 
 target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_RELEASE=0 ORB_ASSERTIONS_ENABLED)
