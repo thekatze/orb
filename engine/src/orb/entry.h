@@ -1,11 +1,14 @@
 #include "core/application.h"
 #include "core/logger.h"
+#include "core/orb_memory.h"
 #include "game_types.h"
 
 [[nodiscard]]
 extern b8 create_game(game *out_game);
 
 int main(void) {
+  orb_memory_init();
+
   game game_instance = {0};
   if (!create_game(&game_instance)) {
     ORB_FATAL("game could not be created");
@@ -26,4 +29,6 @@ int main(void) {
   if (!orb_application_run()) {
     return -4;
   }
+
+  orb_memory_shutdown();
 }

@@ -9,6 +9,7 @@ endif()
 add_library(orb 
     ./src/orb/core/logger.c
     ./src/orb/core/application.c
+    ./src/orb/core/orb_memory.c
 
     ./src/orb/platform/platform_linux.c
     "${MAC_PLATFORM_SRC}"

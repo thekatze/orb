@@ -8,14 +8,12 @@ b8 initialize(game *game_instance) {
 }
 
 b8 update(game *game_instance, float delta) {
-  ORB_TRACE("UPDATE");
   (void)game_instance;
   (void)delta;
   return TRUE;
 }
 
 b8 render(game *game_instance, float delta) {
-  ORB_TRACE("RENDER");
   (void)game_instance;
   (void)delta;
   return TRUE;
