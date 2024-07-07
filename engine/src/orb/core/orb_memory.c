@@ -26,7 +26,7 @@ void *orb_allocate(u64 size, memory_tag tag) {
 
   void *block = orb_platform_allocate(size, FALSE);
 
-#if ORB_RELEASE == 0
+#ifndef ORB_RELEASE
   // in debug set memory to 010101...
   orb_memory_set(block, 0x5555'5555, size);
 #endif

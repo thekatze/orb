@@ -14,8 +14,9 @@
 #endif
 
 // defined in logger.c
-ORB_API void report_assertion_failure(const char *expression, const char *message,
-                              const char *file, i32 line);
+ORB_API void report_assertion_failure(const char *expression,
+                                      const char *message, const char *file,
+                                      i32 line);
 
 #define ORB_ASSERT(expr, message)                                              \
   {                                                                            \
@@ -25,7 +26,7 @@ ORB_API void report_assertion_failure(const char *expression, const char *messag
     }                                                                          \
   }
 
-#if ORB_RELEASE == 0
+#ifndef ORB_RELEASE
 #define ORB_DEBUG_ASSERT(expr, message)                                        \
   {                                                                            \
     if (!(expr)) {                                                             \

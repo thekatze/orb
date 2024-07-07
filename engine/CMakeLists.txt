@@ -18,7 +18,11 @@ add_library(orb
     "${MAC_PLATFORM_SRC}"
 )
 
-target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_RELEASE=0 ORB_ASSERTIONS_ENABLED)
+target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_ASSERTIONS_ENABLED)
+
+if(ORB_RELEASE)
+    target_compile_definitions(orb PUBLIC ORB_RELEASE)
+endif()
 
 if(LINUX) 
     find_package(X11 REQUIRED)

@@ -45,7 +45,7 @@ ORB_API b8 orb_event_add_listener(event_code code, void *listener,
   }
 
 // check for duplicate registration
-#if ORB_RELEASE == 0
+#ifndef ORB_RELEASE
   registered_handler *handlers = (registered_handler *)storage.items;
   for (u64 i = 0; i < storage.length; ++i) {
     ORB_DEBUG_ASSERT(

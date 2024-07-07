@@ -3,13 +3,16 @@ target_include_directories(example PRIVATE "${orb_INCLUDE_DIR}")
 target_link_libraries(example PRIVATE orb)
 
 # release optimizations
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug") 
+if (ORB_RELEASE) 
     add_custom_command(
         TARGET example 
         POST_BUILD
         COMMAND ${CMAKE_STRIP} example)
 
-    # set_property(
-    #     TARGET example 
-    #     PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    # could not get lto working on apple silicon
+    if (NOT APPLE)
+        set_property(
+            TARGET example 
+            PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
 endif()
