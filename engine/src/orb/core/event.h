@@ -57,16 +57,16 @@ typedef enum orb_internal_event_code {
   /**
    * Usage:
    * u16 button = data.u16[0];
-   * u16 x = data.u16[1];
-   * u16 y = data.u16[2];
+   * u16 x = data.i16[1];
+   * u16 y = data.i16[2];
    */
   ORB_EVENT_MOUSE_BUTTON_PRESSED = 0x03,
 
   /**
    * Usage:
    * u16 button = data.u16[0];
-   * u16 x = data.u16[1];
-   * u16 y = data.u16[2];
+   * u16 x = data.i16[1];
+   * u16 y = data.i16[2];
    */
   ORB_EVENT_MOUSE_BUTTON_RELEASED = 0x04,
 
@@ -78,15 +78,15 @@ typedef enum orb_internal_event_code {
 
   /**
    * Usage:
-   * u16 x = data.u16[1];
-   * u16 y = data.u16[2];
+   * u16 x = data.i16[0];
+   * u16 y = data.i16[1];
    */
   ORB_EVENT_MOUSE_MOVED = 0x08,
 
   /**
    * Usage:
-   * u16 width = data.u16[1];
-   * u16 height = data.u16[2];
+   * u16 width = data.u16[0];
+   * u16 height = data.u16[1];
    */
   ORB_EVENT_RESIZED = 0x10,
   ORB_EVENT_APPLICATION_QUIT = 0x1F,

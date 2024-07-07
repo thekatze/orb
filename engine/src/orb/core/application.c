@@ -2,6 +2,7 @@
 #include "../game_types.h"
 #include "../platform/platform.h"
 #include "event.h"
+#include "input.h"
 #include "logger.h"
 
 typedef struct application_state {
@@ -40,6 +41,11 @@ ORB_API b8 orb_application_create(game *game_instance) {
     return FALSE;
   }
 
+  if (!orb_input_init()) {
+    ORB_FATAL("Could not initialize event system");
+    return FALSE;
+  }
+
   if (!app.game_instance->initialize(app.game_instance)) {
     ORB_FATAL("Game failed to initialize");
     return FALSE;
@@ -60,6 +66,7 @@ ORB_API b8 orb_application_run() {
   while (orb_platform_events_pump(&app.platform)) {
     if (!app.is_suspended) {
       f32 delta = 0;
+      orb_input_update();
 
       if (!app.game_instance->update(app.game_instance, delta)) {
         ORB_FATAL("Update failed, shutting down");
@@ -76,6 +83,7 @@ ORB_API b8 orb_application_run() {
   app.is_running = FALSE;
 
   // done running, shutdown all systems
+  orb_input_shutdown();
   orb_event_shutdown();
   orb_platform_shutdown(&app.platform);
   orb_logger_shutdown();
