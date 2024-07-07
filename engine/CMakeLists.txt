@@ -10,8 +10,11 @@ add_library(orb
     ./src/orb/core/logger.c
     ./src/orb/core/application.c
     ./src/orb/core/orb_memory.c
+    ./src/orb/core/event.c
 
     ./src/orb/platform/platform_linux.c
+
+    ./src/orb/containers/dynamic_array.c
     "${MAC_PLATFORM_SRC}"
 )
 

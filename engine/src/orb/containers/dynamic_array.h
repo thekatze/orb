@@ -28,7 +28,7 @@ ORB_API void _orb_dynamic_array_push(orb_dynamic_array *array,
 #define orb_dynamic_array_push(array, value)                                   \
   {                                                                            \
     auto temp = value;                                                         \
-    _orb_dynamic_array_push(&array, &value);                                   \
+    _orb_dynamic_array_push(&array, &temp);                                    \
   }
 
 ORB_API void orb_dynamic_array_pop(orb_dynamic_array *array, void *destination);

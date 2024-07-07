@@ -1,6 +1,7 @@
 #include "application.h"
 #include "../game_types.h"
 #include "../platform/platform.h"
+#include "event.h"
 #include "logger.h"
 
 typedef struct application_state {
@@ -31,6 +32,11 @@ ORB_API b8 orb_application_create(game *game_instance) {
                          config.width, config.height)) {
 
     ORB_FATAL("Could not initialize platform layer");
+    return FALSE;
+  }
+
+  if (!orb_event_init()) {
+    ORB_FATAL("Could not initialize event system");
     return FALSE;
   }
 
@@ -70,6 +76,7 @@ ORB_API b8 orb_application_run() {
   app.is_running = FALSE;
 
   // done running, shutdown all systems
+  orb_event_shutdown();
   orb_platform_shutdown(&app.platform);
   orb_logger_shutdown();
 
