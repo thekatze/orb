@@ -17,6 +17,14 @@ $ cmake --build build/
 $ ./build/orb
 ```
 
+to build documentation:
+- doxygen
+- graphviz
+
+```sh
+$ doxygen Doxyfile
+```
+
 ## architecture
 
 

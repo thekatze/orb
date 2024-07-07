@@ -5,3 +5,6 @@ build/
 # macos
 .DS_Store
 
+# doxygen
+docs/
+
