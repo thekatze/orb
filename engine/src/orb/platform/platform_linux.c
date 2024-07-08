@@ -241,7 +241,7 @@ void orb_platform_console_write_error(const char *message, u8 color) {
   fprintf(stderr, "\033[%sm%s\033[0m", color_escape_codes[color], message);
 }
 
-f64 orb_platform_time_elapsed() {
+f64 orb_platform_time_now() {
   const f64 NANOSECONDS_IN_SECONDS = 1.0 / 1'000'000'000;
   struct timespec now;
   clock_gettime(CLOCK_MONOTONIC, &now);

@@ -13,6 +13,7 @@ add_library(orb
     ./src/orb/core/orb_string.c
     ./src/orb/core/event.c
     ./src/orb/core/input.c
+    ./src/orb/core/clock.c
 
     ./src/orb/platform/platform_linux.c
 

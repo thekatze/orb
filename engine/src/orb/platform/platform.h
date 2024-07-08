@@ -22,5 +22,5 @@ void *orb_platform_memory_set(void *destination, i32 value, u64 size);
 void orb_platform_console_write(const char *message, u8 color);
 void orb_platform_console_write_error(const char *message, u8 color);
 
-f64 orb_platform_time_elapsed();
+f64 orb_platform_time_now();
 void orb_platform_time_sleep(u64 ms);

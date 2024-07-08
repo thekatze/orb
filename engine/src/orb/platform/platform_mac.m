@@ -542,7 +542,7 @@ void orb_platform_console_write_error(const char *message, u8 colour) {
   printf("\033[%sm%s\033[0m", colour_strings[colour], message);
 }
 
-f64 orb_platform_time_elapsed(void) {
+f64 orb_platform_time_now(void) {
   mach_timebase_info_data_t clock_timebase;
   mach_timebase_info(&clock_timebase);
 
