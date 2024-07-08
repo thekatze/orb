@@ -10,6 +10,7 @@ add_library(orb
     ./src/orb/core/logger.c
     ./src/orb/core/application.c
     ./src/orb/core/orb_memory.c
+    ./src/orb/core/orb_string.c
     ./src/orb/core/event.c
     ./src/orb/core/input.c
 

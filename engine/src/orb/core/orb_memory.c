@@ -2,9 +2,9 @@
 #include "./logger.h"
 
 #include "../platform/platform.h"
+#include "orb_string.h"
 
 #include <stdio.h>
-#include <string.h>
 
 struct memory_stats {
   u64 total_allocated;
@@ -73,8 +73,6 @@ char *orb_memory_debug_stats() {
 
   char buffer[8000] = "System memory use (tagged): \n";
 
-  u64 offset = strlen(buffer);
-
   for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i) {
     char unit[4] = "_iB";
     u64 allocation = stats.tagged_allocations[i];
@@ -95,13 +93,15 @@ char *orb_memory_debug_stats() {
       displayed_allocation = (f32)allocation;
     }
 
+    u64 offset = orb_string_length(buffer);
+
     u64 written =
         (u64)snprintf(buffer + offset, 8000, "  %s: %.2f%s\n",
                       memory_tag_strings[i], displayed_allocation, unit);
     offset += written;
   }
 
-  char *out_string = strdup(buffer);
+  char *out_string = orb_string_duplicate(buffer);
 
   return out_string;
 }
