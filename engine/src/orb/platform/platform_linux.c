@@ -185,7 +185,7 @@ b8 orb_platform_events_pump(platform_state *platform) {
     } break;
     case XCB_CONFIGURE_WINDOW:
     case XCB_CONFIGURE_NOTIFY: {
-      ORB_INFO("moved / resized");
+      // ORB_INFO("moved / resized");
     } break;
     case XCB_CLIENT_MESSAGE: {
       xcb_client_message_event_t *client_message =
@@ -196,7 +196,7 @@ b8 orb_platform_events_pump(platform_state *platform) {
       }
     } break;
     default: {
-      ORB_WARN("Unexpected xcb event: %i", event->response_type);
+      // ORB_WARN("Unexpected xcb event: %i", event->response_type);
     }
     }
 
