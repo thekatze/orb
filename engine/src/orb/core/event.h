@@ -3,7 +3,7 @@
 #include "types.h"
 
 // 128 bit, 16 bytes of data passed with an event
-typedef struct event_context {
+typedef struct orb_event_context {
   union {
     i64 i64[2];
     u64 u64[2];
@@ -20,7 +20,7 @@ typedef struct event_context {
     u8 u8[16];
     char c[16];
   } data;
-} event_context;
+} orb_event_context;
 
 b8 orb_event_init();
 void orb_event_shutdown();
@@ -29,7 +29,7 @@ typedef u16 event_code;
 
 // returns true if event has been handled
 typedef b8 (*orb_event_handler_fn)(event_code code, void *sender,
-                                   void *listener, event_context context);
+                                   void *listener, orb_event_context context);
 
 ORB_API b8 orb_event_add_listener(event_code code, void *listener,
                                   orb_event_handler_fn on_event);
@@ -37,7 +37,7 @@ ORB_API b8 orb_event_add_listener(event_code code, void *listener,
 ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
                                      orb_event_handler_fn on_event);
 
-ORB_API b8 orb_event_send(event_code code, void *sender, event_context context);
+ORB_API b8 orb_event_send(event_code code, void *sender, orb_event_context context);
 
 typedef enum orb_internal_event_code {
   /**

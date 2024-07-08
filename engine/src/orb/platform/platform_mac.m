@@ -287,7 +287,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 - (BOOL)windowShouldClose:(id)sender {
   state_ptr->quit_flagged = true;
 
-  event_context data = {};
+  orb_event_context data = {};
   orb_event_send(ORB_EVENT_APPLICATION_QUIT, 0, data);
 
   return YES;
@@ -302,7 +302,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   // Save off the device pixel ratio.
   state_ptr->device_pixel_ratio = state_ptr->handle.layer.contentsScale;
 
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
   orb_event_send(ORB_EVENT_RESIZED, 0, context);
@@ -317,7 +317,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   // Save off the device pixel ratio.
   state_ptr->device_pixel_ratio = state_ptr->handle.layer.contentsScale;
 
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
   orb_event_send(ORB_EVENT_RESIZED, 0, context);
@@ -325,7 +325,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
   // Send a size of 0, which tells the application it was minimized.
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = 0;
   context.data.u16[1] = 0;
   orb_event_send(ORB_EVENT_RESIZED, 0, context);
@@ -342,7 +342,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   // Save off the device pixel ratio.
   state_ptr->device_pixel_ratio = state_ptr->handle.layer.contentsScale;
 
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
   orb_event_send(ORB_EVENT_RESIZED, 0, context);
@@ -451,7 +451,7 @@ b8 orb_platform_init(platform_state *platform, const char *application_name,
     // Fire off a resize event to make sure the framebuffer is the right size.
     // Again, this should be the actual backing framebuffer size (taking into
     // account pixel density).
-    // event_context context;
+    // orb_event_context context;
     // context.data.u16[0] = (u16)state_ptr->handle.layer.drawableSize.width;
     // context.data.u16[1] = (u16)state_ptr->handle.layer.drawableSize.height;
     // event_fire(EVENT_CODE_RESIZED, 0, context);
@@ -934,7 +934,7 @@ f32 platform_device_pixel_ratio(void) { return state_ptr->device_pixel_ratio; }
 //       if (result != 0) {
 //         if (errno == ENOENT) {
 //           // File doesn't exist. Which means it was deleted. Remove the
-//           watch. event_context context = {0}; context.data.u32[0] = f->id;
+//           watch. orb_event_context context = {0}; context.data.u32[0] = f->id;
 //           event_fire(EVENT_CODE_WATCHED_FILE_DELETED, 0, context);
 //           KINFO("File watch id %d has been removed.", f->id);
 //           unregister_watch(f->id);
@@ -953,7 +953,7 @@ f32 platform_device_pixel_ratio(void) { return state_ptr->device_pixel_ratio; }
 //         KTRACE("File update found.");
 //         f->last_write_time = info.st_mtime;
 //         // Notify listeners.
-//         event_context context = {0};
+//         orb_event_context context = {0};
 //         context.data.u32[0] = f->id;
 //         event_fire(EVENT_CODE_WATCHED_FILE_WRITTEN, 0, context);
 //       }

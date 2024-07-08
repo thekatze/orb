@@ -86,7 +86,7 @@ ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
 }
 
 ORB_API b8 orb_event_send(event_code code, void *sender,
-                          event_context context) {
+                          orb_event_context context) {
 
   orb_dynamic_array storage = state.registered[code].registered_event_handlers;
   registered_handler *handlers = (registered_handler *)storage.items;

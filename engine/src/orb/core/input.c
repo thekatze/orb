@@ -1,5 +1,6 @@
 #include "input.h"
 #include "event.h"
+#include "logger.h"
 #include "orb_memory.h"
 
 typedef struct keyboard_state {
@@ -57,7 +58,7 @@ void orb_input_process_key(orb_keyboard_keys key, b8 pressed) {
 
   state.current_keyboard.keys[key] = pressed;
 
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = key;
   context.data.u16[1] = 0; // repeat count
 
@@ -103,7 +104,7 @@ void orb_input_process_mouse_button(orb_mouse_buttons button, b8 pressed) {
 
   state.current_mouse.buttons[button] = pressed;
 
-  event_context context;
+  orb_event_context context;
   context.data.u16[0] = button;
   context.data.i16[1] = state.current_mouse.x;
   context.data.i16[2] = state.current_mouse.y;
@@ -120,7 +121,7 @@ void orb_input_process_mouse_move(i16 x, i16 y) {
   state.current_mouse.x = x;
   state.current_mouse.y = y;
 
-  event_context context;
+  orb_event_context context;
   context.data.i16[0] = x;
   context.data.i16[1] = y;
 
@@ -128,7 +129,7 @@ void orb_input_process_mouse_move(i16 x, i16 y) {
 }
 
 void orb_input_process_mouse_wheel(i8 z_delta) {
-  event_context context;
+  orb_event_context context;
   context.data.i8[0] = z_delta;
   orb_event_send(ORB_EVENT_MOUSE_WHEEL, 0, context);
 }
