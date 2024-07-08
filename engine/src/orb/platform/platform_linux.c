@@ -1,5 +1,4 @@
 #include "platform.h"
-#include <X11/X.h>
 
 #ifdef ORB_PLATFORM_LINUX
 
@@ -11,6 +10,7 @@
 #include <stdint.h>
 #include <xcb/xproto.h>
 
+#include <X11/X.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlib.h>
