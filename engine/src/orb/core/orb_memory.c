@@ -16,7 +16,7 @@ static struct memory_stats stats;
 void orb_memory_init() { orb_memory_zero(&stats, sizeof(stats)); }
 void orb_memory_shutdown() {}
 
-void *orb_allocate(u64 size, memory_tag tag) {
+void *orb_allocate(u64 size, orb_memory_tag tag) {
   if (tag == MEMORY_TAG_UNKNOWN) {
     ORB_WARN("orb_allocate called using MEMORY_TAG_UNKNOWN.");
   }
@@ -34,7 +34,7 @@ void *orb_allocate(u64 size, memory_tag tag) {
   return block;
 }
 
-void orb_free(void *block, u64 size, memory_tag tag) {
+void orb_free(void *block, u64 size, orb_memory_tag tag) {
   if (tag == MEMORY_TAG_UNKNOWN) {
     ORB_WARN("orb_free called using MEMORY_TAG_UNKNOWN.");
   }

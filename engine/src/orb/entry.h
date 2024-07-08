@@ -4,12 +4,12 @@
 #include "game_types.h"
 
 [[nodiscard]]
-extern b8 create_game(game *out_game);
+extern b8 create_game(orb_game *out_game);
 
 int main(void) {
   orb_memory_init();
 
-  game game_instance = {0};
+  orb_game game_instance = {0};
   if (!create_game(&game_instance)) {
     ORB_FATAL("game could not be created");
     return -1;

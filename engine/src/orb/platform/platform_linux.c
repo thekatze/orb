@@ -33,7 +33,7 @@ typedef struct internal_state {
 
 orb_keyboard_keys translate_keycode(KeySym key_sym);
 
-b8 orb_platform_init(platform_state *platform, const char *application_name,
+b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
                      i32 x, i32 y, i32 width, i32 height) {
   platform->internal_state =
       orb_platform_allocate(sizeof(internal_state), false);
@@ -117,7 +117,7 @@ b8 orb_platform_init(platform_state *platform, const char *application_name,
   return TRUE;
 }
 
-void orb_platform_shutdown(platform_state *platform) {
+void orb_platform_shutdown(orb_platform_state *platform) {
   internal_state *state = (internal_state *)platform->internal_state;
 
   XAutoRepeatOn(state->display);
@@ -127,7 +127,7 @@ void orb_platform_shutdown(platform_state *platform) {
   orb_platform_free(state, FALSE);
 }
 
-b8 orb_platform_events_pump(platform_state *platform) {
+b8 orb_platform_events_pump(orb_platform_state *platform) {
   internal_state *state = (internal_state *)platform->internal_state;
 
   b8 should_quit = FALSE;

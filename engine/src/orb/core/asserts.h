@@ -6,23 +6,23 @@
 
 #ifdef _MSC_VER
 #include <intrin.h>
-#define debugBreak() __debugbreak()
+#define orb_debug_break() __debugbreak()
 
 #else
-#define debugBreak() __builtin_trap()
+#define orb_debug_break() __builtin_trap()
 
 #endif
 
 // defined in logger.c
-ORB_API void report_assertion_failure(const char *expression,
-                                      const char *message, const char *file,
-                                      i32 line);
+ORB_API void orb_report_assertion_failure(const char *expression,
+                                          const char *message, const char *file,
+                                          i32 line);
 
 #define ORB_ASSERT(expr, message)                                              \
   {                                                                            \
     if (!(expr)) {                                                             \
-      report_assertion_failure(#expr, message, __FILE__, __LINE__);            \
-      debugBreak();                                                            \
+      orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);        \
+      orb_debug_break();                                                       \
     }                                                                          \
   }
 
@@ -30,8 +30,8 @@ ORB_API void report_assertion_failure(const char *expression,
 #define ORB_DEBUG_ASSERT(expr, message)                                        \
   {                                                                            \
     if (!(expr)) {                                                             \
-      report_assertion_failure(#expr, message, __FILE__, __LINE__);            \
-      debugBreak();                                                            \
+      orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);        \
+      orb_debug_break();                                                       \
     }                                                                          \
   }
 #else

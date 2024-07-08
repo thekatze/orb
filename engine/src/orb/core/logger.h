@@ -13,19 +13,19 @@
 #define ORB_LOG_TRACE 0
 #endif
 
-typedef enum log_level {
+typedef enum orb_log_level {
   LOG_LEVEL_FATAL = 0,
   LOG_LEVEL_ERROR = 1,
   LOG_LEVEL_WARN = 2,
   LOG_LEVEL_INFO = 3,
   LOG_LEVEL_DEBUG = 4,
   LOG_LEVEL_TRACE = 5,
-} log_level;
+} orb_log_level;
 
 b8 orb_logger_init();
 void orb_logger_shutdown();
 
-ORB_API void orb_log(log_level level, const char *message, ...);
+ORB_API void orb_log(orb_log_level level, const char *message, ...);
 
 #define ORB_FATAL(message, ...) orb_log(LOG_LEVEL_FATAL, message, ##__VA_ARGS__)
 

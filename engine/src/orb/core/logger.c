@@ -1,13 +1,12 @@
 #include "logger.h"
 #include "../platform/platform.h"
-#include "asserts.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
-void report_assertion_failure(const char *expression, const char *message,
-                              const char *file, i32 line) {
+void orb_report_assertion_failure(const char *expression, const char *message,
+                                  const char *file, i32 line) {
   orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure: %s: '%s'", file, line,
           expression, message);
 }
@@ -26,7 +25,7 @@ static const char *level_strings[6] = {
     "[ INFO]: ", "[DEBUG]: ", "[TRACE]: ",
 };
 
-void orb_log(log_level level, const char *message, ...) {
+void orb_log(orb_log_level level, const char *message, ...) {
   // stack allocate, logger must be high performance
   const u32 max_message_len = 32 * 1024;
   char formatted_message[max_message_len];

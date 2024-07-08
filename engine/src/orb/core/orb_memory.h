@@ -2,7 +2,7 @@
 
 #include "./types.h"
 
-typedef enum memory_tag {
+typedef enum orb_memory_tag {
   MEMORY_TAG_UNKNOWN = 0,
   MEMORY_TAG_ARRAY,
   MEMORY_TAG_DYNAMIC_ARRAY,
@@ -22,13 +22,13 @@ typedef enum memory_tag {
   MEMORY_TAG_SCENE,
 
   MEMORY_TAG_MAX_TAGS,
-} memory_tag;
+} orb_memory_tag;
 
 void orb_memory_init();
 void orb_memory_shutdown();
 
-ORB_API void *orb_allocate(u64 size, memory_tag tag);
-ORB_API void orb_free(void *block, u64 size, memory_tag tag);
+ORB_API void *orb_allocate(u64 size, orb_memory_tag tag);
+ORB_API void orb_free(void *block, u64 size, orb_memory_tag tag);
 ORB_API void *orb_memory_zero(void *block, u64 size);
 ORB_API void *orb_memory_copy(void *destination, const void *source, u64 size);
 ORB_API void *orb_memory_set(void *destination, i32 value, u64 size);

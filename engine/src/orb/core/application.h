@@ -3,17 +3,17 @@
 #include "types.h"
 
 // forward declare because of circular dependency
-struct game;
+struct orb_game;
 
-typedef struct application_config {
+typedef struct orb_application_config {
   i16 x;
   i16 y;
   u16 width;
   u16 height;
 
   const char *name;
-} application_config;
+} orb_application_config;
 
 
-ORB_API b8 orb_application_create(struct game* game_instance);
+ORB_API b8 orb_application_create(struct orb_game* game_instance);
 ORB_API b8 orb_application_run();

@@ -44,7 +44,7 @@ b8 handle_mouse_move(u16 code, void *listener, void *source,
   return FALSE;
 }
 
-b8 initialize(game *game_instance) {
+b8 initialize(orb_game *game_instance) {
   (void)game_instance;
 
   orb_event_add_listener(ORB_EVENT_KEY_PRESSED, game_instance,
@@ -57,19 +57,19 @@ b8 initialize(game *game_instance) {
   return TRUE;
 }
 
-b8 update(game *game_instance, float delta) {
+b8 update(orb_game *game_instance, float delta) {
   (void)game_instance;
   (void)delta;
   return TRUE;
 }
 
-b8 render(game *game_instance, float delta) {
+b8 render(orb_game *game_instance, float delta) {
   (void)game_instance;
   (void)delta;
   return TRUE;
 }
 
-void on_resize(game *game_instance, u16 width, u16 height) {
+void on_resize(orb_game *game_instance, u16 width, u16 height) {
   (void)game_instance;
   (void)width;
   (void)height;

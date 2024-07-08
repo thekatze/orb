@@ -352,7 +352,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 
 @end // WindowDelegate
 
-b8 orb_platform_init(platform_state *platform, const char *application_name,
+b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
                      i32 x, i32 y, i32 width, i32 height) {
   // application_config *typed_config = (application_config *)config;
   platform->internal_state =
@@ -461,7 +461,7 @@ b8 orb_platform_init(platform_state *platform, const char *application_name,
   } // autoreleasepool
 }
 
-void orb_platform_shutdown(platform_state *platform) {
+void orb_platform_shutdown(orb_platform_state *platform) {
   if (state_ptr) {
     @autoreleasepool {
       // HACK: just let the os free this, this currently causes a segfault
@@ -485,7 +485,7 @@ void orb_platform_shutdown(platform_state *platform) {
   state_ptr = 0;
 }
 
-b8 orb_platform_events_pump(platform_state *platform) {
+b8 orb_platform_events_pump(orb_platform_state *platform) {
   if (state_ptr) {
     @autoreleasepool {
 

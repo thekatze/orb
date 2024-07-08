@@ -10,8 +10,8 @@ typedef struct application_state {
   b8 is_initialized;
   b8 is_running;
   b8 is_suspended;
-  game *game_instance;
-  platform_state platform;
+  orb_game *game_instance;
+  orb_platform_state platform;
   i16 width;
   i16 height;
   orb_clock clock;
@@ -21,7 +21,7 @@ typedef struct application_state {
 static application_state app = {0};
 
 [[nodiscard]]
-ORB_API b8 orb_application_create(game *game_instance) {
+ORB_API b8 orb_application_create(orb_game *game_instance) {
   if (app.is_initialized)
     return FALSE;
 
@@ -30,7 +30,7 @@ ORB_API b8 orb_application_create(game *game_instance) {
   // initialize all subsystems
   orb_logger_init();
 
-  application_config config = app.game_instance->app_config;
+  orb_application_config config = app.game_instance->app_config;
   if (!orb_platform_init(&app.platform, config.name, config.x, config.y,
                          config.width, config.height)) {
 

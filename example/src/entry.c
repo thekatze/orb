@@ -2,7 +2,7 @@
 #include <orb/core/orb_memory.h>
 #include <orb/entry.h>
 
-b8 create_game(game *out_game) {
+b8 create_game(orb_game *out_game) {
   out_game->app_config.x = 100;
   out_game->app_config.y = 100;
   out_game->app_config.width = 1600;
