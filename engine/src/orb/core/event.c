@@ -27,27 +27,28 @@ b8 orb_event_init() {
 
 void orb_event_shutdown() {
   for (u16 i = 0; i < MAX_MESSAGE_CODES; ++i) {
-    auto event_handlers = state.registered[i].registered_event_handlers;
+    auto event_handlers = &state.registered[i].registered_event_handlers;
 
     // check if this dynamic_array has been initialized
-    if (event_handlers.items != 0) {
-      orb_dynamic_array_destroy(&event_handlers);
+    if (event_handlers->items != 0) {
+      orb_dynamic_array_destroy(event_handlers);
     }
   }
 }
 
 ORB_API b8 orb_event_add_listener(event_code code, void *listener,
                                   orb_event_handler_fn on_event) {
-  orb_dynamic_array storage = state.registered[code].registered_event_handlers;
+  orb_dynamic_array *storage =
+      &state.registered[code].registered_event_handlers;
 
-  if (storage.items == 0) {
-    orb_dynamic_array_create(registered_handler);
+  if (storage->items == 0) {
+    *storage = orb_dynamic_array_create(registered_handler);
   }
 
 // check for duplicate registration
 #ifndef ORB_RELEASE
-  registered_handler *handlers = (registered_handler *)storage.items;
-  for (u64 i = 0; i < storage.length; ++i) {
+  registered_handler *handlers = (registered_handler *)storage->items;
+  for (u64 i = 0; i < storage->length; ++i) {
     ORB_DEBUG_ASSERT(
         handlers[i].listener == listener,
         "add_listener failed: listener already added for this event");
@@ -58,25 +59,26 @@ ORB_API b8 orb_event_add_listener(event_code code, void *listener,
   handler.listener = listener;
   handler.callback = on_event;
 
-  orb_dynamic_array_push(storage, handler);
+  orb_dynamic_array_push(*storage, handler);
 
   return TRUE;
 }
 
 ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
                                      orb_event_handler_fn on_event) {
-  orb_dynamic_array storage = state.registered[code].registered_event_handlers;
-  registered_handler *handlers = (registered_handler *)storage.items;
+  orb_dynamic_array *storage =
+      &state.registered[code].registered_event_handlers;
+  registered_handler *handlers = (registered_handler *)storage->items;
 
   if (handlers == 0) {
     // nothing has been registered for this code
     return FALSE;
   }
 
-  for (u64 i = 0; i < storage.length; ++i) {
+  for (u64 i = 0; i < storage->length; ++i) {
     if (handlers[i].listener == listener && handlers[i].callback == on_event) {
       registered_handler removed;
-      orb_dynamic_array_remove_at(&storage, i, &removed);
+      orb_dynamic_array_remove_at(storage, i, &removed);
 
       return TRUE;
     }
@@ -88,15 +90,16 @@ ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
 ORB_API b8 orb_event_send(event_code code, void *sender,
                           orb_event_context context) {
 
-  orb_dynamic_array storage = state.registered[code].registered_event_handlers;
-  registered_handler *handlers = (registered_handler *)storage.items;
+  orb_dynamic_array *storage =
+      &state.registered[code].registered_event_handlers;
+  registered_handler *handlers = (registered_handler *)storage->items;
 
   if (handlers == 0) {
     // nothing has been registered for this code
     return FALSE;
   }
 
-  for (u64 i = 0; i < storage.length; ++i) {
+  for (u64 i = 0; i < storage->length; ++i) {
     registered_handler handler = handlers[i];
     if (handler.callback(code, sender, handler.listener, context)) {
       return TRUE;

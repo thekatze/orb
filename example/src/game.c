@@ -51,6 +51,8 @@ b8 initialize(game *game_instance) {
                          handle_key_press);
   orb_event_add_listener(ORB_EVENT_MOUSE_BUTTON_PRESSED, game_instance,
                          handle_mouse_button);
+  orb_event_add_listener(ORB_EVENT_MOUSE_MOVED, game_instance,
+                           handle_mouse_move);
 
   return TRUE;
 }
