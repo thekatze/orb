@@ -24,11 +24,28 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
       .engineVersion = VK_MAKE_VERSION(0, 1, 0),
   };
 
+  const char *extensions[] = {
+#ifdef ORB_PLATFORM_MAC
+      (const char *)"VK_MVK_macos_surface",
+      (const char *)"VK_KHR_portability_enumeration",
+#else
+      (const char *)"VK_KHR_surface",
+#endif
+  };
+
+  const u32 flags =
+#ifdef ORB_PLATFORM_MAC
+      VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#else
+      0;
+#endif
+
   VkInstanceCreateInfo create_info = {
       .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+      .flags = flags,
       .pApplicationInfo = &app_info,
-      .enabledExtensionCount = 0,
-      .ppEnabledExtensionNames = 0,
+      .enabledExtensionCount = ORB_ARRAY_LENGTH(extensions),
+      .ppEnabledExtensionNames = extensions,
       .enabledLayerCount = 0,
       .ppEnabledLayerNames = 0,
   };

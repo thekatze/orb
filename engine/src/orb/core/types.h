@@ -26,6 +26,8 @@ typedef u8 b8;
 #define TRUE 1
 #define FALSE 0
 
+#define ORB_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
+
 // detect platform
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define ORB_PLATFORM_WINDOWS
