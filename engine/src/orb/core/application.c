@@ -1,6 +1,7 @@
 #include "application.h"
 #include "../game_types.h"
 #include "../platform/platform.h"
+#include "../renderer/renderer_frontend.h"
 #include "clock.h"
 #include "event.h"
 #include "input.h"
@@ -48,6 +49,11 @@ ORB_API b8 orb_application_create(orb_game *game_instance) {
     return FALSE;
   }
 
+  if (!orb_renderer_init(app.game_instance->app_config.name, &app.platform)) {
+    ORB_FATAL("Could not initialize renderer");
+    return FALSE;
+  }
+
   if (!app.game_instance->initialize(app.game_instance)) {
     ORB_FATAL("Game failed to initialize");
     return FALSE;
@@ -92,6 +98,15 @@ ORB_API b8 orb_application_run() {
       break;
     }
 
+    orb_render_packet packet = {
+        .delta_time = delta,
+    };
+
+    if (!orb_renderer_draw_frame(&packet)) {
+      ORB_FATAL("Internal Render failed, shutting down");
+      break;
+    }
+
     f64 frame_elapsed_time = orb_platform_time_now() - frame_start_time;
     f64 remaining_seconds_in_frame = target_frame_seconds - frame_elapsed_time;
 
@@ -106,6 +121,7 @@ ORB_API b8 orb_application_run() {
   app.is_running = FALSE;
 
   // done running, shutdown all systems
+  orb_renderer_shutdown();
   orb_input_shutdown();
   orb_event_shutdown();
   orb_platform_shutdown(&app.platform);

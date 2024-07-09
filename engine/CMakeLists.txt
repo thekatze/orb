@@ -15,10 +15,15 @@ add_library(orb
     ./src/orb/core/input.c
     ./src/orb/core/clock.c
 
+    "${MAC_PLATFORM_SRC}"
     ./src/orb/platform/platform_linux.c
 
     ./src/orb/containers/dynamic_array.c
-    "${MAC_PLATFORM_SRC}"
+    
+    ./src/orb/renderer/renderer_frontend.c
+    ./src/orb/renderer/renderer_backend.c
+
+    ./src/orb/renderer/vulkan/vulkan_backend.c
 )
 
 target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_ASSERTIONS_ENABLED)
@@ -26,6 +31,12 @@ target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_ASSERTIONS_ENABLED)
 if(ORB_RELEASE)
     target_compile_definitions(orb PUBLIC ORB_RELEASE)
 endif()
+
+# vulkan
+find_package(Vulkan REQUIRED)
+
+target_include_directories(orb PRIVATE "${Vulkan_INCLUDE_DIR}")
+target_link_libraries(orb PRIVATE Vulkan::Vulkan)
 
 if(LINUX) 
     find_package(X11 REQUIRED)

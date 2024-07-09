@@ -4,6 +4,7 @@
 
 typedef struct orb_renderer_backend {
   struct orb_platform_state *platform_state;
+  u32 frame_number;
 
   b8 (*initialize)(struct orb_renderer_backend *backend,
                    const char *application_name,
@@ -16,3 +17,7 @@ typedef struct orb_renderer_backend {
   b8 (*begin_frame)(struct orb_renderer_backend *backend, f32 delta_time);
   b8 (*end_frame)(struct orb_renderer_backend *backend, f32 delta_time);
 } orb_renderer_backend;
+
+typedef struct orb_render_packet {
+  f32 delta_time;
+} orb_render_packet;
