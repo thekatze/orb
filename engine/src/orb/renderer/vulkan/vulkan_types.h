@@ -16,9 +16,28 @@
     }                                                                          \
   } while (0)
 
+typedef struct orb_vulkan_swapchain_support_info {
+  VkSurfaceCapabilitiesKHR capabilities;
+  u32 format_count;
+  VkSurfaceFormatKHR *formats;
+  u32 present_mode_count;
+  VkPresentModeKHR *present_modes;
+} orb_vulkan_swapchain_support_info;
+
+typedef struct orb_vulkan_physical_device_queue_family_info {
+  u32 graphics_family_index;
+  u32 present_family_index;
+  u32 compute_family_index;
+  u32 transfer_family_index;
+} orb_vulkan_physical_device_queue_family_info;
+
 typedef struct orb_vulkan_device {
   VkPhysicalDevice physical_device;
   VkDevice logical_device;
+  VkPhysicalDeviceProperties properties;
+  VkPhysicalDeviceMemoryProperties memory;
+  orb_vulkan_physical_device_queue_family_info queues;
+  orb_vulkan_swapchain_support_info swapchain;
 } orb_vulkan_device;
 
 typedef struct orb_vulkan_context {

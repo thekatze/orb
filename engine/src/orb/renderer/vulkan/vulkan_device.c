@@ -1,7 +1,23 @@
 #include "vulkan_device.h"
+#include "../../core/asserts.h"
+#include "../../core/orb_memory.h"
+#include "../../core/orb_string.h"
 #include "vulkan_types.h"
 
+const char *device_required_extensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
 b8 select_physical_device(orb_vulkan_context *context);
+
+// a value of zero means unsuitable for use in our engine.
+// out_swapchain_support_info.formats and
+// out_swapchain_support_info.present_modes must be freed if physical device is
+// suitable (non-zero return value).
+u8 rank_physical_device(
+    VkPhysicalDevice device, VkSurfaceKHR surface,
+    const VkPhysicalDeviceProperties *properties,
+    const VkPhysicalDeviceFeatures *features,
+    orb_vulkan_physical_device_queue_family_info *out_queue_info,
+    orb_vulkan_swapchain_support_info *out_swapchain_support_info);
 
 b8 orb_vulkan_device_init(orb_vulkan_context *context) {
   if (!select_physical_device(context)) {
@@ -11,7 +27,24 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
   return TRUE;
 }
 
-void orb_vulkan_device_shutdown(orb_vulkan_context *context) { (void)context; }
+void orb_vulkan_device_shutdown(orb_vulkan_context *context) {
+  orb_vulkan_device *device = &context->device;
+  orb_free(device->swapchain.formats,
+           device->swapchain.format_count * sizeof(VkSurfaceFormatKHR),
+           MEMORY_TAG_RENDERER);
+  orb_free(device->swapchain.present_modes,
+           device->swapchain.present_mode_count * sizeof(VkPresentModeKHR),
+           MEMORY_TAG_RENDERER);
+}
+
+typedef struct orb_ranked_device {
+  u8 suitability;
+  VkPhysicalDevice device;
+  VkPhysicalDeviceProperties properties;
+  VkPhysicalDeviceMemoryProperties memory;
+  orb_vulkan_physical_device_queue_family_info queue_info;
+  orb_vulkan_swapchain_support_info swapchain_info;
+} orb_ranked_device;
 
 b8 select_physical_device(orb_vulkan_context *context) {
   u32 physical_device_count = 0;
@@ -27,5 +60,294 @@ b8 select_physical_device(orb_vulkan_context *context) {
   ORB_VK_EXPECT(vkEnumeratePhysicalDevices(
       context->instance, &physical_device_count, physical_devices));
 
+  u32 ranked_devices_count = 0;
+  orb_ranked_device ranked_devices[physical_device_count];
+
+  for (usize i = 0; i < physical_device_count; ++i) {
+    VkPhysicalDevice device = physical_devices[i];
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(device, &properties);
+
+    VkPhysicalDeviceFeatures features;
+    vkGetPhysicalDeviceFeatures(device, &features);
+
+    VkPhysicalDeviceMemoryProperties memory;
+    vkGetPhysicalDeviceMemoryProperties(device, &memory);
+
+    orb_vulkan_physical_device_queue_family_info queue_info = {0};
+    orb_vulkan_swapchain_support_info swapchain_info = {0};
+
+    u8 suitability =
+        rank_physical_device(device, context->surface, &properties, &features,
+                             &queue_info, &swapchain_info);
+
+    if (suitability) {
+      orb_ranked_device ranked_device = {
+          .device = device,
+          .suitability = suitability,
+          .properties = properties,
+          .memory = memory,
+          .swapchain_info = swapchain_info,
+          .queue_info = queue_info,
+      };
+
+      ranked_devices[ranked_devices_count] = ranked_device;
+      ranked_devices_count += 1;
+    }
+  }
+
+  if (ranked_devices_count == 0) {
+    ORB_FATAL(
+        "No device fulfilling the minimum requirements of the engine found.");
+    return FALSE;
+  }
+
+  u8 highest_suitability = 0;
+  u32 highest_suitability_device_index = 0;
+  for (u32 i = 0; i < ranked_devices_count; i++) {
+    orb_ranked_device *device = &ranked_devices[i];
+    if (device->suitability > highest_suitability) {
+      highest_suitability = device->suitability;
+      highest_suitability_device_index = i;
+    }
+  }
+
+  for (usize i = 0; i < ranked_devices_count; i++) {
+    orb_ranked_device *device = &ranked_devices[i];
+    if (i != highest_suitability_device_index) {
+      orb_free(device->swapchain_info.formats,
+               device->swapchain_info.format_count * sizeof(VkSurfaceFormatKHR),
+               MEMORY_TAG_RENDERER);
+      orb_free(device->swapchain_info.present_modes,
+               device->swapchain_info.present_mode_count *
+                   sizeof(VkPresentModeKHR),
+               MEMORY_TAG_RENDERER);
+
+      continue;
+    }
+
+    ORB_INFO("Using render device %s (GPU Driver %d.%d.%d | Vulkan "
+             "API %d.%d.%d]",
+             device->properties.deviceName,
+             VK_VERSION_MAJOR(device->properties.driverVersion),
+             VK_VERSION_MINOR(device->properties.driverVersion),
+             VK_VERSION_PATCH(device->properties.driverVersion),
+             VK_VERSION_MAJOR(device->properties.apiVersion),
+             VK_VERSION_MINOR(device->properties.apiVersion),
+             VK_VERSION_PATCH(device->properties.apiVersion));
+
+    for (u32 j = 0; j < device->memory.memoryHeapCount; ++j) {
+      VkMemoryHeap *heap = &device->memory.memoryHeaps[j];
+      f32 available_memory_gib =
+          ((f32)heap->size) / 1024.0f / 1024.0f / 1024.0f;
+
+      if (heap->flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+        ORB_INFO("Dedicated GPU Memory: %.2f GiB", available_memory_gib);
+      } else {
+        ORB_INFO("Shared system memory: %.2f GiB", available_memory_gib);
+      }
+    }
+
+    context->device.physical_device = device->device;
+    context->device.properties = device->properties;
+    context->device.memory = device->memory;
+    context->device.queues = device->queue_info;
+    context->device.swapchain = device->swapchain_info;
+  }
+
   return TRUE;
+}
+
+b8 orb_vulkan_device_query_swapchain_support(
+    VkPhysicalDevice physical_device, VkSurfaceKHR surface,
+    orb_vulkan_swapchain_support_info *out_support_info) {
+  ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+      physical_device, surface, &out_support_info->capabilities));
+
+  ORB_DEBUG_ASSERT(out_support_info->formats == nullptr,
+                   "expected zero initialized "
+                   "orb_vulkan_swapchain_support_info struct to be passed");
+
+  ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
+      physical_device, surface, &out_support_info->format_count, nullptr));
+
+  if (out_support_info->format_count == 0) {
+    return FALSE;
+  }
+
+  out_support_info->formats = (VkSurfaceFormatKHR *)orb_allocate(
+      out_support_info->format_count * sizeof(VkSurfaceFormatKHR),
+      MEMORY_TAG_RENDERER);
+
+  ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
+      physical_device, surface, &out_support_info->format_count,
+      out_support_info->formats));
+
+  ORB_DEBUG_ASSERT(out_support_info->present_modes == nullptr,
+                   "expected zero initialized "
+                   "orb_vulkan_swapchain_support_info struct to be passed")
+
+  ORB_VK_EXPECT(vkGetPhysicalDeviceSurfacePresentModesKHR(
+      physical_device, surface, &out_support_info->present_mode_count,
+      nullptr));
+
+  if (out_support_info->present_mode_count == 0) {
+    return FALSE;
+  }
+
+  out_support_info->present_modes = (VkPresentModeKHR *)orb_allocate(
+      out_support_info->present_mode_count * sizeof(VkPresentModeKHR),
+      MEMORY_TAG_RENDERER);
+
+  ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
+      physical_device, surface, &out_support_info->format_count,
+      out_support_info->formats));
+
+  return TRUE;
+}
+
+u8 rank_physical_device(
+    VkPhysicalDevice device, VkSurfaceKHR surface,
+    const VkPhysicalDeviceProperties *properties,
+    const VkPhysicalDeviceFeatures *features,
+    orb_vulkan_physical_device_queue_family_info *out_queue_info,
+    orb_vulkan_swapchain_support_info *out_swapchain_support_info) {
+
+  u8 suitability = 1;
+
+  out_queue_info->graphics_family_index = (u32)-1;
+  out_queue_info->compute_family_index = (u32)-1;
+  out_queue_info->transfer_family_index = (u32)-1;
+  out_queue_info->present_family_index = (u32)-1;
+
+  switch (properties->deviceType) {
+  case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+    suitability += 10;
+    break;
+  case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+  case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+    suitability += 5;
+    break;
+  case VK_PHYSICAL_DEVICE_TYPE_CPU:
+    break;
+  default:
+  case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+  case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:
+    ORB_ERROR("Unknown physical device type: %s",
+              string_VkPhysicalDeviceType(properties->deviceType));
+    return 0;
+    break;
+  }
+
+  u32 queue_family_count = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, 0);
+  VkQueueFamilyProperties queue_families[queue_family_count];
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
+                                           queue_families);
+
+  b8 has_pure_transfer_queue = false;
+  for (u32 i = 0; i < queue_family_count; ++i) {
+    VkQueueFamilyProperties *family = &queue_families[i];
+    b8 is_pure_transfer_queue = true;
+
+    if (family->queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      out_queue_info->graphics_family_index = i;
+      is_pure_transfer_queue = false;
+    }
+
+    if (family->queueFlags & VK_QUEUE_COMPUTE_BIT) {
+      out_queue_info->compute_family_index = i;
+      is_pure_transfer_queue = false;
+    }
+
+    if (family->queueFlags & VK_QUEUE_TRANSFER_BIT) {
+      if (is_pure_transfer_queue || !has_pure_transfer_queue) {
+        out_queue_info->transfer_family_index = i;
+        has_pure_transfer_queue = is_pure_transfer_queue;
+      }
+    }
+
+    VkBool32 supports_present = VK_FALSE;
+    ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface,
+                                                       &supports_present));
+    if (supports_present) {
+      out_queue_info->present_family_index = i;
+    }
+  }
+
+  if (out_queue_info->graphics_family_index == (u32)-1 ||
+      out_queue_info->compute_family_index == (u32)-1 ||
+      out_queue_info->present_family_index == (u32)-1) {
+    // this device does not support our needs
+    return 0;
+  }
+
+  if (out_queue_info->transfer_family_index == (u32)-1) {
+    // NOTE: according to the spec this should be fine, i made it a warning
+    // because im not so sure if it really is. we will find out once a device
+    // behaves like this.
+    ORB_WARN("Device has no explicit transfer queue. Using graphics queue as "
+             "transfer queue.");
+    out_queue_info->transfer_family_index =
+        out_queue_info->graphics_family_index;
+  }
+
+  u32 device_extension_count = 0;
+  ORB_VK_EXPECT(vkEnumerateDeviceExtensionProperties(
+      device, nullptr, &device_extension_count, nullptr));
+  if (device_extension_count == 0) {
+    return 0;
+  }
+
+  VkExtensionProperties device_extensions[device_extension_count];
+  ORB_VK_EXPECT(vkEnumerateDeviceExtensionProperties(
+      device, nullptr, &device_extension_count, device_extensions));
+
+  for (usize i = 0; i < ORB_ARRAY_LENGTH(device_required_extensions); ++i) {
+    const char *required_extension = device_required_extensions[i];
+
+    b8 found = FALSE;
+
+    for (usize j = 0; j < device_extension_count; ++j) {
+      char *device_extension = device_extensions[j].extensionName;
+      if (orb_string_equal(required_extension, device_extension)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      ORB_INFO("Device [%s] does not support required extension %s",
+               properties->deviceName, required_extension);
+      return 0;
+    }
+  }
+
+  if (!features->samplerAnisotropy) {
+    ORB_INFO("Device [%s] does not support samplerAnisotropy",
+             properties->deviceName);
+    return 0;
+  }
+
+  if (!orb_vulkan_device_query_swapchain_support(device, surface,
+                                                 out_swapchain_support_info)) {
+    // clean up allocations if swapchain support did not suffice
+    if (out_swapchain_support_info->formats) {
+      orb_free(out_swapchain_support_info->formats,
+               out_swapchain_support_info->format_count *
+                   sizeof(VkSurfaceFormatKHR),
+               MEMORY_TAG_RENDERER);
+    }
+
+    if (out_swapchain_support_info->present_modes) {
+      orb_free(out_swapchain_support_info->present_modes,
+               out_swapchain_support_info->present_mode_count *
+                   sizeof(VkPresentModeKHR),
+               MEMORY_TAG_RENDERER);
+    }
+
+    return 0;
+  };
+
+  return suitability;
 }
