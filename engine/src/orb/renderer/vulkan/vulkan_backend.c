@@ -26,7 +26,10 @@ const char *required_extensions[] = {
 #ifdef ORB_PLATFORM_MAC
     VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
     "VK_EXT_metal_surface",
+#elifdef ORB_PLATFORM_LINUX
+    "VK_KHR_xcb_surface",
 #endif
+
 };
 
 #ifdef ORB_RELEASE

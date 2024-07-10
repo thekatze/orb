@@ -22,22 +22,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct internal_state {
+typedef struct orb_internal_state {
   Display *display;
   xcb_connection_t *connection;
   xcb_window_t window;
   xcb_screen_t *screen;
   xcb_atom_t wm_protocols;
   xcb_atom_t wm_delete_win;
-} internal_state;
+} orb_internal_state;
+
+orb_internal_state *state = 0;
 
 orb_keyboard_keys translate_keycode(KeySym key_sym);
 
 b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
                      i32 x, i32 y, i32 width, i32 height) {
   platform->internal_state =
-      orb_platform_allocate(sizeof(internal_state), false);
-  internal_state *state = (internal_state *)platform->internal_state;
+      orb_platform_allocate(sizeof(orb_internal_state), false);
+  state = (orb_internal_state *)platform->internal_state;
 
   state->display = XOpenDisplay(NULL);
 
@@ -118,8 +120,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 }
 
 void orb_platform_shutdown(orb_platform_state *platform) {
-  internal_state *state = (internal_state *)platform->internal_state;
-
+  (void)platform;
   XAutoRepeatOn(state->display);
 
   xcb_destroy_window(state->connection, state->window);
@@ -128,7 +129,7 @@ void orb_platform_shutdown(orb_platform_state *platform) {
 }
 
 b8 orb_platform_events_pump(orb_platform_state *platform) {
-  internal_state *state = (internal_state *)platform->internal_state;
+  (void)platform;
 
   b8 should_quit = FALSE;
 
@@ -204,6 +205,22 @@ b8 orb_platform_events_pump(orb_platform_state *platform) {
   }
 
   return !should_quit;
+}
+
+typedef struct linux_handle_info {
+  xcb_connection_t *connection;
+  xcb_window_t window;
+} linux_handle_info;
+
+void orb_platform_get_window_handle_info(usize *out_size, void *memory) {
+  *out_size = sizeof(linux_handle_info);
+  if (memory == nullptr) {
+    return;
+  }
+
+  linux_handle_info *out_typed = (linux_handle_info *)memory;
+  out_typed->connection = state->connection;
+  out_typed->window = state->window;
 }
 
 void *orb_platform_allocate(u64 size, b8 aligned) {
