@@ -26,6 +26,7 @@ add_library(orb
     ./src/orb/renderer/vulkan/vulkan_backend.c
     ./src/orb/renderer/vulkan/vulkan_device.c
     ./src/orb/renderer/vulkan/platform/vulkan_platform_mac.c
+    ./src/orb/renderer/vulkan/platform/vulkan_platform_linux.c
 )
 
 target_compile_definitions(orb PUBLIC ORB_EXPORT ORB_ASSERTIONS_ENABLED)
