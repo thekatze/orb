@@ -29,11 +29,12 @@ const char *required_extensions[] = {
 #endif
 };
 
-const char *validation_layers[] =
 #ifdef ORB_RELEASE
-    nullptr;
+const char **validation_layers = nullptr;
+u32 validation_layers_count = 0;
 #else
-    {"VK_LAYER_KHRONOS_validation"};
+const char *validation_layers[] = {"VK_LAYER_KHRONOS_validation"};
+u32 validation_layers_count = ORB_ARRAY_LENGTH(validation_layers);
 #endif
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
@@ -83,7 +84,7 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
       .pApplicationInfo = &app_info,
       .enabledExtensionCount = ORB_ARRAY_LENGTH(required_extensions),
       .ppEnabledExtensionNames = required_extensions,
-      .enabledLayerCount = ORB_ARRAY_LENGTH(validation_layers),
+      .enabledLayerCount = validation_layers_count,
       .ppEnabledLayerNames = validation_layers,
   };
 
