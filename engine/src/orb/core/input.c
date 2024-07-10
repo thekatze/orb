@@ -62,7 +62,7 @@ void orb_input_process_key(orb_keyboard_keys key, b8 pressed) {
   context.data.u16[0] = key;
   context.data.u16[1] = 0; // repeat count
 
-  orb_event_send(pressed ? ORB_EVENT_KEY_PRESSED : ORB_EVENT_KEY_RELEASED, 0,
+  orb_event_send(pressed ? ORB_EVENT_KEY_PRESSED : ORB_EVENT_KEY_RELEASED, nullptr,
                  context);
 }
 
@@ -111,7 +111,7 @@ void orb_input_process_mouse_button(orb_mouse_buttons button, b8 pressed) {
 
   orb_event_send(pressed ? ORB_EVENT_MOUSE_BUTTON_PRESSED
                          : ORB_EVENT_MOUSE_BUTTON_RELEASED,
-                 0, context);
+                 nullptr, context);
 }
 
 void orb_input_process_mouse_move(i16 x, i16 y) {
@@ -125,11 +125,11 @@ void orb_input_process_mouse_move(i16 x, i16 y) {
   context.data.i16[0] = x;
   context.data.i16[1] = y;
 
-  orb_event_send(ORB_EVENT_MOUSE_MOVED, 0, context);
+  orb_event_send(ORB_EVENT_MOUSE_MOVED, nullptr, context);
 }
 
 void orb_input_process_mouse_wheel(i8 z_delta) {
   orb_event_context context;
   context.data.i8[0] = z_delta;
-  orb_event_send(ORB_EVENT_MOUSE_WHEEL, 0, context);
+  orb_event_send(ORB_EVENT_MOUSE_WHEEL, nullptr, context);
 }

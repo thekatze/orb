@@ -5,7 +5,7 @@
 #include "../core/orb_memory.h"
 #include "renderer_types.h"
 
-static orb_renderer_backend *backend = 0;
+static orb_renderer_backend *backend = nullptr;
 
 b8 orb_renderer_init(const char *application_name,
                      struct orb_platform_state *platform_state) {

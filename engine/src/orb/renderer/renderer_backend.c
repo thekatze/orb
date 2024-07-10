@@ -16,9 +16,9 @@ b8 orb_renderer_backend_init(struct orb_platform_state *platform_state,
 }
 
 void orb_renderer_backend_shutdown(orb_renderer_backend *renderer_backend) {
-  renderer_backend->initialize = 0;
-  renderer_backend->shutdown = 0;
-  renderer_backend->resize = 0;
-  renderer_backend->begin_frame = 0;
-  renderer_backend->end_frame = 0;
+  renderer_backend->initialize = nullptr;
+  renderer_backend->shutdown = nullptr;
+  renderer_backend->resize = nullptr;
+  renderer_backend->begin_frame = nullptr;
+  renderer_backend->end_frame = nullptr;
 }

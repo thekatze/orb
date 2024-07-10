@@ -288,7 +288,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   state_ptr->quit_flagged = true;
 
   orb_event_context data = {};
-  orb_event_send(ORB_EVENT_APPLICATION_QUIT, 0, data);
+  orb_event_send(ORB_EVENT_APPLICATION_QUIT, NULL, data);
 
   return YES;
 }
@@ -305,7 +305,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
-  orb_event_send(ORB_EVENT_RESIZED, 0, context);
+  orb_event_send(ORB_EVENT_RESIZED, NULL, context);
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
@@ -320,7 +320,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
-  orb_event_send(ORB_EVENT_RESIZED, 0, context);
+  orb_event_send(ORB_EVENT_RESIZED, NULL, context);
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
@@ -328,7 +328,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   orb_event_context context;
   context.data.u16[0] = 0;
   context.data.u16[1] = 0;
-  orb_event_send(ORB_EVENT_RESIZED, 0, context);
+  orb_event_send(ORB_EVENT_RESIZED, NULL, context);
 
   [state_ptr->window miniaturize:nil];
 }
@@ -345,7 +345,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   orb_event_context context;
   context.data.u16[0] = (u16)newDrawableSize.width;
   context.data.u16[1] = (u16)newDrawableSize.height;
-  orb_event_send(ORB_EVENT_RESIZED, 0, context);
+  orb_event_send(ORB_EVENT_RESIZED, NULL, context);
 
   [state_ptr->window deminiaturize:nil];
 }
@@ -482,7 +482,7 @@ void orb_platform_shutdown(orb_platform_state *platform) {
 
     } // autoreleasepool
   }
-  state_ptr = 0;
+  state_ptr = NULL;
 }
 
 b8 orb_platform_events_pump(orb_platform_state *platform) {
@@ -571,14 +571,13 @@ i32 platform_get_processor_count(void) {
   return [[NSProcessInfo processInfo] processorCount];
 }
 
-void platform_get_handle_info(u64 *out_size, void *memory) {
-
+void orb_platform_get_window_handle_info(usize *out_size, void *memory) {
   *out_size = sizeof(macos_handle_info);
   if (!memory) {
     return;
   }
 
-  // kcopy_memory(memory, &state_ptr->handle, *out_size);
+  orb_platform_memory_copy(memory, &state_ptr->handle, *out_size);
 }
 
 f32 platform_device_pixel_ratio(void) { return state_ptr->device_pixel_ratio; }
@@ -934,8 +933,8 @@ f32 platform_device_pixel_ratio(void) { return state_ptr->device_pixel_ratio; }
 //       if (result != 0) {
 //         if (errno == ENOENT) {
 //           // File doesn't exist. Which means it was deleted. Remove the
-//           watch. orb_event_context context = {0}; context.data.u32[0] = f->id;
-//           event_fire(EVENT_CODE_WATCHED_FILE_DELETED, 0, context);
+//           watch. orb_event_context context = {0}; context.data.u32[0] =
+//           f->id; event_fire(EVENT_CODE_WATCHED_FILE_DELETED, 0, context);
 //           KINFO("File watch id %d has been removed.", f->id);
 //           unregister_watch(f->id);
 //           continue;

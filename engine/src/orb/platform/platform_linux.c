@@ -76,7 +76,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
   // xcb_void_cookie_t cookie =
   xcb_create_window(state->connection, XCB_COPY_FROM_PARENT, state->window,
                     state->screen->root, (i16)x, (i16)y, (u16)width,
-                    (u16)height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                    (u16)height, nullptr, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     state->screen->root_visual, event_mask, value_list);
 
   xcb_change_property(state->connection, XCB_PROP_MODE_REPLACE, state->window,

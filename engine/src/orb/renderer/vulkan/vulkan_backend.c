@@ -1,14 +1,21 @@
 #include "vulkan_backend.h"
 
 #include "../../core/asserts.h"
-#include "../../core/logger.h"
 
+#include "platform/vulkan_platform.h"
+#include "vulkan_device.h"
 #include "vulkan_types.h"
 
 static orb_vulkan_context context = {
     0,
-    .allocator = 0,
+    .allocator = nullptr,
 };
+
+#ifdef ORB_PLATFORM_MAC
+const u32 instance_flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#else
+const u32 instance_flags = 0;
+#endif
 
 const char *required_extensions[] = {
     VK_KHR_SURFACE_EXTENSION_NAME,
@@ -18,19 +25,13 @@ const char *required_extensions[] = {
 
 #ifdef ORB_PLATFORM_MAC
     VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
-    (const char *)"VK_MVK_macos_surface",
+    "VK_EXT_metal_surface",
 #endif
 };
 
-#ifdef ORB_PLATFORM_MAC
-const u32 instance_flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-#else
-const u32 instance_flags = 0;
-#endif
-
 const char *validation_layers[] =
 #ifdef ORB_RELEASE
-    0;
+    nullptr;
 #else
     {"VK_LAYER_KHRONOS_validation"};
 #endif
@@ -121,6 +122,18 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
                                   context.allocator, &context.debug_messenger));
 #endif
 
+  ORB_DEBUG("Creating Vulkan surface");
+  if (!orb_vulkan_platform_surface_init(&context)) {
+    ORB_ERROR("Failed to create vulkan surface");
+    return FALSE;
+  };
+
+  ORB_DEBUG("Creating Vulkan device");
+  if (!orb_vulkan_device_init(&context)) {
+    ORB_ERROR("Failed to create vulkan device");
+    return FALSE;
+  }
+
   ORB_INFO("Vulkan renderer initialized successfully.");
 
   return TRUE;
@@ -129,6 +142,9 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
   (void)backend;
 
+  vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+
+  orb_vulkan_device_shutdown(&context);
 #ifndef ORB_RELEASE
   PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT =
       (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(

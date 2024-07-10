@@ -94,7 +94,7 @@ ORB_API b8 orb_event_send(event_code code, void *sender,
       &state.registered[code].registered_event_handlers;
   registered_handler *handlers = (registered_handler *)storage->items;
 
-  if (handlers == 0) {
+  if (handlers == nullptr) {
     // nothing has been registered for this code
     return FALSE;
   }
