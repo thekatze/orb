@@ -62,3 +62,14 @@ typedef u8 b8;
 #endif
 
 #endif
+
+// TODO: find a better way to do this. sadly statement expressions are a gnu
+// extension https://stackoverflow.com/questions/3437404/min-and-max-in-c
+
+#define ORB_MIN(left_expression, right_expression)                             \
+  ((left_expression) < (right_expression) ? (left_expression)                  \
+                                          : (right_expression))
+
+#define ORB_MAX(left_expression, right_expression)                             \
+  ((left_expression) > (right_expression) ? (left_expression)                  \
+                                          : (right_expression))

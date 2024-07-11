@@ -26,9 +26,13 @@ typedef struct orb_vulkan_swapchain_support_info {
 
 typedef struct orb_vulkan_physical_device_queue_family_info {
   u32 graphics_family_index;
-  u32 present_family_index;
+  u32 graphics_family_queue_count;
   u32 compute_family_index;
+  u32 compute_family_queue_count;
   u32 transfer_family_index;
+  u32 transfer_family_queue_count;
+
+  u32 present_family_index;
 } orb_vulkan_physical_device_queue_family_info;
 
 typedef struct orb_vulkan_device {
@@ -36,8 +40,14 @@ typedef struct orb_vulkan_device {
   VkDevice logical_device;
   VkPhysicalDeviceProperties properties;
   VkPhysicalDeviceMemoryProperties memory;
-  orb_vulkan_physical_device_queue_family_info queues;
+  orb_vulkan_physical_device_queue_family_info queue_info;
   orb_vulkan_swapchain_support_info swapchain;
+
+  VkQueue graphics_queue;
+  VkQueue compute_queue;
+  VkQueue transfer_queue;
+  VkQueue present_queue;
+
 } orb_vulkan_device;
 
 typedef struct orb_vulkan_context {

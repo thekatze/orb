@@ -4,7 +4,15 @@
 #include "../../core/orb_string.h"
 #include "vulkan_types.h"
 
-const char *device_required_extensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+// TODO: make this configurable
+const char *device_required_extensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#ifdef ORB_PLATFORM_MAC
+                                            "VK_KHR_portability_subset"
+#endif
+};
+VkPhysicalDeviceFeatures device_requested_features = {
+    .samplerAnisotropy = VK_TRUE,
+};
 
 b8 select_physical_device(orb_vulkan_context *context);
 
@@ -19,22 +27,98 @@ u8 rank_physical_device(
     orb_vulkan_physical_device_queue_family_info *out_queue_info,
     orb_vulkan_swapchain_support_info *out_swapchain_support_info);
 
+#define MAX_QUEUES 3
+
 b8 orb_vulkan_device_init(orb_vulkan_context *context) {
   if (!select_physical_device(context)) {
     return FALSE;
   }
+
+  ORB_DEBUG("Creating logical device");
+
+  u32 queue_indices[MAX_QUEUES];
+  u32 used_queues = 1;
+
+  queue_indices[0] = context->device.queue_info.graphics_family_index;
+
+  if (context->device.queue_info.graphics_family_index !=
+      context->device.queue_info.present_family_index) {
+    queue_indices[used_queues++] =
+        context->device.queue_info.present_family_index;
+  }
+
+  if (context->device.queue_info.graphics_family_index !=
+      context->device.queue_info.transfer_family_index) {
+    queue_indices[used_queues++] =
+        context->device.queue_info.present_family_index;
+  }
+
+  VkDeviceQueueCreateInfo queue_create_infos[used_queues];
+  for (u32 i = 0; i < used_queues; ++i) {
+    f32 queue_priority = 1.0f;
+    u32 queue_count =
+        queue_indices[i] == context->device.queue_info.graphics_family_index
+            ? ORB_MIN(context->device.queue_info.graphics_family_queue_count, 2)
+            : 1;
+
+    VkDeviceQueueCreateInfo queue = {
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+        .queueFamilyIndex = queue_indices[i],
+        .pQueuePriorities = &queue_priority,
+        .queueCount = queue_count,
+    };
+
+    queue_create_infos[i] = queue;
+  }
+
+  VkDeviceCreateInfo device_create_info = {
+      .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+      .queueCreateInfoCount = used_queues,
+      .pQueueCreateInfos = queue_create_infos,
+      .pEnabledFeatures = &device_requested_features,
+      .enabledExtensionCount = ORB_ARRAY_LENGTH(device_required_extensions),
+      .ppEnabledExtensionNames = device_required_extensions,
+  };
+
+  ORB_VK_EXPECT(vkCreateDevice(context->device.physical_device,
+                               &device_create_info, context->allocator,
+                               &context->device.logical_device));
+
+  ORB_DEBUG("Obtaining device queues");
+
+  vkGetDeviceQueue(context->device.logical_device,
+                   context->device.queue_info.graphics_family_index, 0,
+                   &context->device.graphics_queue);
+  vkGetDeviceQueue(context->device.logical_device,
+                   context->device.queue_info.compute_family_index, 0,
+                   &context->device.compute_queue);
+  vkGetDeviceQueue(context->device.logical_device,
+                   context->device.queue_info.transfer_family_index, 0,
+                   &context->device.transfer_queue);
+  vkGetDeviceQueue(context->device.logical_device,
+                   context->device.queue_info.present_family_index, 0,
+                   &context->device.present_queue);
 
   return TRUE;
 }
 
 void orb_vulkan_device_shutdown(orb_vulkan_context *context) {
   orb_vulkan_device *device = &context->device;
-  orb_free(device->swapchain.formats,
-           device->swapchain.format_count * sizeof(VkSurfaceFormatKHR),
-           MEMORY_TAG_RENDERER);
-  orb_free(device->swapchain.present_modes,
-           device->swapchain.present_mode_count * sizeof(VkPresentModeKHR),
-           MEMORY_TAG_RENDERER);
+
+  if (device->logical_device) {
+    vkDestroyDevice(device->logical_device, context->allocator);
+  }
+
+  if (device->swapchain.formats) {
+    orb_free(device->swapchain.formats,
+             device->swapchain.format_count * sizeof(VkSurfaceFormatKHR),
+             MEMORY_TAG_RENDERER);
+  }
+  if (device->swapchain.present_modes) {
+    orb_free(device->swapchain.present_modes,
+             device->swapchain.present_mode_count * sizeof(VkPresentModeKHR),
+             MEMORY_TAG_RENDERER);
+  }
 }
 
 typedef struct orb_ranked_device {
@@ -151,7 +235,7 @@ b8 select_physical_device(orb_vulkan_context *context) {
     context->device.physical_device = device->device;
     context->device.properties = device->properties;
     context->device.memory = device->memory;
-    context->device.queues = device->queue_info;
+    context->device.queue_info = device->queue_info;
     context->device.swapchain = device->swapchain_info;
   }
 
@@ -252,17 +336,20 @@ u8 rank_physical_device(
 
     if (family->queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       out_queue_info->graphics_family_index = i;
+      out_queue_info->graphics_family_queue_count = family->queueCount;
       is_pure_transfer_queue = false;
     }
 
     if (family->queueFlags & VK_QUEUE_COMPUTE_BIT) {
       out_queue_info->compute_family_index = i;
+      out_queue_info->compute_family_queue_count = family->queueCount;
       is_pure_transfer_queue = false;
     }
 
     if (family->queueFlags & VK_QUEUE_TRANSFER_BIT) {
       if (is_pure_transfer_queue || !has_pure_transfer_queue) {
         out_queue_info->transfer_family_index = i;
+        out_queue_info->transfer_family_queue_count = family->queueCount;
         has_pure_transfer_queue = is_pure_transfer_queue;
       }
     }
