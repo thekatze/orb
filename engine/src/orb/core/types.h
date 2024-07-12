@@ -73,3 +73,10 @@ typedef u8 b8;
 #define ORB_MAX(left_expression, right_expression)                             \
   ((left_expression) > (right_expression) ? (left_expression)                  \
                                           : (right_expression))
+
+#define ORB_CLAMP(value, min, max)                                             \
+  ((value <= min) ? min : (value >= max) ? max : value)
+
+// stolen from linux kernel: macro to mark likely if branches
+#define likely(expression) __builtin_expect(!!(expression), 1)
+#define unlikely(expression) __builtin_expect(!!(expression), 0)

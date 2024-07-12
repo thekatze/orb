@@ -4,6 +4,7 @@
 
 #include "platform/vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_swapchain.h"
 #include "vulkan_types.h"
 
 static orb_vulkan_context context = {
@@ -138,6 +139,14 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
+  ORB_DEBUG("Creating Vulkan swapchain");
+  if (!orb_vulkan_swapchain_init(&context, context.framebuffer_width,
+                                 context.framebuffer_height,
+                                 &context.swapchain)) {
+    ORB_ERROR("Failed to create vulkan swapchain");
+    return FALSE;
+  }
+
   ORB_INFO("Vulkan renderer initialized successfully.");
 
   return TRUE;
@@ -146,7 +155,11 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
   (void)backend;
 
-  vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+  orb_vulkan_swapchain_shutdown(&context, &context.swapchain);
+
+  if (context.surface) {
+    vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+  }
 
   orb_vulkan_device_shutdown(&context);
 #ifndef ORB_RELEASE
@@ -177,4 +190,16 @@ b8 vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
   (void)backend;
   (void)delta_time;
   return TRUE;
+}
+
+u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
+  VkPhysicalDeviceMemoryProperties properties = context.device.memory;
+  for (u32 i = 0; i < properties.memoryTypeCount; ++i) {
+    if (type_filter & (1 << i) && (properties.memoryTypes[i].propertyFlags &
+                                   property_flags) == property_flags) {
+      return i;
+    }
+  }
+
+  return UINT32_MAX;
 }

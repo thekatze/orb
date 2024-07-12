@@ -248,10 +248,7 @@ b8 orb_vulkan_device_query_swapchain_support(
   ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
       physical_device, surface, &out_support_info->capabilities));
 
-  ORB_DEBUG_ASSERT(out_support_info->formats == nullptr,
-                   "expected zero initialized "
-                   "orb_vulkan_swapchain_support_info struct to be passed");
-
+  u32 previous_format_count = out_support_info->format_count;
   ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
       physical_device, surface, &out_support_info->format_count, nullptr));
 
@@ -259,18 +256,20 @@ b8 orb_vulkan_device_query_swapchain_support(
     return FALSE;
   }
 
-  out_support_info->formats = (VkSurfaceFormatKHR *)orb_allocate(
-      out_support_info->format_count * sizeof(VkSurfaceFormatKHR),
-      MEMORY_TAG_RENDERER);
+  if (!out_support_info->formats) {
+    out_support_info->formats = (VkSurfaceFormatKHR *)orb_allocate(
+        out_support_info->format_count * sizeof(VkSurfaceFormatKHR),
+        MEMORY_TAG_RENDERER);
+  } else {
+    ORB_DEBUG_ASSERT(out_support_info->format_count == previous_format_count,
+                     "amount of supported image formats must not change");
+  }
 
   ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
       physical_device, surface, &out_support_info->format_count,
       out_support_info->formats));
 
-  ORB_DEBUG_ASSERT(out_support_info->present_modes == nullptr,
-                   "expected zero initialized "
-                   "orb_vulkan_swapchain_support_info struct to be passed")
-
+  u32 previous_present_mode_count = out_support_info->present_mode_count;
   ORB_VK_EXPECT(vkGetPhysicalDeviceSurfacePresentModesKHR(
       physical_device, surface, &out_support_info->present_mode_count,
       nullptr));
@@ -279,15 +278,47 @@ b8 orb_vulkan_device_query_swapchain_support(
     return FALSE;
   }
 
-  out_support_info->present_modes = (VkPresentModeKHR *)orb_allocate(
-      out_support_info->present_mode_count * sizeof(VkPresentModeKHR),
-      MEMORY_TAG_RENDERER);
+  if (!out_support_info->present_modes) {
+    out_support_info->present_modes = (VkPresentModeKHR *)orb_allocate(
+        out_support_info->present_mode_count * sizeof(VkPresentModeKHR),
+        MEMORY_TAG_RENDERER);
+  } else {
+    ORB_DEBUG_ASSERT(out_support_info->present_mode_count ==
+                         previous_present_mode_count,
+                     "amount of supported present modes must not change");
+  }
 
   ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
       physical_device, surface, &out_support_info->format_count,
       out_support_info->formats));
 
   return TRUE;
+}
+
+b8 orb_vulkan_device_detect_depth_format(orb_vulkan_device *device) {
+  const VkFormat preferred_formats[] = {
+      VK_FORMAT_D32_SFLOAT,
+      VK_FORMAT_D32_SFLOAT_S8_UINT,
+      VK_FORMAT_D24_UNORM_S8_UINT,
+  };
+
+  u32 flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+  for (u32 i = 0; i < ORB_ARRAY_LENGTH(preferred_formats); ++i) {
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(device->physical_device,
+                                        preferred_formats[i], &properties);
+
+    if (((properties.linearTilingFeatures & flags) |
+         (properties.optimalTilingFeatures & flags)) == flags) {
+      device->depth_format = preferred_formats[i];
+      return TRUE;
+    }
+  }
+
+  device->depth_format = VK_FORMAT_UNDEFINED;
+
+  return FALSE;
 }
 
 u8 rank_physical_device(

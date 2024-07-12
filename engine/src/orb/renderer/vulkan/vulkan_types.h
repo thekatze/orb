@@ -9,12 +9,14 @@
 #define ORB_VK_EXPECT(vk_api_call)                                             \
   do {                                                                         \
     VkResult result = vk_api_call;                                             \
-    if (result != VK_SUCCESS) {                                                \
+    if (unlikely(result != VK_SUCCESS)) {                                      \
       ORB_FATAL(#vk_api_call " failed with result: %s",                        \
                 string_VkResult(result));                                      \
       return FALSE;                                                            \
     }                                                                          \
   } while (0)
+
+u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags);
 
 typedef struct orb_vulkan_swapchain_support_info {
   VkSurfaceCapabilitiesKHR capabilities;
@@ -38,11 +40,15 @@ typedef struct orb_vulkan_physical_device_queue_family_info {
 typedef struct orb_vulkan_device {
   VkPhysicalDevice physical_device;
   VkDevice logical_device;
+
   VkPhysicalDeviceProperties properties;
   VkPhysicalDeviceMemoryProperties memory;
-  orb_vulkan_physical_device_queue_family_info queue_info;
+
+  VkFormat depth_format;
+
   orb_vulkan_swapchain_support_info swapchain;
 
+  orb_vulkan_physical_device_queue_family_info queue_info;
   VkQueue graphics_queue;
   VkQueue compute_queue;
   VkQueue transfer_queue;
@@ -50,11 +56,41 @@ typedef struct orb_vulkan_device {
 
 } orb_vulkan_device;
 
+typedef struct orb_vulkan_image {
+  VkImage handle;
+  VkDeviceMemory memory;
+  VkImageView view;
+  u32 width;
+  u32 height;
+} orb_vulkan_image;
+
+typedef struct orb_vulkan_swapchain {
+  VkSwapchainKHR handle;
+
+  VkSurfaceFormatKHR image_format;
+  u32 image_count;
+  VkImage *images;
+  VkImageView *views;
+
+  orb_vulkan_image depth_attachment;
+
+  u8 max_frames_in_flight;
+} orb_vulkan_swapchain;
+
 typedef struct orb_vulkan_context {
   VkInstance instance;
   VkAllocationCallbacks *allocator;
+
   orb_vulkan_device device;
   VkSurfaceKHR surface;
+  orb_vulkan_swapchain swapchain;
+  u32 image_index;
+  u32 current_frame;
+
+  b8 recreating_swapchain;
+
+  u32 framebuffer_width;
+  u32 framebuffer_height;
 
 #ifndef ORB_RELEASE
   VkDebugUtilsMessengerEXT debug_messenger;
