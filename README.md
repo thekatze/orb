@@ -8,13 +8,19 @@ following the kohi engine video series
 
 requirements:
 - cmake
-- a c compiler
+- a c compiler supporting c23
 - vulkan
 
 ```sh
-$ cmake . -B build -G Ninja
+$ cmake . -B build
 $ cmake --build build/
 $ ./build/orb
+```
+
+on unix-like systems using the ninja generator is strongly encouraged:
+
+```sh
+$ cmake . -B build -G Ninja
 ```
 
 to build documentation:
@@ -23,6 +29,14 @@ to build documentation:
 
 ```sh
 $ doxygen Doxyfile
+```
+
+### release build
+
+```sh
+$ cmake -DCMAKE_BUILD_TYPE=Release . -B build
+$ cmake --build build/
+$ ./build/orb
 ```
 
 ## architecture
