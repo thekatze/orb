@@ -64,6 +64,42 @@ typedef struct orb_vulkan_image {
   u32 height;
 } orb_vulkan_image;
 
+typedef enum orb_vulkan_command_buffer_state {
+  COMMAND_BUFFER_STATE_READY,
+  COMMAND_BUFFER_STATE_RECORDING,
+  COMMAND_BUFFER_STATE_IN_RENDER_PASS,
+  COMMAND_BUFFER_STATE_RECORDING_ENDED,
+  COMMAND_BUFFER_STATE_SUBMITTED,
+  COMMAND_BUFFER_STATE_NOT_ALLOCATED,
+} orb_vulkan_command_buffer_state;
+
+typedef struct orb_vulkan_command_buffer {
+  VkCommandBuffer handle;
+
+  orb_vulkan_command_buffer_state state;
+} orb_vulkan_command_buffer;
+
+typedef enum orb_vulkan_renderpass_state {
+  RENDERPASS_STATE_READY,
+  RENDERPASS_STATE_RECORDING,
+  RENDERPASS_STATE_IN_RENDER_PASS,
+  RENDERPASS_STATE_RECORDING_ENDED,
+  RENDERPASS_STATE_SUBMITTED,
+  RENDERPASS_STATE_NOT_ALLOCATED,
+} orb_vulkan_renderpass_state;
+
+typedef struct orb_vulkan_renderpass {
+  VkRenderPass handle;
+  i32 x, y;       // TODO: vec2
+  u32 w, h;       // TODO: vec2
+  f32 r, g, b, a; // TODO: vec4
+
+  f32 depth;
+  u32 stencil;
+
+  orb_vulkan_renderpass_state state;
+} orb_vulkan_renderpass;
+
 typedef struct orb_vulkan_swapchain {
   VkSwapchainKHR handle;
 
@@ -91,6 +127,8 @@ typedef struct orb_vulkan_context {
 
   u32 framebuffer_width;
   u32 framebuffer_height;
+
+  orb_vulkan_renderpass main_renderpass;
 
 #ifndef ORB_RELEASE
   VkDebugUtilsMessengerEXT debug_messenger;

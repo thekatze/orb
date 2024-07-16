@@ -4,6 +4,7 @@
 
 #include "platform/vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_renderpass.h"
 #include "vulkan_swapchain.h"
 #include "vulkan_types.h"
 
@@ -147,6 +148,13 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
+  if (!orb_vulkan_renderpass_create(
+          &context, &context.main_renderpass, 0, 0, context.framebuffer_width,
+          context.framebuffer_height, 0.0f, 0.1f, 0.3f, 1.0f, 1.0f, 0)) {
+    ORB_ERROR("Failed to create renderpass");
+    return FALSE;
+  }
+
   ORB_INFO("Vulkan renderer initialized successfully.");
 
   return TRUE;
@@ -154,6 +162,8 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
   (void)backend;
+
+  orb_vulkan_renderpass_destroy(&context, &context.main_renderpass);
 
   orb_vulkan_swapchain_shutdown(&context, &context.swapchain);
 
