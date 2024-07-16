@@ -99,11 +99,32 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
                    context->device.queue_info.present_family_index, 0,
                    &context->device.present_queue);
 
+  ORB_DEBUG("Creating command queue pool");
+  VkCommandPoolCreateInfo command_pool_info = {
+      .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+      .queueFamilyIndex = context->device.queue_info.graphics_family_index,
+      .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+  };
+
+  ORB_VK_EXPECT(vkCreateCommandPool(context->device.logical_device,
+                                    &command_pool_info, context->allocator,
+                                    &context->device.graphics_command_pool));
+
   return TRUE;
 }
 
 void orb_vulkan_device_shutdown(orb_vulkan_context *context) {
   orb_vulkan_device *device = &context->device;
+
+  if (context->graphics_command_buffers.items) {
+    orb_dynamic_array_destroy(context->graphics_command_buffers.items);
+  }
+
+  if (device->graphics_command_pool) {
+    // destroying the command pool will implicitly clean up the command buffers
+    vkDestroyCommandPool(device->logical_device, device->graphics_command_pool,
+                         context->allocator);
+  }
 
   if (device->logical_device) {
     vkDestroyDevice(device->logical_device, context->allocator);

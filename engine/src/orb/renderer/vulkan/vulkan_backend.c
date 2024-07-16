@@ -1,8 +1,10 @@
 #include "vulkan_backend.h"
 
 #include "../../core/asserts.h"
+#include "../../core/orb_memory.h"
 
 #include "platform/vulkan_platform.h"
+#include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
 #include "vulkan_renderpass.h"
 #include "vulkan_swapchain.h"
@@ -68,6 +70,8 @@ orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagsEXT message_severity,
 
   return VK_FALSE;
 }
+
+b8 create_command_buffers(orb_renderer_backend *backend);
 
 b8 vulkan_backend_initialize(orb_renderer_backend *backend,
                              const char *application_name,
@@ -148,10 +152,17 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
+  ORB_DEBUG("Creating Vulkan renderpass");
   if (!orb_vulkan_renderpass_create(
           &context, &context.main_renderpass, 0, 0, context.framebuffer_width,
           context.framebuffer_height, 0.0f, 0.1f, 0.3f, 1.0f, 1.0f, 0)) {
     ORB_ERROR("Failed to create renderpass");
+    return FALSE;
+  }
+
+  ORB_DEBUG("Creating Vulkan command buffers");
+  if (!create_command_buffers(backend)) {
+    ORB_ERROR("Failed to create command buffers");
     return FALSE;
   }
 
@@ -212,4 +223,28 @@ u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
   }
 
   return UINT32_MAX;
+}
+
+b8 create_command_buffers(orb_renderer_backend *backend) {
+  (void)backend;
+  ORB_DEBUG_ASSERT(context.graphics_command_buffers.items == nullptr,
+                   "command buffers must be uninitialized");
+
+  context.graphics_command_buffers = orb_dynamic_array_create_with_size(
+      orb_vulkan_command_buffer, context.swapchain.image_count);
+
+  auto graphics_buffers =
+      (orb_vulkan_command_buffer *)context.graphics_command_buffers.items;
+
+  for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+    orb_memory_zero(&graphics_buffers[i], sizeof(orb_vulkan_command_buffer));
+
+    if (!orb_vulkan_command_buffer_allocate(
+            &context, context.device.graphics_command_pool, TRUE,
+            &graphics_buffers[i])) {
+      return FALSE;
+    };
+  }
+
+  return TRUE;
 }

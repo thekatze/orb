@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../containers/dynamic_array.h"
 #include "../../core/logger.h"
 #include "../../core/types.h"
 
@@ -43,6 +44,8 @@ typedef struct orb_vulkan_device {
 
   VkPhysicalDeviceProperties properties;
   VkPhysicalDeviceMemoryProperties memory;
+
+  VkCommandPool graphics_command_pool;
 
   VkFormat depth_format;
 
@@ -129,6 +132,9 @@ typedef struct orb_vulkan_context {
   u32 framebuffer_height;
 
   orb_vulkan_renderpass main_renderpass;
+
+  // auto items = (orb_vulkan_command_buffer*)graphics_command_buffers.items;
+  orb_dynamic_array graphics_command_buffers;
 
 #ifndef ORB_RELEASE
   VkDebugUtilsMessengerEXT debug_messenger;
