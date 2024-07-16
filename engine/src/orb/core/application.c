@@ -67,9 +67,27 @@ ORB_API b8 orb_application_create(orb_game *game_instance) {
   return TRUE;
 }
 
+typedef b8 (*orb_event_handler_fn)(event_code code, void *sender,
+                                   void *listener, orb_event_context context);
+
+b8 orb_shutdown(event_code code, void *sender, void *listener,
+                orb_event_context context) {
+  (void)code;
+  (void)sender;
+  (void)listener;
+  (void)context;
+
+  app.is_running = false;
+  ORB_INFO("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
+
+  return TRUE;
+}
+
 [[nodiscard]]
 ORB_API b8 orb_application_run() {
   app.is_running = TRUE;
+
+  orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr, orb_shutdown);
 
   orb_clock_start(&app.clock);
   orb_clock_update(&app.clock);
@@ -77,7 +95,7 @@ ORB_API b8 orb_application_run() {
 
   const f64 target_frame_seconds = 1.0 / 60.0;
 
-  while (orb_platform_events_pump(&app.platform)) {
+  while (orb_platform_events_pump(&app.platform) && app.is_running) {
     if (app.is_suspended)
       continue;
 

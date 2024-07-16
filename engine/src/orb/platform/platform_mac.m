@@ -451,13 +451,12 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     // Fire off a resize event to make sure the framebuffer is the right size.
     // Again, this should be the actual backing framebuffer size (taking into
     // account pixel density).
-    // orb_event_context context;
-    // context.data.u16[0] = (u16)state_ptr->handle.layer.drawableSize.width;
-    // context.data.u16[1] = (u16)state_ptr->handle.layer.drawableSize.height;
-    // event_fire(EVENT_CODE_RESIZED, 0, context);
+    orb_event_context context;
+    context.data.u16[0] = (u16)state_ptr->handle.layer.drawableSize.width;
+    context.data.u16[1] = (u16)state_ptr->handle.layer.drawableSize.height;
+    orb_event_send(ORB_EVENT_RESIZED, NULL, context);
 
     return true;
-
   } // autoreleasepool
 }
 
