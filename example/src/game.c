@@ -31,19 +31,6 @@ b8 handle_mouse_button(u16 code, void *listener, void *source,
   return FALSE;
 }
 
-b8 handle_mouse_move(u16 code, void *listener, void *source,
-                     orb_event_context context) {
-  (void)code;
-  (void)listener;
-  (void)source;
-  i16 x = context.data.i16[0];
-  i16 y = context.data.i16[1];
-
-  ORB_INFO("Mouse moved: (%i, %i)", x, y);
-
-  return FALSE;
-}
-
 b8 initialize(orb_game *game_instance) {
   (void)game_instance;
 
@@ -51,8 +38,6 @@ b8 initialize(orb_game *game_instance) {
                          handle_key_press);
   orb_event_add_listener(ORB_EVENT_MOUSE_BUTTON_PRESSED, game_instance,
                          handle_mouse_button);
-  orb_event_add_listener(ORB_EVENT_MOUSE_MOVED, game_instance,
-                           handle_mouse_move);
 
   return TRUE;
 }
