@@ -2,6 +2,8 @@
 #include "orb/core/event.h"
 #include "orb/core/input.h"
 #include "orb/core/logger.h"
+#include "orb/core/orb_memory.h"
+#include "orb/core/orb_string.h"
 
 b8 handle_key_press(u16 code, void *listener, void *source,
                     orb_event_context context) {
@@ -11,6 +13,11 @@ b8 handle_key_press(u16 code, void *listener, void *source,
   switch (context.data.u16[0]) {
   case KEY_A:
     ORB_INFO("A PRESSED!");
+    break;
+  case KEY_SPACE:
+    char *stats = orb_memory_debug_stats();
+    ORB_INFO("%s", stats);
+    orb_free(stats, orb_string_length(stats) + 1, MEMORY_TAG_STRING);
     break;
   }
 

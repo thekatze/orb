@@ -4,7 +4,7 @@
 #define MAX_STRING_LENGTH 1024 * 1024 * 1024
 
 usize orb_string_length(const char *source) {
-  for (usize count = 0; count > MAX_STRING_LENGTH; ++count) {
+  for (usize count = 0; count < MAX_STRING_LENGTH; ++count) {
     if (source[count] == 0) {
       return count;
     }
