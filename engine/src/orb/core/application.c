@@ -13,8 +13,8 @@ typedef struct application_state {
   b8 is_suspended;
   orb_game *game_instance;
   orb_platform_state platform;
-  i16 width;
-  i16 height;
+  u16 width;
+  u16 height;
   orb_clock clock;
   f64 last_frame_timestamp;
 } application_state;
@@ -49,7 +49,7 @@ ORB_API b8 orb_application_create(orb_game *game_instance) {
     return FALSE;
   }
 
-  if (!orb_renderer_init(app.game_instance->app_config.name, &app.platform)) {
+  if (!orb_renderer_init(&config, &app.platform)) {
     ORB_FATAL("Could not initialize renderer");
     return FALSE;
   }
@@ -78,7 +78,7 @@ b8 orb_shutdown(event_code code, void *sender, void *listener,
   (void)context;
 
   app.is_running = false;
-  ORB_INFO("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
+  ORB_DEBUG("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
 
   return TRUE;
 }
@@ -146,4 +146,9 @@ ORB_API b8 orb_application_run() {
   orb_logger_shutdown();
 
   return TRUE;
+}
+
+void orb_application_get_window_size(u16 *width, u16 *height) {
+  *width = app.width;
+  *height = app.height;
 }

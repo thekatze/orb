@@ -17,3 +17,6 @@ typedef struct orb_application_config {
 
 ORB_API b8 orb_application_create(struct orb_game* game_instance);
 ORB_API b8 orb_application_run();
+
+ORB_API void orb_application_get_window_size(u16* width, u16* height);
+

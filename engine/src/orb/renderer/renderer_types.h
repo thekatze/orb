@@ -2,12 +2,14 @@
 
 #include "../core/types.h"
 
+struct orb_application_config;
+
 typedef struct orb_renderer_backend {
   struct orb_platform_state *platform_state;
   u32 frame_number;
 
   b8 (*initialize)(struct orb_renderer_backend *backend,
-                   const char *application_name,
+                   struct orb_application_config *application_config,
                    struct orb_platform_state *platform_state);
 
   void (*shutdown)(struct orb_renderer_backend *backend);

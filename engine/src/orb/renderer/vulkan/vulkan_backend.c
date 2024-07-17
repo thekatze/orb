@@ -1,11 +1,13 @@
 #include "vulkan_backend.h"
 
+#include "../../core/application.h"
 #include "../../core/asserts.h"
 #include "../../core/orb_memory.h"
 
 #include "platform/vulkan_platform.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
+#include "vulkan_framebuffer.h"
 #include "vulkan_renderpass.h"
 #include "vulkan_swapchain.h"
 #include "vulkan_types.h"
@@ -72,16 +74,23 @@ orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagsEXT message_severity,
 }
 
 b8 create_command_buffers(orb_renderer_backend *backend);
+b8 regenerate_framebuffers(orb_renderer_backend *backend,
+                           orb_vulkan_swapchain *swapchain,
+                           orb_vulkan_renderpass *renderpass);
 
 b8 vulkan_backend_initialize(orb_renderer_backend *backend,
-                             const char *application_name,
+                             orb_application_config *application_config,
                              struct orb_platform_state *platform_state) {
   (void)backend;
   (void)platform_state;
+
+  context.framebuffer_width = application_config->width;
+  context.framebuffer_height = application_config->height;
+
   VkApplicationInfo app_info = {
       VK_STRUCTURE_TYPE_APPLICATION_INFO,
       .apiVersion = VK_API_VERSION_1_2,
-      .pApplicationName = application_name,
+      .pApplicationName = application_config->name,
       .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
       .pEngineName = "orb",
       .engineVersion = VK_MAKE_VERSION(0, 1, 0),
@@ -160,6 +169,16 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
+  context.swapchain.framebuffers = orb_dynamic_array_create_with_size(
+      orb_vulkan_framebuffer, context.swapchain.image_count);
+
+  ORB_DEBUG("Creating Vulkan framebuffers");
+  if (!regenerate_framebuffers(backend, &context.swapchain,
+                               &context.main_renderpass)) {
+    ORB_ERROR("Failed to create framebuffers");
+    return FALSE;
+  }
+
   ORB_DEBUG("Creating Vulkan command buffers");
   if (!create_command_buffers(backend)) {
     ORB_ERROR("Failed to create command buffers");
@@ -173,6 +192,15 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
   (void)backend;
+
+  orb_vulkan_framebuffer *framebuffers =
+      (orb_vulkan_framebuffer *)context.swapchain.framebuffers.items;
+
+  if (framebuffers != 0) {
+    for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+      orb_vulkan_framebuffer_destroy(&context, &framebuffers[i]);
+    }
+  }
 
   orb_vulkan_renderpass_destroy(&context, &context.main_renderpass);
 
@@ -246,5 +274,29 @@ b8 create_command_buffers(orb_renderer_backend *backend) {
     };
   }
 
+  return TRUE;
+}
+
+b8 regenerate_framebuffers(orb_renderer_backend *backend,
+                           orb_vulkan_swapchain *swapchain,
+                           orb_vulkan_renderpass *renderpass) {
+  (void)backend;
+
+  orb_vulkan_framebuffer *framebuffers =
+      (orb_vulkan_framebuffer *)context.swapchain.framebuffers.items;
+
+  for (u32 i = 0; i < swapchain->image_count; ++i) {
+    VkImageView attachments[] = {
+        swapchain->views[i],
+        swapchain->depth_attachment.view,
+    };
+
+    if (!orb_vulkan_framebuffer_create(
+            &context, renderpass, context.framebuffer_width,
+            context.framebuffer_height, ORB_ARRAY_LENGTH(attachments),
+            attachments, &framebuffers[i])) {
+      return FALSE;
+    }
+  }
   return TRUE;
 }

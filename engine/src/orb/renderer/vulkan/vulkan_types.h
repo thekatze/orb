@@ -103,6 +103,13 @@ typedef struct orb_vulkan_renderpass {
   orb_vulkan_renderpass_state state;
 } orb_vulkan_renderpass;
 
+typedef struct orb_vulkan_framebuffer {
+  VkFramebuffer handle;
+  u32 attachment_count;
+  VkImageView *attachments;
+  orb_vulkan_renderpass *renderpass;
+} orb_vulkan_framebuffer;
+
 typedef struct orb_vulkan_swapchain {
   VkSwapchainKHR handle;
 
@@ -112,6 +119,8 @@ typedef struct orb_vulkan_swapchain {
   VkImageView *views;
 
   orb_vulkan_image depth_attachment;
+  // (orb_vulkan_framebuffer*)
+  orb_dynamic_array framebuffers;
 
   u8 max_frames_in_flight;
 } orb_vulkan_swapchain;

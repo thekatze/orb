@@ -29,6 +29,7 @@ add_library(orb
     ./src/orb/renderer/vulkan/vulkan_image.c
     ./src/orb/renderer/vulkan/vulkan_renderpass.c
     ./src/orb/renderer/vulkan/vulkan_command_buffer.c
+    ./src/orb/renderer/vulkan/vulkan_framebuffer.c
 
     ./src/orb/renderer/vulkan/platform/vulkan_platform_mac.c
     ./src/orb/renderer/vulkan/platform/vulkan_platform_linux.c
