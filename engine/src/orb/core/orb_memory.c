@@ -13,8 +13,28 @@ struct memory_stats {
 
 static struct memory_stats stats;
 
+static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
+    "UNKNOWN           ", "ARRAY             ", "DYNAMIC_ARRAY     ",
+    "DICTIONARY        ", "RING_QUEUE        ", "BINARY_SEARCH_TREE",
+    "STRING            ", "APPLICATION       ", "JOB               ",
+    "TEXTURE           ", "MATERIAL_INSTANCE ", "RENDERER          ",
+    "GAME              ", "TRANSFORM         ", "ENTITY            ",
+    "ENTITY_NODE       ", "SCENE             ",
+};
+
 void orb_memory_init() { orb_memory_zero(&stats, sizeof(stats)); }
-void orb_memory_shutdown() {}
+void orb_memory_shutdown() {
+#ifndef ORB_RELEASE
+  // print leaked allocations
+  for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i) {
+    u64 allocation = stats.tagged_allocations[i];
+    if (allocation != 0) {
+      ORB_ERROR("%u bytes of memory leaked in %s", allocation,
+                memory_tag_strings[i]);
+    }
+  }
+#endif
+}
 
 void *orb_allocate(u64 size, orb_memory_tag tag) {
   if (tag == MEMORY_TAG_UNKNOWN) {
@@ -56,15 +76,6 @@ void *orb_memory_copy(void *destination, const void *source, u64 size) {
 void *orb_memory_set(void *destination, i32 value, u64 size) {
   return orb_platform_memory_set(destination, value, size);
 }
-
-static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
-    "UNKNOWN           ", "ARRAY             ", "DYNAMIC_ARRAY     ",
-    "DICTIONARY        ", "RING_QUEUE        ", "BINARY_SEARCH_TREE",
-    "STRING            ", "APPLICATION       ", "JOB               ",
-    "TEXTURE           ", "MATERIAL_INSTANCE ", "RENDERER          ",
-    "GAME              ", "TRANSFORM         ", "ENTITY            ",
-    "ENTITY_NODE       ", "SCENE             ",
-};
 
 char *orb_memory_debug_stats() {
   const u64 kib = 1024;

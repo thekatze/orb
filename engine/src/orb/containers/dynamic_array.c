@@ -8,24 +8,24 @@ orb_dynamic_array _orb_dynamic_array_create(usize capacity, usize stride) {
       .length = 0,
       .capacity = capacity,
       .stride = stride,
-      .items = orb_allocate(capacity * stride, MEMORY_TAG_ARRAY),
+      .items = orb_allocate(capacity * stride, MEMORY_TAG_DYNAMIC_ARRAY),
   };
 
   return array;
 }
 
 void orb_dynamic_array_destroy(orb_dynamic_array *array) {
-  orb_free(array->items, array->capacity, MEMORY_TAG_ARRAY);
+  orb_free(array->items, array->capacity, MEMORY_TAG_DYNAMIC_ARRAY);
 }
 
 void _orb_dynamic_array_resize(orb_dynamic_array *array) {
   usize new_capacity = ORB_DYNAMIC_ARRAY_RESIZE_FACTOR * array->capacity;
   void *new_items =
-      orb_allocate(new_capacity * array->stride, MEMORY_TAG_ARRAY);
+      orb_allocate(new_capacity * array->stride, MEMORY_TAG_DYNAMIC_ARRAY);
 
   orb_memory_copy(new_items, array->items, array->capacity * array->stride);
 
-  orb_free(array->items, array->capacity, MEMORY_TAG_ARRAY);
+  orb_free(array->items, array->capacity, MEMORY_TAG_DYNAMIC_ARRAY);
 
   array->items = new_items;
   array->capacity = new_capacity;
