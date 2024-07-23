@@ -260,10 +260,23 @@ void cleanup_swapchain(orb_vulkan_context *context,
   // NOTE: we might need to set swapchain_images and views to 0
   orb_vulkan_image_destroy(context, &swapchain->depth_attachment);
 
-  // only destroy the views. the images are owned by the swapchain
-  for (u32 i = 0; i < swapchain->image_count; ++i) {
-    vkDestroyImageView(context->device.logical_device, swapchain->views[i],
-                       context->allocator);
+  if (swapchain->images) {
+    swapchain->images = 0;
+    orb_free(swapchain->images, sizeof(VkImage) * swapchain->image_count,
+             MEMORY_TAG_RENDERER);
+  }
+
+  if (swapchain->views) {
+    // only destroy the views. the images are owned by the swapchain
+    for (u32 i = 0; i < swapchain->image_count; ++i) {
+      vkDestroyImageView(context->device.logical_device, swapchain->views[i],
+                         context->allocator);
+    }
+
+    orb_free(swapchain->views, sizeof(VkImageView) * swapchain->image_count,
+             MEMORY_TAG_RENDERER);
+
+    swapchain->views = 0;
   }
 
   vkDestroySwapchainKHR(context->device.logical_device, swapchain->handle,

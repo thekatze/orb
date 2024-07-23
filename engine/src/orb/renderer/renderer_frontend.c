@@ -22,7 +22,13 @@ b8 orb_renderer_init(struct orb_application_config *application_config,
   return TRUE;
 }
 
-void orb_renderer_shutdown() { backend->shutdown(backend); }
+void orb_renderer_shutdown() {
+  if (backend) {
+    backend->shutdown(backend);
+
+    orb_free(backend, sizeof(*backend), MEMORY_TAG_RENDERER);
+  }
+}
 
 void orb_renderer_resize(u16 width, u16 height) {
   backend->resize(backend, width, height);
