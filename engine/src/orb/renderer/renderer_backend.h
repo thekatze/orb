@@ -3,7 +3,6 @@
 #include "renderer_types.h"
 
 struct orb_platform_state;
-struct orb_application_config;
 
 b8 orb_renderer_backend_init(struct orb_platform_state *platform_state,
                              orb_renderer_backend *out_renderer_backend);

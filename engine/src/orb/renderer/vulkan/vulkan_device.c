@@ -116,8 +116,10 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
 void orb_vulkan_device_shutdown(orb_vulkan_context *context) {
   orb_vulkan_device *device = &context->device;
 
-  if (context->graphics_command_buffers.items) {
-    orb_dynamic_array_destroy(context->graphics_command_buffers.items);
+  if (context->graphics_command_buffers) {
+    orb_free(context->graphics_command_buffers,
+             sizeof(orb_vulkan_command_buffer) * context->swapchain.image_count,
+             MEMORY_TAG_RENDERER);
   }
 
   if (device->graphics_command_pool) {

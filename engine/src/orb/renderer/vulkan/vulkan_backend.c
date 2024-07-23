@@ -7,6 +7,7 @@
 #include "platform/vulkan_platform.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
+#include "vulkan_fence.h"
 #include "vulkan_framebuffer.h"
 #include "vulkan_renderpass.h"
 #include "vulkan_swapchain.h"
@@ -185,6 +186,45 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
+  ORB_DEBUG("Creating Vulkan synchronization primitives");
+  u8 max_frames_in_flight = context.swapchain.max_frames_in_flight;
+
+  context.image_available_semaphores = orb_allocate(
+      sizeof(VkSemaphore) * max_frames_in_flight, MEMORY_TAG_RENDERER);
+  context.queue_complete_semaphores = orb_allocate(
+      sizeof(VkSemaphore) * max_frames_in_flight, MEMORY_TAG_RENDERER);
+
+  context.in_flight_fences = orb_allocate(
+      sizeof(orb_vulkan_fence) * max_frames_in_flight, MEMORY_TAG_RENDERER);
+
+  for (u8 i = 0; i < max_frames_in_flight; ++i) {
+    VkSemaphoreCreateInfo semaphore_create_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    };
+
+    ORB_VK_EXPECT(vkCreateSemaphore(context.device.logical_device,
+                                    &semaphore_create_info, context.allocator,
+                                    &context.image_available_semaphores[i]));
+
+    ORB_VK_EXPECT(vkCreateSemaphore(context.device.logical_device,
+                                    &semaphore_create_info, context.allocator,
+                                    &context.queue_complete_semaphores[i]));
+
+    // create the fence in a signalled state. the "first frame" already has been
+    // rendered so the next frame (the actual first frame) may start
+    if (!orb_vulkan_fence_create(&context, TRUE,
+                                 &context.in_flight_fences[i])) {
+      ORB_ERROR("Failed to create fence");
+      return FALSE;
+    };
+  }
+
+  context.images_in_flight =
+      orb_allocate(sizeof(orb_vulkan_fence *) * context.swapchain.image_count,
+                   MEMORY_TAG_RENDERER);
+  orb_memory_zero(context.images_in_flight, sizeof(*context.images_in_flight) *
+                                                context.swapchain.image_count);
+
   ORB_INFO("Vulkan renderer initialized successfully.");
 
   return TRUE;
@@ -192,6 +232,41 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
   (void)backend;
+
+  // wait for all operations to finish
+  vkDeviceWaitIdle(context.device.logical_device);
+
+  u8 max_frames_in_flight = context.swapchain.max_frames_in_flight;
+  for (u8 i = 0; i < max_frames_in_flight; ++i) {
+    if (context.image_available_semaphores[i]) {
+      vkDestroySemaphore(context.device.logical_device,
+                         context.image_available_semaphores[i],
+                         context.allocator);
+      context.image_available_semaphores[i] = 0;
+    }
+    if (context.queue_complete_semaphores[i]) {
+      vkDestroySemaphore(context.device.logical_device,
+                         context.queue_complete_semaphores[i],
+                         context.allocator);
+      context.queue_complete_semaphores[i] = 0;
+    }
+
+    orb_vulkan_fence_destroy(&context, &context.in_flight_fences[i]);
+  }
+
+  orb_free(context.image_available_semaphores,
+           sizeof(VkSemaphore) * max_frames_in_flight, MEMORY_TAG_RENDERER);
+
+  orb_free(context.queue_complete_semaphores,
+           sizeof(VkSemaphore) * max_frames_in_flight, MEMORY_TAG_RENDERER);
+
+  orb_free(context.in_flight_fences,
+           sizeof(orb_vulkan_fence) * max_frames_in_flight,
+           MEMORY_TAG_RENDERER);
+
+  orb_free(context.images_in_flight,
+           sizeof(orb_vulkan_fence *) * context.swapchain.image_count,
+           MEMORY_TAG_RENDERER);
 
   orb_vulkan_framebuffer *framebuffers =
       (orb_vulkan_framebuffer *)context.swapchain.framebuffers.items;
@@ -255,21 +330,20 @@ u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
 
 b8 create_command_buffers(orb_renderer_backend *backend) {
   (void)backend;
-  ORB_DEBUG_ASSERT(context.graphics_command_buffers.items == nullptr,
+  ORB_DEBUG_ASSERT(context.graphics_command_buffers == nullptr,
                    "command buffers must be uninitialized");
 
-  context.graphics_command_buffers = orb_dynamic_array_create_with_size(
-      orb_vulkan_command_buffer, context.swapchain.image_count);
-
-  auto graphics_buffers =
-      (orb_vulkan_command_buffer *)context.graphics_command_buffers.items;
+  context.graphics_command_buffers = orb_allocate(
+      sizeof(orb_vulkan_command_buffer) * context.swapchain.image_count,
+      MEMORY_TAG_RENDERER);
 
   for (u32 i = 0; i < context.swapchain.image_count; ++i) {
-    orb_memory_zero(&graphics_buffers[i], sizeof(orb_vulkan_command_buffer));
+    orb_memory_zero(&context.graphics_command_buffers[i],
+                    sizeof(orb_vulkan_command_buffer));
 
     if (!orb_vulkan_command_buffer_allocate(
             &context, context.device.graphics_command_pool, TRUE,
-            &graphics_buffers[i])) {
+            &context.graphics_command_buffers[i])) {
       return FALSE;
     };
   }

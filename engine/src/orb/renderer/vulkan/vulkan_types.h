@@ -125,6 +125,11 @@ typedef struct orb_vulkan_swapchain {
   u8 max_frames_in_flight;
 } orb_vulkan_swapchain;
 
+typedef struct orb_vulkan_fence {
+  VkFence handle;
+  b8 is_signalled;
+} orb_vulkan_fence;
+
 typedef struct orb_vulkan_context {
   VkInstance instance;
   VkAllocationCallbacks *allocator;
@@ -142,8 +147,14 @@ typedef struct orb_vulkan_context {
 
   orb_vulkan_renderpass main_renderpass;
 
-  // auto items = (orb_vulkan_command_buffer*)graphics_command_buffers.items;
-  orb_dynamic_array graphics_command_buffers;
+  orb_vulkan_command_buffer* graphics_command_buffers;
+
+  VkSemaphore *image_available_semaphores;
+  VkSemaphore *queue_complete_semaphores;
+
+  orb_vulkan_fence *in_flight_fences;
+
+  orb_vulkan_fence **images_in_flight;
 
 #ifndef ORB_RELEASE
   VkDebugUtilsMessengerEXT debug_messenger;
