@@ -119,8 +119,7 @@ typedef struct orb_vulkan_swapchain {
   VkImageView *views;
 
   orb_vulkan_image depth_attachment;
-  // (orb_vulkan_framebuffer*)
-  orb_dynamic_array framebuffers;
+  orb_vulkan_framebuffer* framebuffers;
 
   u8 max_frames_in_flight;
 } orb_vulkan_swapchain;

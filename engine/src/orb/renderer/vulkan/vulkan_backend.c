@@ -170,8 +170,9 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return FALSE;
   }
 
-  context.swapchain.framebuffers = orb_dynamic_array_create_with_size(
-      orb_vulkan_framebuffer, context.swapchain.image_count);
+  context.swapchain.framebuffers = orb_allocate(
+      sizeof(orb_vulkan_framebuffer) * context.swapchain.image_count,
+      MEMORY_TAG_RENDERER);
 
   ORB_DEBUG("Creating Vulkan framebuffers");
   if (!regenerate_framebuffers(backend, &context.swapchain,
@@ -268,13 +269,15 @@ void vulkan_backend_shutdown(orb_renderer_backend *backend) {
            sizeof(orb_vulkan_fence *) * context.swapchain.image_count,
            MEMORY_TAG_RENDERER);
 
-  orb_vulkan_framebuffer *framebuffers =
-      (orb_vulkan_framebuffer *)context.swapchain.framebuffers.items;
-
-  if (framebuffers != 0) {
+  if (context.swapchain.framebuffers != 0) {
     for (u32 i = 0; i < context.swapchain.image_count; ++i) {
-      orb_vulkan_framebuffer_destroy(&context, &framebuffers[i]);
+      orb_vulkan_framebuffer_destroy(&context,
+                                     &context.swapchain.framebuffers[i]);
     }
+
+    orb_free(context.swapchain.framebuffers,
+             sizeof(orb_vulkan_framebuffer) * context.swapchain.image_count,
+             MEMORY_TAG_RENDERER);
   }
 
   orb_vulkan_renderpass_destroy(&context, &context.main_renderpass);
@@ -356,9 +359,6 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend,
                            orb_vulkan_renderpass *renderpass) {
   (void)backend;
 
-  orb_vulkan_framebuffer *framebuffers =
-      (orb_vulkan_framebuffer *)context.swapchain.framebuffers.items;
-
   for (u32 i = 0; i < swapchain->image_count; ++i) {
     VkImageView attachments[] = {
         swapchain->views[i],
@@ -368,9 +368,10 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend,
     if (!orb_vulkan_framebuffer_create(
             &context, renderpass, context.framebuffer_width,
             context.framebuffer_height, ORB_ARRAY_LENGTH(attachments),
-            attachments, &framebuffers[i])) {
+            attachments, &context.swapchain.framebuffers[i])) {
       return FALSE;
     }
   }
+
   return TRUE;
 }
