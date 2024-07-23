@@ -66,3 +66,7 @@ void on_resize(orb_game *game_instance, u16 width, u16 height) {
   (void)width;
   (void)height;
 }
+
+void shutdown(orb_game *game) {
+  orb_free(game->state, sizeof(game_state), MEMORY_TAG_GAME);
+}

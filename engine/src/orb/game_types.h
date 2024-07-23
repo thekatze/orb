@@ -11,6 +11,8 @@ typedef struct orb_game {
   b8 (*render)(struct orb_game *game_instance, f32 delta_time);
   void (*on_resize)(struct orb_game *game_instance, u16 width, u16 height);
 
+  void (*shutdown)(struct orb_game *game_instance);
+
   // game specific state managed by the game
   void *state;
 } orb_game;

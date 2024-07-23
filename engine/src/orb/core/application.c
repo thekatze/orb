@@ -138,6 +138,8 @@ ORB_API b8 orb_application_run() {
 
   app.is_running = FALSE;
 
+  app.game_instance->shutdown(app.game_instance);
+
   // done running, shutdown all systems
   orb_renderer_shutdown();
   orb_input_shutdown();

@@ -16,7 +16,7 @@ int main(void) {
   }
 
   // validate function pointers
-  if (!game_instance.initialize || !game_instance.update ||
+  if (!game_instance.initialize || !game_instance.shutdown || !game_instance.update ||
       !game_instance.render || !game_instance.on_resize) {
     ORB_FATAL("game function pointers are not assigned.");
     return -2;

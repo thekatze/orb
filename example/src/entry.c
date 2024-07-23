@@ -10,6 +10,7 @@ b8 create_game(orb_game *out_game) {
   out_game->app_config.name = "orb engine";
 
   out_game->initialize = initialize;
+  out_game->shutdown = shutdown;
   out_game->update = update;
   out_game->render = render;
   out_game->on_resize = on_resize;

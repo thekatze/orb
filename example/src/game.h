@@ -7,6 +7,7 @@ typedef struct game_state {
 } game_state;
 
 b8 initialize(orb_game *game);
+void shutdown(orb_game *game);
 
 b8 update(orb_game *game, float delta);
 
