@@ -2,6 +2,7 @@
 
 #ifdef ORB_PLATFORM_LINUX
 
+#include "../core/event.h"
 #include "../core/input.h"
 #include "../core/logger.h"
 
@@ -185,11 +186,13 @@ b8 orb_platform_events_pump(orb_platform_state *platform) {
                                    mouse_move_event->event_y);
     } break;
     case XCB_CONFIGURE_WINDOW:
+      // i dont really know what this one does
+      break;
     case XCB_CONFIGURE_NOTIFY: {
       xcb_configure_notify_event_t *configure_event =
           (xcb_configure_notify_event_t *)event;
 
-      event_context context;
+      orb_event_context context;
       context.data.u16[0] = configure_event->width;
       context.data.u16[1] = configure_event->height;
       orb_event_send(ORB_EVENT_RESIZED, nullptr, context);
