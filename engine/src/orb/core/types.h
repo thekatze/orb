@@ -1,10 +1,10 @@
 #pragma once
 
-#define DEFINE_NUMERIC_TYPE(bits, c_type)                                      \
-  typedef unsigned c_type u##bits;                                             \
-  typedef signed c_type i##bits;                                               \
-  static_assert(sizeof(u##bits) == (bits) / 8);                                \
-  static_assert(sizeof(i##bits) == (bits) / 8);
+#define DEFINE_NUMERIC_TYPE(bits, c_type)                                                          \
+    typedef unsigned c_type u##bits;                                                               \
+    typedef signed c_type i##bits;                                                                 \
+    static_assert(sizeof(u##bits) == (bits) / 8);                                                  \
+    static_assert(sizeof(i##bits) == (bits) / 8);
 
 DEFINE_NUMERIC_TYPE(8, char)
 DEFINE_NUMERIC_TYPE(16, short)
@@ -66,16 +66,13 @@ typedef u8 b8;
 // TODO: find a better way to do this. sadly statement expressions are a gnu
 // extension https://stackoverflow.com/questions/3437404/min-and-max-in-c
 
-#define ORB_MIN(left_expression, right_expression)                             \
-  ((left_expression) < (right_expression) ? (left_expression)                  \
-                                          : (right_expression))
+#define ORB_MIN(left_expression, right_expression)                                                 \
+    ((left_expression) < (right_expression) ? (left_expression) : (right_expression))
 
-#define ORB_MAX(left_expression, right_expression)                             \
-  ((left_expression) > (right_expression) ? (left_expression)                  \
-                                          : (right_expression))
+#define ORB_MAX(left_expression, right_expression)                                                 \
+    ((left_expression) > (right_expression) ? (left_expression) : (right_expression))
 
-#define ORB_CLAMP(value, min, max)                                             \
-  ((value <= min) ? min : (value >= max) ? max : value)
+#define ORB_CLAMP(value, min, max) ((value <= min) ? min : (value >= max) ? max : value)
 
 // stolen from linux kernel: macro to influence code gen of if branches
 #define likely(expression) __builtin_expect(!!(expression), 1)

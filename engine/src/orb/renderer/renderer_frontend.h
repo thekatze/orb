@@ -5,7 +5,7 @@
 struct orb_static_mesh_data;
 struct orb_platform_state;
 
-b8 orb_renderer_init(struct orb_application_config* application_config,
+b8 orb_renderer_init(struct orb_application_config *application_config,
                      struct orb_platform_state *platform_state);
 void orb_renderer_shutdown();
 

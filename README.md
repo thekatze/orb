@@ -1,4 +1,4 @@
-# orb engine
+#orb engine
 
 learning low level programming in c by architecting a game engine (...and game?)
 
@@ -50,5 +50,3 @@ $ cmake --build build && MTL_HUD_ENABLED=1 build/example/example
 ```
 
 ## architecture
-
-

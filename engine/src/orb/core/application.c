@@ -8,184 +8,181 @@
 #include "logger.h"
 
 typedef struct application_state {
-  b8 is_initialized;
-  b8 is_running;
-  b8 is_suspended;
-  orb_game *game_instance;
-  orb_platform_state platform;
-  u16 width;
-  u16 height;
-  orb_clock clock;
-  f64 last_frame_timestamp;
+    b8 is_initialized;
+    b8 is_running;
+    b8 is_suspended;
+    orb_game *game_instance;
+    orb_platform_state platform;
+    u16 width;
+    u16 height;
+    orb_clock clock;
+    f64 last_frame_timestamp;
 } application_state;
 
 static application_state app = {0};
 
-b8 orb_on_event_shutdown(event_code code, void *sender, void *listener,
-                         orb_event_context context) {
-  (void)code;
-  (void)sender;
-  (void)listener;
-  (void)context;
+b8 orb_on_event_shutdown(event_code code, void *sender, void *listener, orb_event_context context) {
+    (void)code;
+    (void)sender;
+    (void)listener;
+    (void)context;
 
-  app.is_running = false;
-  ORB_DEBUG("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
+    app.is_running = false;
+    ORB_DEBUG("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
 
-  return TRUE;
+    return TRUE;
 }
 
-b8 orb_on_event_resize(event_code code, void *sender, void *listener,
-                       orb_event_context context) {
-  (void)code;
-  (void)sender;
-  (void)listener;
+b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_context context) {
+    (void)code;
+    (void)sender;
+    (void)listener;
 
-  u16 width = context.data.u16[0];
-  u16 height = context.data.u16[1];
+    u16 width = context.data.u16[0];
+    u16 height = context.data.u16[1];
 
-  if (width == app.width && height == app.height) {
-    return TRUE;
-  }
+    if (width == app.width && height == app.height) {
+        return TRUE;
+    }
 
-  app.width = width;
-  app.height = height;
+    app.width = width;
+    app.height = height;
 
-  if (width == 0 || height == 0) {
-    ORB_INFO("Window minimized, suspending application.");
-    app.is_suspended = TRUE;
-    return TRUE;
-  }
+    if (width == 0 || height == 0) {
+        ORB_INFO("Window minimized, suspending application.");
+        app.is_suspended = TRUE;
+        return TRUE;
+    }
 
-  if (app.is_suspended) {
-    ORB_INFO("Window restored, resuming application.");
-    app.is_suspended = FALSE;
-  }
+    if (app.is_suspended) {
+        ORB_INFO("Window restored, resuming application.");
+        app.is_suspended = FALSE;
+    }
 
-  app.game_instance->on_resize(app.game_instance, width, height);
-  orb_renderer_resize(width, height);
+    app.game_instance->on_resize(app.game_instance, width, height);
+    orb_renderer_resize(width, height);
 
-  // let other listeners get this event if we werent suspended
-  return FALSE;
+    // let other listeners get this event if we werent suspended
+    return FALSE;
 }
 
 b8 orb_application_create(orb_game *game_instance) {
-  if (app.is_initialized)
-    return FALSE;
+    if (app.is_initialized)
+        return FALSE;
 
-  app.game_instance = game_instance;
+    app.game_instance = game_instance;
 
-  // initialize all subsystems
-  orb_logger_init();
+    // initialize all subsystems
+    orb_logger_init();
 
-  if (!orb_event_init()) {
-    ORB_FATAL("Could not initialize event system");
-    return FALSE;
-  }
+    if (!orb_event_init()) {
+        ORB_FATAL("Could not initialize event system");
+        return FALSE;
+    }
 
-  orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr,
-                         orb_on_event_shutdown);
-  orb_event_add_listener(ORB_EVENT_RESIZED, nullptr, orb_on_event_resize);
+    orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr, orb_on_event_shutdown);
+    orb_event_add_listener(ORB_EVENT_RESIZED, nullptr, orb_on_event_resize);
 
-  orb_application_config config = app.game_instance->app_config;
-  if (!orb_platform_init(&app.platform, config.name, config.x, config.y,
-                         config.width, config.height)) {
+    orb_application_config config = app.game_instance->app_config;
+    if (!orb_platform_init(&app.platform, config.name, config.x, config.y, config.width,
+                           config.height)) {
 
-    ORB_FATAL("Could not initialize platform layer");
-    return FALSE;
-  }
+        ORB_FATAL("Could not initialize platform layer");
+        return FALSE;
+    }
 
-  if (!orb_input_init()) {
-    ORB_FATAL("Could not initialize input system");
-    return FALSE;
-  }
+    if (!orb_input_init()) {
+        ORB_FATAL("Could not initialize input system");
+        return FALSE;
+    }
 
-  // platform might have given us scaled window values
-  config.width = app.width;
-  config.height = app.height;
+    // platform might have given us scaled window values
+    config.width = app.width;
+    config.height = app.height;
 
-  if (!orb_renderer_init(&config, &app.platform)) {
-    ORB_FATAL("Could not initialize renderer");
-    return FALSE;
-  }
+    if (!orb_renderer_init(&config, &app.platform)) {
+        ORB_FATAL("Could not initialize renderer");
+        return FALSE;
+    }
 
-  if (!app.game_instance->initialize(app.game_instance)) {
-    ORB_FATAL("Game failed to initialize");
-    return FALSE;
-  }
+    if (!app.game_instance->initialize(app.game_instance)) {
+        ORB_FATAL("Game failed to initialize");
+        return FALSE;
+    }
 
-  app.game_instance->on_resize(app.game_instance, config.width, config.height);
+    app.game_instance->on_resize(app.game_instance, config.width, config.height);
 
-  app.is_initialized = TRUE;
-  app.is_suspended = FALSE;
+    app.is_initialized = TRUE;
+    app.is_suspended = FALSE;
 
-  return TRUE;
+    return TRUE;
 }
 
 b8 orb_application_run() {
-  app.is_running = TRUE;
+    app.is_running = TRUE;
 
-  orb_clock_start(&app.clock);
-  orb_clock_update(&app.clock);
-  app.last_frame_timestamp = app.clock.elapsed;
-
-  const f64 target_frame_seconds = 1.0 / 60.0;
-
-  while (orb_platform_events_pump(&app.platform) && app.is_running) {
-    if (app.is_suspended)
-      continue;
-
+    orb_clock_start(&app.clock);
     orb_clock_update(&app.clock);
-    f64 current_frame_timestamp = app.clock.elapsed;
-    f32 delta = (f32)(current_frame_timestamp - app.last_frame_timestamp);
-    f64 frame_start_time = orb_platform_time_now();
+    app.last_frame_timestamp = app.clock.elapsed;
 
-    orb_input_update();
+    const f64 target_frame_seconds = 1.0 / 60.0;
 
-    if (!app.game_instance->update(app.game_instance, delta)) {
-      ORB_FATAL("Update failed, shutting down");
-      break;
+    while (orb_platform_events_pump(&app.platform) && app.is_running) {
+        if (app.is_suspended)
+            continue;
+
+        orb_clock_update(&app.clock);
+        f64 current_frame_timestamp = app.clock.elapsed;
+        f32 delta = (f32)(current_frame_timestamp - app.last_frame_timestamp);
+        f64 frame_start_time = orb_platform_time_now();
+
+        orb_input_update();
+
+        if (!app.game_instance->update(app.game_instance, delta)) {
+            ORB_FATAL("Update failed, shutting down");
+            break;
+        }
+
+        if (!app.game_instance->render(app.game_instance, delta)) {
+            ORB_FATAL("Render failed, shutting down");
+            break;
+        }
+
+        orb_render_packet packet = {
+            .delta_time = delta,
+        };
+
+        if (!orb_renderer_draw_frame(&packet)) {
+            ORB_FATAL("Internal Render failed, shutting down");
+            break;
+        }
+
+        f64 frame_elapsed_time = orb_platform_time_now() - frame_start_time;
+        f64 remaining_seconds_in_frame = target_frame_seconds - frame_elapsed_time;
+
+        if (remaining_seconds_in_frame > 0.001) {
+            u64 sleep_ms = (u64)(remaining_seconds_in_frame * 1000);
+            orb_platform_time_sleep(sleep_ms - 1);
+        }
+
+        app.last_frame_timestamp = current_frame_timestamp;
     }
 
-    if (!app.game_instance->render(app.game_instance, delta)) {
-      ORB_FATAL("Render failed, shutting down");
-      break;
-    }
+    app.is_running = FALSE;
 
-    orb_render_packet packet = {
-        .delta_time = delta,
-    };
+    app.game_instance->shutdown(app.game_instance);
 
-    if (!orb_renderer_draw_frame(&packet)) {
-      ORB_FATAL("Internal Render failed, shutting down");
-      break;
-    }
+    // done running, shutdown all systems
+    orb_renderer_shutdown();
+    orb_input_shutdown();
+    orb_event_shutdown();
+    orb_platform_shutdown(&app.platform);
+    orb_logger_shutdown();
 
-    f64 frame_elapsed_time = orb_platform_time_now() - frame_start_time;
-    f64 remaining_seconds_in_frame = target_frame_seconds - frame_elapsed_time;
-
-    if (remaining_seconds_in_frame > 0.001) {
-      u64 sleep_ms = (u64)(remaining_seconds_in_frame * 1000);
-      orb_platform_time_sleep(sleep_ms - 1);
-    }
-
-    app.last_frame_timestamp = current_frame_timestamp;
-  }
-
-  app.is_running = FALSE;
-
-  app.game_instance->shutdown(app.game_instance);
-
-  // done running, shutdown all systems
-  orb_renderer_shutdown();
-  orb_input_shutdown();
-  orb_event_shutdown();
-  orb_platform_shutdown(&app.platform);
-  orb_logger_shutdown();
-
-  return TRUE;
+    return TRUE;
 }
 
 void orb_application_get_window_size(u16 *width, u16 *height) {
-  *width = app.width;
-  *height = app.height;
+    *width = app.width;
+    *height = app.height;
 }

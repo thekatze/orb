@@ -14,26 +14,25 @@
 #endif
 
 // defined in logger.c
-ORB_API void orb_report_assertion_failure(const char *expression,
-                                          const char *message, const char *file,
-                                          i32 line);
+ORB_API void orb_report_assertion_failure(const char *expression, const char *message,
+                                          const char *file, i32 line);
 
-#define ORB_ASSERT(expr, message)                                              \
-  {                                                                            \
-    if (!(expr)) {                                                             \
-      orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);        \
-      orb_debug_break();                                                       \
-    }                                                                          \
-  }
+#define ORB_ASSERT(expr, message)                                                                  \
+    {                                                                                              \
+        if (!(expr)) {                                                                             \
+            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
+            orb_debug_break();                                                                     \
+        }                                                                                          \
+    }
 
 #ifndef ORB_RELEASE
-#define ORB_DEBUG_ASSERT(expr, message)                                        \
-  {                                                                            \
-    if (!(expr)) {                                                             \
-      orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);        \
-      orb_debug_break();                                                       \
-    }                                                                          \
-  }
+#define ORB_DEBUG_ASSERT(expr, message)                                                            \
+    {                                                                                              \
+        if (!(expr)) {                                                                             \
+            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
+            orb_debug_break();                                                                     \
+        }                                                                                          \
+    }
 #else
 #define ORB_DEBUG_ASSERT(expr, message)
 #endif

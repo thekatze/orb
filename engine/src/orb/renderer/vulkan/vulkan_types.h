@@ -7,157 +7,156 @@
 #include <vulkan/vk_enum_string_helper.h>
 #include <vulkan/vulkan.h>
 
-#define ORB_VK_EXPECT(vk_api_call)                                             \
-  do {                                                                         \
-    VkResult result = vk_api_call;                                             \
-    if (unlikely(result != VK_SUCCESS)) {                                      \
-      ORB_FATAL(#vk_api_call " failed with result: %s",                        \
-                string_VkResult(result));                                      \
-      return FALSE;                                                            \
-    }                                                                          \
-  } while (0)
+#define ORB_VK_EXPECT(vk_api_call)                                                                 \
+    do {                                                                                           \
+        VkResult result = vk_api_call;                                                             \
+        if (unlikely(result != VK_SUCCESS)) {                                                      \
+            ORB_FATAL(#vk_api_call " failed with result: %s", string_VkResult(result));            \
+            return FALSE;                                                                          \
+        }                                                                                          \
+    } while (0)
 
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags);
 
 typedef struct orb_vulkan_swapchain_support_info {
-  VkSurfaceCapabilitiesKHR capabilities;
-  u32 format_count;
-  VkSurfaceFormatKHR *formats;
-  u32 present_mode_count;
-  VkPresentModeKHR *present_modes;
+    VkSurfaceCapabilitiesKHR capabilities;
+    u32 format_count;
+    VkSurfaceFormatKHR *formats;
+    u32 present_mode_count;
+    VkPresentModeKHR *present_modes;
 } orb_vulkan_swapchain_support_info;
 
 typedef struct orb_vulkan_physical_device_queue_family_info {
-  u32 graphics_family_index;
-  u32 graphics_family_queue_count;
-  u32 compute_family_index;
-  u32 compute_family_queue_count;
-  u32 transfer_family_index;
-  u32 transfer_family_queue_count;
+    u32 graphics_family_index;
+    u32 graphics_family_queue_count;
+    u32 compute_family_index;
+    u32 compute_family_queue_count;
+    u32 transfer_family_index;
+    u32 transfer_family_queue_count;
 
-  u32 present_family_index;
+    u32 present_family_index;
 } orb_vulkan_physical_device_queue_family_info;
 
 typedef struct orb_vulkan_device {
-  VkPhysicalDevice physical_device;
-  VkDevice logical_device;
+    VkPhysicalDevice physical_device;
+    VkDevice logical_device;
 
-  VkPhysicalDeviceProperties properties;
-  VkPhysicalDeviceMemoryProperties memory;
+    VkPhysicalDeviceProperties properties;
+    VkPhysicalDeviceMemoryProperties memory;
 
-  VkCommandPool graphics_command_pool;
+    VkCommandPool graphics_command_pool;
 
-  VkFormat depth_format;
+    VkFormat depth_format;
 
-  orb_vulkan_swapchain_support_info swapchain;
+    orb_vulkan_swapchain_support_info swapchain;
 
-  orb_vulkan_physical_device_queue_family_info queue_info;
-  VkQueue graphics_queue;
-  VkQueue compute_queue;
-  VkQueue transfer_queue;
-  VkQueue present_queue;
+    orb_vulkan_physical_device_queue_family_info queue_info;
+    VkQueue graphics_queue;
+    VkQueue compute_queue;
+    VkQueue transfer_queue;
+    VkQueue present_queue;
 
 } orb_vulkan_device;
 
 typedef struct orb_vulkan_image {
-  VkImage handle;
-  VkDeviceMemory memory;
-  VkImageView view;
-  u32 width;
-  u32 height;
+    VkImage handle;
+    VkDeviceMemory memory;
+    VkImageView view;
+    u32 width;
+    u32 height;
 } orb_vulkan_image;
 
 typedef enum orb_vulkan_command_buffer_state {
-  COMMAND_BUFFER_STATE_READY,
-  COMMAND_BUFFER_STATE_RECORDING,
-  COMMAND_BUFFER_STATE_IN_RENDER_PASS,
-  COMMAND_BUFFER_STATE_RECORDING_ENDED,
-  COMMAND_BUFFER_STATE_SUBMITTED,
-  COMMAND_BUFFER_STATE_NOT_ALLOCATED,
+    COMMAND_BUFFER_STATE_READY,
+    COMMAND_BUFFER_STATE_RECORDING,
+    COMMAND_BUFFER_STATE_IN_RENDER_PASS,
+    COMMAND_BUFFER_STATE_RECORDING_ENDED,
+    COMMAND_BUFFER_STATE_SUBMITTED,
+    COMMAND_BUFFER_STATE_NOT_ALLOCATED,
 } orb_vulkan_command_buffer_state;
 
 typedef struct orb_vulkan_command_buffer {
-  VkCommandBuffer handle;
+    VkCommandBuffer handle;
 
-  orb_vulkan_command_buffer_state state;
+    orb_vulkan_command_buffer_state state;
 } orb_vulkan_command_buffer;
 
 typedef enum orb_vulkan_renderpass_state {
-  RENDERPASS_STATE_READY,
-  RENDERPASS_STATE_RECORDING,
-  RENDERPASS_STATE_IN_RENDER_PASS,
-  RENDERPASS_STATE_RECORDING_ENDED,
-  RENDERPASS_STATE_SUBMITTED,
-  RENDERPASS_STATE_NOT_ALLOCATED,
+    RENDERPASS_STATE_READY,
+    RENDERPASS_STATE_RECORDING,
+    RENDERPASS_STATE_IN_RENDER_PASS,
+    RENDERPASS_STATE_RECORDING_ENDED,
+    RENDERPASS_STATE_SUBMITTED,
+    RENDERPASS_STATE_NOT_ALLOCATED,
 } orb_vulkan_renderpass_state;
 
 typedef struct orb_vulkan_renderpass {
-  VkRenderPass handle;
-  i32 x, y;       // TODO: vec2
-  u32 w, h;       // TODO: vec2
-  f32 r, g, b, a; // TODO: vec4
+    VkRenderPass handle;
+    i32 x, y;       // TODO: vec2
+    u32 w, h;       // TODO: vec2
+    f32 r, g, b, a; // TODO: vec4
 
-  f32 depth;
-  u32 stencil;
+    f32 depth;
+    u32 stencil;
 
-  orb_vulkan_renderpass_state state;
+    orb_vulkan_renderpass_state state;
 } orb_vulkan_renderpass;
 
 typedef struct orb_vulkan_framebuffer {
-  VkFramebuffer handle;
-  u32 attachment_count;
-  VkImageView *attachments;
-  orb_vulkan_renderpass *renderpass;
+    VkFramebuffer handle;
+    u32 attachment_count;
+    VkImageView *attachments;
+    orb_vulkan_renderpass *renderpass;
 } orb_vulkan_framebuffer;
 
 typedef struct orb_vulkan_swapchain {
-  VkSwapchainKHR handle;
+    VkSwapchainKHR handle;
 
-  VkSurfaceFormatKHR image_format;
-  u32 image_count;
-  VkImage *images;
-  VkImageView *views;
+    VkSurfaceFormatKHR image_format;
+    u32 image_count;
+    VkImage *images;
+    VkImageView *views;
 
-  orb_vulkan_image depth_attachment;
-  orb_vulkan_framebuffer* framebuffers;
+    orb_vulkan_image depth_attachment;
+    orb_vulkan_framebuffer *framebuffers;
 
-  u8 max_frames_in_flight;
+    u8 max_frames_in_flight;
 } orb_vulkan_swapchain;
 
 typedef struct orb_vulkan_fence {
-  VkFence handle;
-  b8 is_signalled;
+    VkFence handle;
+    b8 is_signalled;
 } orb_vulkan_fence;
 
 typedef struct orb_vulkan_context {
-  VkInstance instance;
-  VkAllocationCallbacks *allocator;
+    VkInstance instance;
+    VkAllocationCallbacks *allocator;
 
-  orb_vulkan_device device;
-  VkSurfaceKHR surface;
-  orb_vulkan_swapchain swapchain;
-  u32 image_index;
-  u32 current_frame;
+    orb_vulkan_device device;
+    VkSurfaceKHR surface;
+    orb_vulkan_swapchain swapchain;
+    u32 image_index;
+    u32 current_frame;
 
-  b8 recreating_swapchain;
+    b8 recreating_swapchain;
 
-  u32 framebuffer_width;
-  u32 framebuffer_height;
-  u32 framebuffer_size_generation;
-  u32 framebuffer_size_last_generation;
+    u32 framebuffer_width;
+    u32 framebuffer_height;
+    u32 framebuffer_size_generation;
+    u32 framebuffer_size_last_generation;
 
-  orb_vulkan_renderpass main_renderpass;
+    orb_vulkan_renderpass main_renderpass;
 
-  orb_vulkan_command_buffer* graphics_command_buffers;
+    orb_vulkan_command_buffer *graphics_command_buffers;
 
-  VkSemaphore *image_available_semaphores;
-  VkSemaphore *queue_complete_semaphores;
+    VkSemaphore *image_available_semaphores;
+    VkSemaphore *queue_complete_semaphores;
 
-  orb_vulkan_fence *in_flight_fences;
+    orb_vulkan_fence *in_flight_fences;
 
-  orb_vulkan_fence **images_in_flight;
+    orb_vulkan_fence **images_in_flight;
 
 #ifndef ORB_RELEASE
-  VkDebugUtilsMessengerEXT debug_messenger;
+    VkDebugUtilsMessengerEXT debug_messenger;
 #endif
 } orb_vulkan_context;
