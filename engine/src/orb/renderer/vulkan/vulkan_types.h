@@ -143,6 +143,8 @@ typedef struct orb_vulkan_context {
 
   u32 framebuffer_width;
   u32 framebuffer_height;
+  u32 framebuffer_size_generation;
+  u32 framebuffer_size_last_generation;
 
   orb_vulkan_renderpass main_renderpass;
 

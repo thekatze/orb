@@ -186,7 +186,13 @@ b8 orb_platform_events_pump(orb_platform_state *platform) {
     } break;
     case XCB_CONFIGURE_WINDOW:
     case XCB_CONFIGURE_NOTIFY: {
-      // ORB_INFO("moved / resized");
+      xcb_configure_notify_event_t *configure_event =
+          (xcb_configure_notify_event_t *)event;
+
+      event_context context;
+      context.data.u16[0] = configure_event->width;
+      context.data.u16[1] = configure_event->height;
+      orb_event_send(ORB_EVENT_RESIZED, nullptr, context);
     } break;
     case XCB_CLIENT_MESSAGE: {
       xcb_client_message_event_t *client_message =

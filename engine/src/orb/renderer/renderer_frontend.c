@@ -31,7 +31,10 @@ void orb_renderer_shutdown() {
 }
 
 void orb_renderer_resize(u16 width, u16 height) {
-  backend->resize(backend, width, height);
+  // resize event can happen before the renderer has been initialized
+  if (backend) {
+    backend->resize(backend, width, height);
+  }
 }
 
 b8 orb_renderer_draw_frame(orb_render_packet *packet) {

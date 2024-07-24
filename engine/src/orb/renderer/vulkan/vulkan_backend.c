@@ -78,6 +78,7 @@ b8 create_command_buffers(orb_renderer_backend *backend);
 b8 regenerate_framebuffers(orb_renderer_backend *backend,
                            orb_vulkan_swapchain *swapchain,
                            orb_vulkan_renderpass *renderpass);
+b8 recreate_swapchain(orb_renderer_backend *backend);
 
 b8 vulkan_backend_initialize(orb_renderer_backend *backend,
                              orb_application_config *application_config,
@@ -303,19 +304,165 @@ void vulkan_backend_shutdown(orb_renderer_backend *backend) {
 void vulkan_backend_resize(orb_renderer_backend *backend, u16 width,
                            u16 height) {
   (void)backend;
-  (void)width;
-  (void)height;
+
+  context.framebuffer_width = width;
+  context.framebuffer_height = height;
+  context.framebuffer_size_generation += 1;
+
+  ORB_DEBUG("Vulkan renderer resized: %ix%i - Generation %u", width, height,
+            context.framebuffer_size_generation);
 }
 
 b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
   (void)backend;
   (void)delta_time;
+
+  orb_vulkan_device *device = &context.device;
+
+  if (context.recreating_swapchain) {
+    ORB_INFO("Rendering frame skipped, swapchain recreated");
+    ORB_VK_EXPECT(vkDeviceWaitIdle(device->logical_device));
+    return FALSE;
+  }
+
+  if (context.framebuffer_size_generation !=
+      context.framebuffer_size_last_generation) {
+    ORB_INFO("Framebuffer out of date, recreating swapchain");
+    ORB_VK_EXPECT(vkDeviceWaitIdle(device->logical_device));
+
+    if (!recreate_swapchain(backend)) {
+      return FALSE;
+    }
+
+    return FALSE;
+  }
+
+  if (!orb_vulkan_fence_wait(&context,
+                             &context.in_flight_fences[context.current_frame],
+                             1 * 1'000'000'000)) // one second in nanoseconds
+  {
+    ORB_WARN("Timeout waiting for current frame fence");
+    return FALSE;
+  }
+
+  if (!orb_vulkan_swapchain_acquire_next_image_index(
+          &context, &context.swapchain, UINT64_MAX,
+          context.image_available_semaphores[context.current_frame], nullptr,
+          &context.image_index)) {
+    ORB_WARN("Could not acquire next image index");
+    return FALSE;
+  }
+
+  // Begin recording commands
+  orb_vulkan_command_buffer *command_buffer =
+      &context.graphics_command_buffers[context.image_index];
+
+  orb_vulkan_command_buffer_reset(command_buffer);
+  orb_vulkan_command_buffer_begin(command_buffer, 0);
+
+  // TODO: test if we really need this, i don't want multiple backends and im
+  // fine with this not having opengl compat
+  // {
+  //   VkViewport viewport = {
+  //       .x = 0.0f,
+  //       .y = (f32)context.framebuffer_height,
+  //       .width = (f32)context.framebuffer_width,
+  //       .height = (f32)-context.framebuffer_height,
+  //       .minDepth = 0.0f,
+  //       .maxDepth = 0.0f,
+  //   };
+
+  //   vkCmdSetViewport(command_buffer->handle, 0, 1, &viewport);
+
+  //   VkRect2D scissor = {
+  //       .offset =
+  //           {
+  //               .x = 0,
+  //               .y = 0,
+  //           },
+  //       .extent =
+  //           {
+  //               .width = context.framebuffer_width,
+  //               .height = context.framebuffer_height,
+  //           },
+  //   };
+
+  //   vkCmdSetScissor(command_buffer->handle, 0, 1, &scissor);
+  // }
+
+  // TODO: we dont need to do this every frame, find a better spot for this
+  // (resize?)
+  context.main_renderpass.w = context.framebuffer_width;
+  context.main_renderpass.h = context.framebuffer_height;
+
+  orb_vulkan_renderpass_begin(
+      command_buffer, &context.main_renderpass,
+      context.swapchain.framebuffers[context.image_index].handle);
+
   return TRUE;
 }
 
 b8 vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
   (void)backend;
   (void)delta_time;
+
+  orb_vulkan_command_buffer *command_buffer =
+      &context.graphics_command_buffers[context.image_index];
+
+  orb_vulkan_renderpass_end(command_buffer, &context.main_renderpass);
+  orb_vulkan_command_buffer_end(command_buffer);
+
+  // make sure the previous frame is not using this image
+  if (context.images_in_flight[context.image_index] != VK_NULL_HANDLE) {
+    orb_vulkan_fence_wait(
+        &context, context.images_in_flight[context.image_index], UINT64_MAX);
+  }
+
+  // mark the image as in-use by this frame
+  context.images_in_flight[context.image_index] =
+      &context.in_flight_fences[context.current_frame];
+
+  orb_vulkan_fence_reset(&context,
+                         &context.in_flight_fences[context.current_frame]);
+
+  // has to be equal to waitSemaphoreCount
+  VkPipelineStageFlags flags[1] = {
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+  };
+
+  VkSubmitInfo submit_info = {
+      .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+      .commandBufferCount = 1,
+      .pCommandBuffers = &command_buffer->handle,
+
+      // semaphores to be signalled when the queue is complete
+      .signalSemaphoreCount = 1,
+      .pSignalSemaphores =
+          &context.queue_complete_semaphores[context.current_frame],
+
+      // semaphores to wait on before the operation can begin
+      .waitSemaphoreCount = 1,
+      .pWaitSemaphores =
+          &context.image_available_semaphores[context.current_frame],
+      // each semaphore waits on the corresponding pipeline stage to complete
+      .pWaitDstStageMask = flags,
+  };
+
+  ORB_VK_EXPECT(
+      vkQueueSubmit(context.device.graphics_queue, 1, &submit_info,
+                    context.in_flight_fences[context.current_frame].handle));
+
+  orb_vulkan_command_buffer_update_submitted(command_buffer);
+
+  if (!orb_vulkan_swapchain_present(
+          &context, &context.swapchain, context.device.graphics_queue,
+          context.device.present_queue,
+          context.queue_complete_semaphores[context.current_frame],
+          context.image_index)) {
+    ORB_ERROR("Failed presenting image");
+    return FALSE;
+  };
+
   return TRUE;
 }
 
@@ -333,12 +480,12 @@ u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
 
 b8 create_command_buffers(orb_renderer_backend *backend) {
   (void)backend;
-  ORB_DEBUG_ASSERT(context.graphics_command_buffers == nullptr,
-                   "command buffers must be uninitialized");
 
-  context.graphics_command_buffers = orb_allocate(
-      sizeof(orb_vulkan_command_buffer) * context.swapchain.image_count,
-      MEMORY_TAG_RENDERER);
+  if (!context.graphics_command_buffers) {
+    context.graphics_command_buffers = orb_allocate(
+        sizeof(orb_vulkan_command_buffer) * context.swapchain.image_count,
+        MEMORY_TAG_RENDERER);
+  }
 
   for (u32 i = 0; i < context.swapchain.image_count; ++i) {
     orb_memory_zero(&context.graphics_command_buffers[i],
@@ -372,6 +519,64 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend,
       return FALSE;
     }
   }
+
+  return TRUE;
+}
+
+b8 recreate_swapchain(orb_renderer_backend *backend) {
+  (void)backend;
+  if (context.recreating_swapchain) {
+    ORB_DEBUG("Already recreating swapchain");
+    return FALSE;
+  }
+
+  if (context.framebuffer_width == 0 || context.framebuffer_height == 0) {
+    ORB_DEBUG("Swapchain can not be created with width or height 0");
+    return FALSE;
+  }
+
+  context.recreating_swapchain = TRUE;
+
+  ORB_VK_EXPECT(vkDeviceWaitIdle(context.device.logical_device));
+
+  // clear images in flight
+  orb_memory_zero(context.images_in_flight, sizeof(*context.images_in_flight) *
+                                                context.swapchain.image_count);
+
+  orb_vulkan_device_query_swapchain_support(context.device.physical_device,
+                                            context.surface,
+                                            &context.device.swapchain);
+
+  orb_vulkan_device_detect_depth_format(&context.device);
+
+  orb_vulkan_swapchain_recreate(&context, context.framebuffer_width,
+                                context.framebuffer_height, &context.swapchain);
+
+  // cleanup swapchain
+  for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+    orb_vulkan_command_buffer_free(&context,
+                                   context.device.graphics_command_pool,
+                                   &context.graphics_command_buffers[i]);
+  }
+
+  for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+    orb_vulkan_framebuffer_destroy(&context,
+                                   &context.swapchain.framebuffers[i]);
+  }
+
+  context.main_renderpass.x = 0;
+  context.main_renderpass.y = 0;
+  context.main_renderpass.w = context.framebuffer_width;
+  context.main_renderpass.h = context.framebuffer_height;
+
+  regenerate_framebuffers(backend, &context.swapchain,
+                          &context.main_renderpass);
+
+  create_command_buffers(backend);
+
+  context.framebuffer_size_last_generation =
+      context.framebuffer_size_generation;
+  context.recreating_swapchain = FALSE;
 
   return TRUE;
 }

@@ -257,6 +257,8 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
 
 void cleanup_swapchain(orb_vulkan_context *context,
                        orb_vulkan_swapchain *swapchain) {
+  vkDeviceWaitIdle(context->device.logical_device);
+
   // NOTE: we might need to set swapchain_images and views to 0
   orb_vulkan_image_destroy(context, &swapchain->depth_attachment);
 
