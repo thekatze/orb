@@ -77,6 +77,14 @@ typedef u8 b8;
 #define ORB_CLAMP(value, min, max)                                             \
   ((value <= min) ? min : (value >= max) ? max : value)
 
-// stolen from linux kernel: macro to mark likely if branches
+// stolen from linux kernel: macro to influence code gen of if branches
 #define likely(expression) __builtin_expect(!!(expression), 1)
 #define unlikely(expression) __builtin_expect(!!(expression), 0)
+
+#ifdef _MSC_VER
+#define ORB_INLINE __forceinline
+#define ORB_NOINLINE __declspec(noinline)
+#else
+#define ORB_INLINE __attribute__((always_inline))
+#define ORB_NOINLINE
+#endif
