@@ -1,9 +1,11 @@
 #pragma once
 
+#include <orb/math/random.h>
 #include <orb/game_types.h>
 
 typedef struct game_state {
     f32 delta_time;
+    orb_rng_state rng;
 } game_state;
 
 b8 initialize(orb_game *game);

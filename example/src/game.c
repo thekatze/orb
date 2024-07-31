@@ -4,8 +4,10 @@
 #include "orb/core/logger.h"
 #include "orb/core/orb_memory.h"
 #include "orb/core/orb_string.h"
+#include "orb/math/random.h"
+#include "orb/platform/platform.h"
 
-b8 handle_key_press(u16 code, void *listener, void *source, orb_event_context context) {
+b8 handle_key_press(u16 code, void *source, void *listener, orb_event_context context) {
     (void)code;
     (void)listener;
     (void)source;
@@ -23,14 +25,16 @@ b8 handle_key_press(u16 code, void *listener, void *source, orb_event_context co
     return FALSE;
 }
 
-b8 handle_mouse_button(u16 code, void *listener, void *source, orb_event_context context) {
+b8 handle_mouse_button(u16 code, void *source, void *listener, orb_event_context context) {
     (void)code;
     (void)listener;
     (void)source;
+
+    game_state *state = (game_state *)((orb_game *)listener)->state;
     switch (context.data.u16[0]) {
-    case MOUSE_BUTTON_LEFT:
-        ORB_INFO("LEFT MOUSE BUTTON CLICKED!");
-        break;
+    case MOUSE_BUTTON_LEFT: {
+        ORB_INFO("Random float: %f", orb_random_float(&state->rng));
+    } break;
     }
 
     return FALSE;
@@ -38,6 +42,9 @@ b8 handle_mouse_button(u16 code, void *listener, void *source, orb_event_context
 
 b8 initialize(orb_game *game_instance) {
     (void)game_instance;
+    game_state *state = (game_state *)(game_instance)->state;
+
+    orb_random_init(&state->rng, (u64)orb_platform_time_now());
 
     orb_event_add_listener(ORB_EVENT_KEY_PRESSED, game_instance, handle_key_press);
     orb_event_add_listener(ORB_EVENT_MOUSE_BUTTON_PRESSED, game_instance, handle_mouse_button);

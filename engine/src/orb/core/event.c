@@ -36,7 +36,7 @@ void orb_event_shutdown() {
     }
 }
 
-ORB_API b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
+b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
     orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
 
     if (storage->items == 0) {
@@ -61,8 +61,7 @@ ORB_API b8 orb_event_add_listener(event_code code, void *listener, orb_event_han
     return TRUE;
 }
 
-ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
-                                     orb_event_handler_fn on_event) {
+b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
     orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
     registered_handler *handlers = (registered_handler *)storage->items;
 
@@ -83,7 +82,7 @@ ORB_API b8 orb_event_remove_listener(event_code code, void *listener,
     return FALSE;
 }
 
-ORB_API b8 orb_event_send(event_code code, void *sender, orb_event_context context) {
+b8 orb_event_send(event_code code, void *sender, orb_event_context context) {
 
     orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
     registered_handler *handlers = (registered_handler *)storage->items;
@@ -94,8 +93,8 @@ ORB_API b8 orb_event_send(event_code code, void *sender, orb_event_context conte
     }
 
     for (u64 i = 0; i < storage->length; ++i) {
-        registered_handler handler = handlers[i];
-        if (handler.callback(code, sender, handler.listener, context)) {
+        registered_handler *handler = &handlers[i];
+        if (handler->callback(code, sender, handler->listener, context)) {
             return TRUE;
         }
     }

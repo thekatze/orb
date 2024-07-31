@@ -19,6 +19,9 @@ add_library(orb
     ./src/orb/platform/platform_linux.c
 
     ./src/orb/containers/dynamic_array.c
+
+    ./src/orb/math/orb_math.c
+    ./src/orb/math/random.c
     
     ./src/orb/renderer/renderer_frontend.c
     ./src/orb/renderer/renderer_backend.c
@@ -52,7 +55,7 @@ if(LINUX)
     find_package(X11 REQUIRED)
 
     target_include_directories(orb PRIVATE "${X11_INCLUDE_DIR}")
-    target_link_libraries(orb PRIVATE "${X11_LIBRARIES}" X11::xcb X11::X11_xcb)
+    target_link_libraries(orb PRIVATE m "${X11_LIBRARIES}" X11::xcb X11::X11_xcb)
 elseif(APPLE)
     target_link_libraries(orb PRIVATE "-framework Foundation -framework AppKit -framework QuartzCore")
 endif()
