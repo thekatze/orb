@@ -46,7 +46,12 @@ if(ORB_RELEASE)
 endif()
 
 # vulkan
-find_package(Vulkan REQUIRED)
+find_package(Vulkan REQUIRED COMPONENTS glslc)
+
+add_shaders(orb
+    ./src/orb/renderer/shaders/vertex.vert
+    ./src/orb/renderer/shaders/fragment.frag
+)
 
 target_include_directories(orb PRIVATE "${Vulkan_INCLUDE_DIR}")
 target_link_libraries(orb PRIVATE Vulkan::Vulkan)
