@@ -19,7 +19,7 @@ ORB_API void orb_report_assertion_failure(const char *expression, const char *me
 
 #define ORB_ASSERT(expr, message)                                                                  \
     {                                                                                              \
-        if (!(expr)) {                                                                             \
+        if (unlikely(!(expr))) {                                                                   \
             orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
             orb_debug_break();                                                                     \
         }                                                                                          \
@@ -28,7 +28,7 @@ ORB_API void orb_report_assertion_failure(const char *expression, const char *me
 #ifndef ORB_RELEASE
 #define ORB_DEBUG_ASSERT(expr, message)                                                            \
     {                                                                                              \
-        if (!(expr)) {                                                                             \
+        if (unlikely(!(expr))) {                                                                   \
             orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
             orb_debug_break();                                                                     \
         }                                                                                          \
