@@ -48,13 +48,13 @@ usize test_runner_run() {
             log_level = LOG_LEVEL_ERROR;
         }
 
-        orb_log(log_level, "Test %d of %d: %s %s in %.4fms", i + 1, tests.length, test.description,
+        orb_log(log_level, "Test %d of %d: %s %s in %.3fms", i + 1, tests.length, test.description,
                 status, test_time.elapsed * 1000.0f);
     }
 
     orb_clock_update(&total_time);
 
-    ORB_INFO("Test suite finished with %lld of %lld successful tests in %.4fms", passed,
+    ORB_INFO("Test suite finished with %lld of %lld successful tests in %.3fms", passed,
              tests.length, total_time.elapsed * 1000.0f);
 
     return failed;
