@@ -49,4 +49,17 @@ when developing on mac i like to use the metal debug hud:
 $ cmake --build build && MTL_HUD_ENABLED=1 build/example/example
 ```
 
+check dynamically linked libraries on mac:
+
+```sh
+$ otool -L build/example/example
+```
+
+on linux
+
+
+```sh
+$ lld build/example/example
+```
+
 ## architecture
