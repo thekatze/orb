@@ -37,4 +37,5 @@ include("./cmake/add_shaders.cmake")
 
 add_subdirectory(engine)
 add_subdirectory(example)
+add_subdirectory(tests)
 
