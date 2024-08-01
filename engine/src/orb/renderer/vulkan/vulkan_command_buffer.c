@@ -17,7 +17,7 @@ b8 orb_vulkan_command_buffer_allocate(orb_vulkan_context *context, VkCommandPool
                                            &out_command_buffer->handle));
 
     out_command_buffer->state = COMMAND_BUFFER_STATE_READY;
-    return TRUE;
+    return true;
 }
 
 void orb_vulkan_command_buffer_free(orb_vulkan_context *context, VkCommandPool pool,
@@ -37,7 +37,7 @@ b8 orb_vulkan_command_buffer_begin(orb_vulkan_command_buffer *command_buffer,
     ORB_VK_EXPECT(vkBeginCommandBuffer(command_buffer->handle, &begin_info));
     command_buffer->state = COMMAND_BUFFER_STATE_RECORDING;
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_vulkan_command_buffer_end(orb_vulkan_command_buffer *command_buffer) {
@@ -45,7 +45,7 @@ b8 orb_vulkan_command_buffer_end(orb_vulkan_command_buffer *command_buffer) {
     ORB_VK_EXPECT(vkEndCommandBuffer(command_buffer->handle));
     command_buffer->state = COMMAND_BUFFER_STATE_RECORDING_ENDED;
 
-    return TRUE;
+    return true;
 }
 
 // transitions
@@ -63,7 +63,7 @@ void orb_vulkan_command_buffer_reset(orb_vulkan_command_buffer *command_buffer) 
 b8 orb_vulkan_command_buffer_allocate_and_begin_single_use(
     orb_vulkan_context *context, VkCommandPool pool,
     orb_vulkan_command_buffer *out_command_buffer) {
-    return orb_vulkan_command_buffer_allocate(context, pool, TRUE, out_command_buffer) &&
+    return orb_vulkan_command_buffer_allocate(context, pool, true, out_command_buffer) &&
            orb_vulkan_command_buffer_begin(out_command_buffer,
                                            VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 }
@@ -73,7 +73,7 @@ b8 orb_vulkan_command_buffer_end_and_submit_single_use(orb_vulkan_context *conte
                                                        orb_vulkan_command_buffer *command_buffer,
                                                        VkQueue queue) {
     if (!orb_vulkan_command_buffer_end(command_buffer)) {
-        return FALSE;
+        return false;
     }
 
     VkSubmitInfo submit_info = {
@@ -90,5 +90,5 @@ b8 orb_vulkan_command_buffer_end_and_submit_single_use(orb_vulkan_context *conte
 
     orb_vulkan_command_buffer_free(context, pool, command_buffer);
 
-    return TRUE;
+    return true;
 }

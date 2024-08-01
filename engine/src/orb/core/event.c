@@ -22,7 +22,7 @@ static event_system_state state = {0};
 
 b8 orb_event_init() {
     // state is statically zero initialized, nothing to do here
-    return TRUE;
+    return true;
 }
 
 void orb_event_shutdown() {
@@ -58,7 +58,7 @@ b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn 
 
     orb_dynamic_array_push(*storage, handler);
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
@@ -67,7 +67,7 @@ b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_
 
     if (handlers == 0) {
         // nothing has been registered for this code
-        return FALSE;
+        return false;
     }
 
     for (u64 i = 0; i < storage->length; ++i) {
@@ -75,11 +75,11 @@ b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_
             registered_handler removed;
             orb_dynamic_array_remove_at(storage, i, &removed);
 
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 b8 orb_event_send(event_code code, void *sender, orb_event_context context) {
@@ -89,16 +89,16 @@ b8 orb_event_send(event_code code, void *sender, orb_event_context context) {
 
     if (handlers == nullptr) {
         // nothing has been registered for this code
-        return FALSE;
+        return false;
     }
 
     for (u64 i = 0; i < storage->length; ++i) {
         registered_handler *handler = &handlers[i];
         if (handler->callback(code, sender, handler->listener, context)) {
-            return TRUE;
+            return true;
         }
     }
 
     // no listener handled the event
-    return FALSE;
+    return false;
 }

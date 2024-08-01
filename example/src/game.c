@@ -22,7 +22,7 @@ b8 handle_key_press(u16 code, void *source, void *listener, orb_event_context co
         break;
     }
 
-    return FALSE;
+    return false;
 }
 
 b8 handle_mouse_button(u16 code, void *source, void *listener, orb_event_context context) {
@@ -37,7 +37,7 @@ b8 handle_mouse_button(u16 code, void *source, void *listener, orb_event_context
     } break;
     }
 
-    return FALSE;
+    return false;
 }
 
 b8 initialize(orb_game *game_instance) {
@@ -49,19 +49,19 @@ b8 initialize(orb_game *game_instance) {
     orb_event_add_listener(ORB_EVENT_KEY_PRESSED, game_instance, handle_key_press);
     orb_event_add_listener(ORB_EVENT_MOUSE_BUTTON_PRESSED, game_instance, handle_mouse_button);
 
-    return TRUE;
+    return true;
 }
 
 b8 update(orb_game *game_instance, float delta) {
     (void)game_instance;
     (void)delta;
-    return TRUE;
+    return true;
 }
 
 b8 render(orb_game *game_instance, float delta) {
     (void)game_instance;
     (void)delta;
-    return TRUE;
+    return true;
 }
 
 void on_resize(orb_game *game_instance, u16 width, u16 height) {

@@ -30,7 +30,7 @@ b8 orb_vulkan_platform_surface_init(orb_vulkan_context *context) {
     ORB_VK_EXPECT(vkCreateXcbSurfaceKHR(context->instance, &create_info, context->allocator,
                                         &context->surface));
 
-    return TRUE;
+    return true;
 }
 
 #endif

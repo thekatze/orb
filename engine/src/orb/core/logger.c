@@ -12,7 +12,7 @@ void orb_report_assertion_failure(const char *expression, const char *message, c
 
 b8 orb_logger_init() {
     // TODO: init log to file
-    return TRUE;
+    return true;
 }
 
 void orb_logger_shutdown() {

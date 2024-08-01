@@ -20,5 +20,5 @@ b8 create_game(orb_game *out_game) {
     state->delta_time = 0.016f;
     out_game->state = state;
 
-    return TRUE;
+    return true;
 }

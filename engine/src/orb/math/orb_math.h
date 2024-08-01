@@ -156,13 +156,13 @@ ORB_INLINE orb_vec2 orb_vec2_normalized(orb_vec2 vec) {
  */
 ORB_INLINE b8 orb_vec2_equal(const orb_vec2 *lhs, const orb_vec2 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
-        return FALSE;
+        return false;
     }
     if (orb_abs(lhs->y - rhs->y) > tolerance) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 ORB_INLINE f32 orb_vec2_distance(orb_vec2 lhs, orb_vec2 rhs) {
@@ -330,18 +330,18 @@ ORB_INLINE orb_vec3 orb_vec3_normalized(orb_vec3 vec) {
  */
 ORB_INLINE b8 orb_vec3_equal(const orb_vec3 *lhs, const orb_vec3 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
-        return FALSE;
+        return false;
     }
 
     if (orb_abs(lhs->y - rhs->y) > tolerance) {
-        return FALSE;
+        return false;
     }
 
     if (orb_abs(lhs->z - rhs->z) > tolerance) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 ORB_INLINE f32 orb_vec3_distance(orb_vec3 lhs, orb_vec3 rhs) {
@@ -458,22 +458,22 @@ ORB_INLINE orb_vec4 orb_vec4_normalized(orb_vec4 vec) {
  */
 ORB_INLINE b8 orb_vec4_equal(const orb_vec4 *lhs, const orb_vec4 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
-        return FALSE;
+        return false;
     }
 
     if (orb_abs(lhs->y - rhs->y) > tolerance) {
-        return FALSE;
+        return false;
     }
 
     if (orb_abs(lhs->z - rhs->z) > tolerance) {
-        return FALSE;
+        return false;
     }
 
     if (orb_abs(lhs->w - rhs->w) > tolerance) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 ORB_INLINE f32 orb_vec4_distance(orb_vec4 lhs, orb_vec4 rhs) {

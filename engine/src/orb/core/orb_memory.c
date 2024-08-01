@@ -42,7 +42,7 @@ void *orb_allocate(u64 size, orb_memory_tag tag) {
     stats.total_allocated += size;
     stats.tagged_allocations[tag] += size;
 
-    void *block = orb_platform_allocate(size, FALSE);
+    void *block = orb_platform_allocate(size, false);
 
 #ifndef ORB_RELEASE
     // in debug set memory to 010101...
@@ -60,7 +60,7 @@ void orb_free(void *block, u64 size, orb_memory_tag tag) {
     stats.total_allocated -= size;
     stats.tagged_allocations[tag] -= size;
 
-    orb_platform_free(block, FALSE);
+    orb_platform_free(block, false);
 }
 
 void *orb_memory_zero(void *block, u64 size) { return orb_platform_memory_zero(block, size); }

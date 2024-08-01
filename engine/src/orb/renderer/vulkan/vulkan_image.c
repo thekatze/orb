@@ -34,7 +34,7 @@ b8 orb_vulkan_image_create(orb_vulkan_context *context, VkImageType image_type, 
 
     if (memory_type == UINT32_MAX) {
         ORB_ERROR("Required memory type not available.");
-        return FALSE;
+        return false;
     }
 
     VkMemoryAllocateInfo memory_allocate_info = {
@@ -53,7 +53,7 @@ b8 orb_vulkan_image_create(orb_vulkan_context *context, VkImageType image_type, 
         return orb_vulkan_image_view_create(context, format, out_image, view_aspect_flags);
     }
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_vulkan_image_view_create(orb_vulkan_context *context, VkFormat format,
@@ -76,7 +76,7 @@ b8 orb_vulkan_image_view_create(orb_vulkan_context *context, VkFormat format,
     ORB_VK_EXPECT(vkCreateImageView(context->device.logical_device, &view_create_info,
                                     context->allocator, &image->view));
 
-    return TRUE;
+    return true;
 }
 
 void orb_vulkan_image_destroy(orb_vulkan_context *context, orb_vulkan_image *image) {

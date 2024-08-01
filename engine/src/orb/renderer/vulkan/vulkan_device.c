@@ -30,7 +30,7 @@ u8 rank_physical_device(VkPhysicalDevice device, VkSurfaceKHR surface,
 
 b8 orb_vulkan_device_init(orb_vulkan_context *context) {
     if (!select_physical_device(context)) {
-        return FALSE;
+        return false;
     }
 
     ORB_DEBUG("Creating logical device");
@@ -104,7 +104,7 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
     ORB_VK_EXPECT(vkCreateCommandPool(context->device.logical_device, &command_pool_info,
                                       context->allocator, &context->device.graphics_command_pool));
 
-    return TRUE;
+    return true;
 }
 
 void orb_vulkan_device_shutdown(orb_vulkan_context *context) {
@@ -152,7 +152,7 @@ b8 select_physical_device(orb_vulkan_context *context) {
 
     if (physical_device_count == 0) {
         ORB_FATAL("No Vulkan capable devices found.");
-        return FALSE;
+        return false;
     }
 
     VkPhysicalDevice physical_devices[physical_device_count];
@@ -196,7 +196,7 @@ b8 select_physical_device(orb_vulkan_context *context) {
 
     if (ranked_devices_count == 0) {
         ORB_FATAL("No device fulfilling the minimum requirements of the engine found.");
-        return FALSE;
+        return false;
     }
 
     u8 highest_suitability = 0;
@@ -249,7 +249,7 @@ b8 select_physical_device(orb_vulkan_context *context) {
         context->device.swapchain = device->swapchain_info;
     }
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, VkSurfaceKHR surface,
@@ -262,7 +262,7 @@ b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, V
                                                        &out_support_info->format_count, nullptr));
 
     if (out_support_info->format_count == 0) {
-        return FALSE;
+        return false;
     }
 
     if (!out_support_info->formats) {
@@ -281,7 +281,7 @@ b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, V
         physical_device, surface, &out_support_info->present_mode_count, nullptr));
 
     if (out_support_info->present_mode_count == 0) {
-        return FALSE;
+        return false;
     }
 
     if (!out_support_info->present_modes) {
@@ -295,7 +295,7 @@ b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, V
     ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
         physical_device, surface, &out_support_info->format_count, out_support_info->formats));
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_vulkan_device_detect_depth_format(orb_vulkan_device *device) {
@@ -315,13 +315,13 @@ b8 orb_vulkan_device_detect_depth_format(orb_vulkan_device *device) {
         if (((properties.linearTilingFeatures & flags) |
              (properties.optimalTilingFeatures & flags)) == flags) {
             device->depth_format = preferred_formats[i];
-            return TRUE;
+            return true;
         }
     }
 
     device->depth_format = VK_FORMAT_UNDEFINED;
 
-    return FALSE;
+    return false;
 }
 
 u8 rank_physical_device(VkPhysicalDevice device, VkSurfaceKHR surface,
@@ -423,7 +423,7 @@ u8 rank_physical_device(VkPhysicalDevice device, VkSurfaceKHR surface,
     for (usize i = 0; i < ORB_ARRAY_LENGTH(device_required_extensions); ++i) {
         const char *required_extension = device_required_extensions[i];
 
-        b8 found = FALSE;
+        b8 found = false;
 
         for (usize j = 0; j < device_extension_count; ++j) {
             char *device_extension = device_extensions[j].extensionName;

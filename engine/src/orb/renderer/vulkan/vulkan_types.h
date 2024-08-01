@@ -12,7 +12,7 @@
         VkResult result = vk_api_call;                                                             \
         if (unlikely(result != VK_SUCCESS)) {                                                      \
             ORB_FATAL(#vk_api_call " failed with result: %s", string_VkResult(result));            \
-            return FALSE;                                                                          \
+            return false;                                                                          \
         }                                                                                          \
     } while (0)
 

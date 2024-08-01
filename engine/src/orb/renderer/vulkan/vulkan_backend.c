@@ -140,20 +140,20 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     ORB_DEBUG("Creating Vulkan surface");
     if (!orb_vulkan_platform_surface_init(&context)) {
         ORB_ERROR("Failed to create vulkan surface");
-        return FALSE;
+        return false;
     };
 
     ORB_DEBUG("Creating Vulkan device");
     if (!orb_vulkan_device_init(&context)) {
         ORB_ERROR("Failed to create vulkan device");
-        return FALSE;
+        return false;
     }
 
     ORB_DEBUG("Creating Vulkan swapchain");
     if (!orb_vulkan_swapchain_init(&context, context.framebuffer_width, context.framebuffer_height,
                                    &context.swapchain)) {
         ORB_ERROR("Failed to create vulkan swapchain");
-        return FALSE;
+        return false;
     }
 
     ORB_DEBUG("Creating Vulkan renderpass");
@@ -161,7 +161,7 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
                                       context.framebuffer_width, context.framebuffer_height, 0.0f,
                                       0.1f, 0.3f, 1.0f, 1.0f, 0)) {
         ORB_ERROR("Failed to create renderpass");
-        return FALSE;
+        return false;
     }
 
     context.swapchain.framebuffers = orb_allocate(
@@ -170,13 +170,13 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     ORB_DEBUG("Creating Vulkan framebuffers");
     if (!regenerate_framebuffers(backend, &context.swapchain, &context.main_renderpass)) {
         ORB_ERROR("Failed to create framebuffers");
-        return FALSE;
+        return false;
     }
 
     ORB_DEBUG("Creating Vulkan command buffers");
     if (!create_command_buffers(backend)) {
         ORB_ERROR("Failed to create command buffers");
-        return FALSE;
+        return false;
     }
 
     ORB_DEBUG("Creating Vulkan synchronization primitives");
@@ -203,9 +203,9 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 
         // create the fence in a signalled state. the "first frame" already has been
         // rendered so the next frame (the actual first frame) may start
-        if (!orb_vulkan_fence_create(&context, TRUE, &context.in_flight_fences[i])) {
+        if (!orb_vulkan_fence_create(&context, true, &context.in_flight_fences[i])) {
             ORB_ERROR("Failed to create fence");
-            return FALSE;
+            return false;
         };
     }
 
@@ -216,7 +216,7 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
 
     ORB_INFO("Vulkan renderer initialized successfully.");
 
-    return TRUE;
+    return true;
 }
 
 void vulkan_backend_shutdown(orb_renderer_backend *backend) {
@@ -302,7 +302,7 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
     if (context.recreating_swapchain) {
         ORB_INFO("Rendering frame skipped, swapchain recreated");
         ORB_VK_EXPECT(vkDeviceWaitIdle(device->logical_device));
-        return FALSE;
+        return false;
     }
 
     if (context.framebuffer_size_generation != context.framebuffer_size_last_generation) {
@@ -310,17 +310,17 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
         ORB_VK_EXPECT(vkDeviceWaitIdle(device->logical_device));
 
         if (!recreate_swapchain(backend)) {
-            return FALSE;
+            return false;
         }
 
-        return FALSE;
+        return false;
     }
 
     if (!orb_vulkan_fence_wait(&context, &context.in_flight_fences[context.current_frame],
                                1 * 1'000'000'000)) // one second in nanoseconds
     {
         ORB_WARN("Timeout waiting for current frame fence");
-        return FALSE;
+        return false;
     }
 
     if (!orb_vulkan_swapchain_acquire_next_image_index(
@@ -328,7 +328,7 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
             context.image_available_semaphores[context.current_frame], nullptr,
             &context.image_index)) {
         ORB_WARN("Could not acquire next image index");
-        return FALSE;
+        return false;
     }
 
     // Begin recording commands
@@ -376,7 +376,7 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
     orb_vulkan_renderpass_begin(command_buffer, &context.main_renderpass,
                                 context.swapchain.framebuffers[context.image_index].handle);
 
-    return TRUE;
+    return true;
 }
 
 b8 vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
@@ -431,10 +431,10 @@ b8 vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
                                       context.queue_complete_semaphores[context.current_frame],
                                       context.image_index)) {
         ORB_ERROR("Failed presenting image");
-        return FALSE;
+        return false;
     };
 
-    return TRUE;
+    return true;
 }
 
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
@@ -461,12 +461,12 @@ b8 create_command_buffers(orb_renderer_backend *backend) {
         orb_memory_zero(&context.graphics_command_buffers[i], sizeof(orb_vulkan_command_buffer));
 
         if (!orb_vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool,
-                                                TRUE, &context.graphics_command_buffers[i])) {
-            return FALSE;
+                                                true, &context.graphics_command_buffers[i])) {
+            return false;
         };
     }
 
-    return TRUE;
+    return true;
 }
 
 b8 regenerate_framebuffers(orb_renderer_backend *backend, orb_vulkan_swapchain *swapchain,
@@ -482,26 +482,26 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend, orb_vulkan_swapchain *
         if (!orb_vulkan_framebuffer_create(
                 &context, renderpass, context.framebuffer_width, context.framebuffer_height,
                 ORB_ARRAY_LENGTH(attachments), attachments, &context.swapchain.framebuffers[i])) {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 b8 recreate_swapchain(orb_renderer_backend *backend) {
     (void)backend;
     if (context.recreating_swapchain) {
         ORB_DEBUG("Already recreating swapchain");
-        return FALSE;
+        return false;
     }
 
     if (context.framebuffer_width == 0 || context.framebuffer_height == 0) {
         ORB_DEBUG("Swapchain can not be created with width or height 0");
-        return FALSE;
+        return false;
     }
 
-    context.recreating_swapchain = TRUE;
+    context.recreating_swapchain = true;
 
     ORB_VK_EXPECT(vkDeviceWaitIdle(context.device.logical_device));
 
@@ -537,7 +537,7 @@ b8 recreate_swapchain(orb_renderer_backend *backend) {
     create_command_buffers(backend);
 
     context.framebuffer_size_last_generation = context.framebuffer_size_generation;
-    context.recreating_swapchain = FALSE;
+    context.recreating_swapchain = false;
 
-    return TRUE;
+    return true;
 }

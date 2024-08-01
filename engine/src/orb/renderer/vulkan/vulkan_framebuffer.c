@@ -29,7 +29,7 @@ b8 orb_vulkan_framebuffer_create(orb_vulkan_context *context, orb_vulkan_renderp
     ORB_VK_EXPECT(vkCreateFramebuffer(context->device.logical_device, &framebuffer_info,
                                       context->allocator, &out_framebuffer->handle));
 
-    return TRUE;
+    return true;
 }
 
 void orb_vulkan_framebuffer_destroy(orb_vulkan_context *context,

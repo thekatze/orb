@@ -102,7 +102,7 @@ b8 orb_vulkan_renderpass_create(orb_vulkan_context *context,
     ORB_VK_EXPECT(vkCreateRenderPass(context->device.logical_device, &render_pass_info,
                                      context->allocator, &out_renderpass->handle));
 
-    return TRUE;
+    return true;
 }
 
 void orb_vulkan_renderpass_destroy(orb_vulkan_context *context, orb_vulkan_renderpass *renderpass) {

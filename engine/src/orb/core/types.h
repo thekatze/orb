@@ -21,10 +21,7 @@ typedef u64 usize;
 typedef i64 isize;
 
 // boolean
-typedef u8 b8;
-
-#define TRUE 1
-#define FALSE 0
+typedef bool b8;
 
 #define ORB_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
 

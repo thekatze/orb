@@ -25,9 +25,9 @@ b8 orb_string_equal(const char *this, const char *other) {
     // same time.
     for (usize i = 0; this[i] != 0 || other[i] != 0; i++) {
         if (this[i] != other[i]) {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }

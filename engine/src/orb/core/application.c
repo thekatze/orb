@@ -30,7 +30,7 @@ b8 orb_on_event_shutdown(event_code code, void *sender, void *listener, orb_even
     app.is_running = false;
     ORB_DEBUG("Received ORB_EVENT_APPLICATION_QUIT, shutting down.");
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_context context) {
@@ -42,7 +42,7 @@ b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_
     u16 height = context.data.u16[1];
 
     if (width == app.width && height == app.height) {
-        return TRUE;
+        return true;
     }
 
     app.width = width;
@@ -50,25 +50,25 @@ b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_
 
     if (width == 0 || height == 0) {
         ORB_INFO("Window minimized, suspending application.");
-        app.is_suspended = TRUE;
-        return TRUE;
+        app.is_suspended = true;
+        return true;
     }
 
     if (app.is_suspended) {
         ORB_INFO("Window restored, resuming application.");
-        app.is_suspended = FALSE;
+        app.is_suspended = false;
     }
 
     app.game_instance->on_resize(app.game_instance, width, height);
     orb_renderer_resize(width, height);
 
     // let other listeners get this event if we werent suspended
-    return FALSE;
+    return false;
 }
 
 b8 orb_application_create(orb_game *game_instance) {
     if (app.is_initialized)
-        return FALSE;
+        return false;
 
     app.game_instance = game_instance;
 
@@ -77,7 +77,7 @@ b8 orb_application_create(orb_game *game_instance) {
 
     if (!orb_event_init()) {
         ORB_FATAL("Could not initialize event system");
-        return FALSE;
+        return false;
     }
 
     orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr, orb_on_event_shutdown);
@@ -88,12 +88,12 @@ b8 orb_application_create(orb_game *game_instance) {
                            config.height)) {
 
         ORB_FATAL("Could not initialize platform layer");
-        return FALSE;
+        return false;
     }
 
     if (!orb_input_init()) {
         ORB_FATAL("Could not initialize input system");
-        return FALSE;
+        return false;
     }
 
     // platform might have given us scaled window values
@@ -102,24 +102,24 @@ b8 orb_application_create(orb_game *game_instance) {
 
     if (!orb_renderer_init(&config, &app.platform)) {
         ORB_FATAL("Could not initialize renderer");
-        return FALSE;
+        return false;
     }
 
     if (!app.game_instance->initialize(app.game_instance)) {
         ORB_FATAL("Game failed to initialize");
-        return FALSE;
+        return false;
     }
 
     app.game_instance->on_resize(app.game_instance, config.width, config.height);
 
-    app.is_initialized = TRUE;
-    app.is_suspended = FALSE;
+    app.is_initialized = true;
+    app.is_suspended = false;
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_application_run() {
-    app.is_running = TRUE;
+    app.is_running = true;
 
     orb_clock_start(&app.clock);
     orb_clock_update(&app.clock);
@@ -168,7 +168,7 @@ b8 orb_application_run() {
         app.last_frame_timestamp = current_frame_timestamp;
     }
 
-    app.is_running = FALSE;
+    app.is_running = false;
 
     app.game_instance->shutdown(app.game_instance);
 
@@ -179,7 +179,7 @@ b8 orb_application_run() {
     orb_platform_shutdown(&app.platform);
     orb_logger_shutdown();
 
-    return TRUE;
+    return true;
 }
 
 void orb_application_get_window_size(u16 *width, u16 *height) {

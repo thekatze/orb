@@ -12,7 +12,7 @@ b8 orb_renderer_backend_init(struct orb_platform_state *platform_state,
     out_renderer_backend->end_frame = vulkan_backend_end_frame;
     out_renderer_backend->resize = vulkan_backend_resize;
 
-    return TRUE;
+    return true;
 }
 
 void orb_renderer_backend_shutdown(orb_renderer_backend *renderer_backend) {

@@ -22,7 +22,7 @@ typedef struct input_state {
 
 static input_state state = {0};
 
-b8 orb_input_init() { return TRUE; }
+b8 orb_input_init() { return true; }
 void orb_input_shutdown() {}
 
 void orb_input_update() {

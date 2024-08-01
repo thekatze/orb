@@ -40,13 +40,13 @@ b8 orb_vulkan_swapchain_acquire_next_image_index(orb_vulkan_context *context,
     case VK_ERROR_OUT_OF_DATE_KHR:
         orb_vulkan_swapchain_recreate(context, context->framebuffer_width,
                                       context->framebuffer_height, swapchain);
-        return FALSE;
+        return false;
     default:
         ORB_FATAL("vkAcquireNextImageKHR failed with result: %s", string_VkResult(result));
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 b8 orb_vulkan_swapchain_present(orb_vulkan_context *context, orb_vulkan_swapchain *swapchain,
@@ -75,25 +75,25 @@ b8 orb_vulkan_swapchain_present(orb_vulkan_context *context, orb_vulkan_swapchai
         break;
     default:
         ORB_FATAL("vkAcquireNextImageKHR failed with result: %s", string_VkResult(result));
-        return FALSE;
+        return false;
     }
 
     context->current_frame = (context->current_frame + 1) % swapchain->max_frames_in_flight;
 
-    return TRUE;
+    return true;
 }
 
 b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
                     orb_vulkan_swapchain *out_swapchain) {
     out_swapchain->max_frames_in_flight = 2;
 
-    b8 found = FALSE;
+    b8 found = false;
     for (u32 i = 0; i < context->device.swapchain.format_count; ++i) {
         VkSurfaceFormatKHR *format = &context->device.swapchain.formats[i];
         if (format->format == VK_FORMAT_B8G8R8A8_UNORM &&
             format->colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             out_swapchain->image_format = *format;
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -184,7 +184,7 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
 
     if (out_swapchain->image_count == 0) {
         ORB_ERROR("getting swapchain images failed");
-        return FALSE;
+        return false;
     }
 
     if (!out_swapchain->images) {
@@ -223,19 +223,19 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
     // depth buffer
     if (!orb_vulkan_device_detect_depth_format(&context->device)) {
         ORB_ERROR("Device does not support a suitable depth buffer format");
-        return FALSE;
+        return false;
     }
 
     if (!orb_vulkan_image_create(
             context, VK_IMAGE_TYPE_2D, swapchain_extent.width, swapchain_extent.height,
             context->device.depth_format, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, TRUE,
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, true,
             VK_IMAGE_ASPECT_DEPTH_BIT, &out_swapchain->depth_attachment)) {
         ORB_ERROR("Depth buffer image could not be created.");
-        return FALSE;
+        return false;
     };
 
-    return TRUE;
+    return true;
 }
 
 void cleanup_swapchain(orb_vulkan_context *context, orb_vulkan_swapchain *swapchain) {

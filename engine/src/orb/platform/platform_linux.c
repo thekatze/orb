@@ -50,7 +50,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 
     if (xcb_connection_has_error(state->connection)) {
         ORB_FATAL("Failed to connect to X server.");
-        return FALSE;
+        return false;
     }
 
     const struct xcb_setup_t *setup = xcb_get_setup(state->connection);
@@ -85,11 +85,11 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 
     const char *WM_DELETE_WINDOW = "WM_DELETE_WINDOW";
     xcb_intern_atom_cookie_t wm_delete_cookie =
-        xcb_intern_atom(state->connection, FALSE, (u16)strlen(WM_DELETE_WINDOW), WM_DELETE_WINDOW);
+        xcb_intern_atom(state->connection, false, (u16)strlen(WM_DELETE_WINDOW), WM_DELETE_WINDOW);
 
     const char *WM_PROTOCOLS = "WM_PROTOCOLS";
     xcb_intern_atom_cookie_t wm_protocols_cookie =
-        xcb_intern_atom(state->connection, FALSE, (u16)strlen(WM_PROTOCOLS), WM_PROTOCOLS);
+        xcb_intern_atom(state->connection, false, (u16)strlen(WM_PROTOCOLS), WM_PROTOCOLS);
 
     xcb_intern_atom_reply_t *wm_delete_reply =
         xcb_intern_atom_reply(state->connection, wm_delete_cookie, NULL);
@@ -109,10 +109,10 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     i32 stream_result = xcb_flush(state->connection);
     if (stream_result <= 0) {
         ORB_FATAL("An error occurred when flushing the xcb stream: %d", stream_result);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void orb_platform_shutdown(orb_platform_state *platform) {
@@ -121,15 +121,15 @@ void orb_platform_shutdown(orb_platform_state *platform) {
 
     xcb_destroy_window(state->connection, state->window);
 
-    orb_platform_free(state, FALSE);
+    orb_platform_free(state, false);
 }
 
 b8 orb_platform_events_pump(orb_platform_state *platform) {
     (void)platform;
 
-    b8 should_quit = FALSE;
+    b8 should_quit = false;
 
-    while (TRUE) {
+    while (true) {
         xcb_generic_event_t *event = xcb_poll_for_event(state->connection);
         if (!event) {
             // no more events to handle
@@ -193,7 +193,7 @@ b8 orb_platform_events_pump(orb_platform_state *platform) {
             xcb_client_message_event_t *client_message = (xcb_client_message_event_t *)event;
 
             if (client_message->data.data32[0] == state->wm_delete_win) {
-                should_quit = TRUE;
+                should_quit = true;
             }
         } break;
         default: {

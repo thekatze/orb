@@ -16,10 +16,10 @@ b8 orb_renderer_init(struct orb_application_config *application_config,
 
     if (!backend->initialize(backend, application_config, platform_state)) {
         ORB_FATAL("Renderer backend initialization failed.");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void orb_renderer_shutdown() {
@@ -41,14 +41,14 @@ b8 orb_renderer_draw_frame(orb_render_packet *packet) {
     // failing a begin frame might happen (after resizing), we can just try again
     // later
     if (!backend->begin_frame(backend, packet->delta_time)) {
-        return TRUE;
+        return true;
     }
 
     if (!backend->end_frame(backend, packet->delta_time)) {
-        return FALSE;
+        return false;
     }
 
     backend->frame_number += 1;
 
-    return TRUE;
+    return true;
 }

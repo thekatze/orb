@@ -356,7 +356,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
                      i32 x, i32 y, i32 width, i32 height) {
   // application_config *typed_config = (application_config *)config;
   platform->internal_state =
-      orb_platform_allocate(sizeof(internal_state), FALSE);
+      orb_platform_allocate(sizeof(internal_state), false);
   state_ptr = platform->internal_state;
   state_ptr->device_pixel_ratio = 1.0f;
 
@@ -376,7 +376,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     state_ptr->wnd_delegate = [[WindowDelegate alloc] initWithState:state_ptr];
     if (!state_ptr->wnd_delegate) {
       ORB_ERROR("Failed to create window delegate");
-      return FALSE;
+      return false;
     }
 
     // Window creation
