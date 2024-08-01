@@ -85,8 +85,6 @@ b8 orb_vulkan_swapchain_present(orb_vulkan_context *context, orb_vulkan_swapchai
 
 b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
                     orb_vulkan_swapchain *out_swapchain) {
-    out_swapchain->max_frames_in_flight = 2;
-
     b8 found = false;
     for (u32 i = 0; i < context->device.swapchain.format_count; ++i) {
         VkSurfaceFormatKHR *format = &context->device.swapchain.formats[i];
@@ -142,6 +140,8 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
     u32 image_count = capabilities.maxImageCount == 0 // 0 means unlimited, according to spec
                           ? desired_image_count
                           : ORB_MIN(desired_image_count, capabilities.maxImageCount);
+
+    out_swapchain->max_frames_in_flight = (u8)image_count - 1;
 
     VkSwapchainCreateInfoKHR swapchain_create_info = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
