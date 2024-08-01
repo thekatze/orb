@@ -26,8 +26,6 @@ u8 rank_physical_device(VkPhysicalDevice device, VkSurfaceKHR surface,
                         orb_vulkan_physical_device_queue_family_info *out_queue_info,
                         orb_vulkan_swapchain_support_info *out_swapchain_support_info);
 
-#define MAX_QUEUES 3
-
 b8 orb_vulkan_device_init(orb_vulkan_context *context) {
     if (!select_physical_device(context)) {
         return false;
@@ -35,7 +33,10 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
 
     ORB_DEBUG("Creating logical device");
 
+    const u32 MAX_QUEUES = 3;
     u32 queue_indices[MAX_QUEUES];
+    VkDeviceQueueCreateInfo queue_create_infos[MAX_QUEUES];
+
     u32 used_queues = 1;
 
     queue_indices[0] = context->device.queue_info.graphics_family_index;
@@ -50,7 +51,6 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
         queue_indices[used_queues++] = context->device.queue_info.present_family_index;
     }
 
-    VkDeviceQueueCreateInfo queue_create_infos[used_queues];
     for (u32 i = 0; i < used_queues; ++i) {
         f32 queue_priority = 1.0f;
         u32 queue_count = queue_indices[i] == context->device.queue_info.graphics_family_index
