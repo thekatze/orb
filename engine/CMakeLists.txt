@@ -20,6 +20,8 @@ add_library(orb
 
     ./src/orb/containers/dynamic_array.c
 
+    ./src/orb/allocators/linear_allocator.c
+
     ./src/orb/math/orb_math.c
     ./src/orb/math/random.c
     
