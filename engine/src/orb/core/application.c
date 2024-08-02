@@ -114,10 +114,10 @@ b8 orb_application_create(orb_game *game_instance) {
         return false;
     }
 
-    if (!orb_input_init()) {
-        ORB_FATAL("Could not initialize input system");
-        return false;
-    }
+    SUBSYSTEM_INIT(input);
+
+    ORB_DEBUG("Systems allocator using %llukB out of %llukB",
+              app->systems_allocator.allocated / 1024, app->systems_allocator.total_size / 1024);
 
     // during window creation the platform might have given us scaled window values
     config.width = app->width;

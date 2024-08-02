@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-b8 orb_input_init();
+b8 orb_input_init(usize* memory_requirement, void* memory);
 void orb_input_shutdown();
 
 void orb_input_update();
