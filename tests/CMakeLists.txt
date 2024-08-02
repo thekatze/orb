@@ -3,6 +3,7 @@ add_executable(tests
     ./src/test_runner.c 
 
     ./src/allocators/linear_allocator_tests.c
+    ./src/math/orb_math_tests.c
 )
 
 target_include_directories(tests PRIVATE "${orb_INCLUDE_DIR}")
