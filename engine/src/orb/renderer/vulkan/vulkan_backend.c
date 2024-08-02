@@ -48,7 +48,7 @@ u32 validation_layers_count = ORB_ARRAY_LENGTH(validation_layers);
 #endif
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
-orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagsEXT message_severity,
+orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
                       VkDebugUtilsMessageTypeFlagsEXT message_types,
                       const VkDebugUtilsMessengerCallbackDataEXT *callback_data, void *user_data) {
     (void)user_data;
@@ -62,6 +62,7 @@ orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagsEXT message_severity,
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
         ORB_WARN("%s", callback_data->pMessage);
         break;
+    default:
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
         ORB_INFO("%s", callback_data->pMessage);
         break;
