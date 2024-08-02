@@ -8,7 +8,7 @@ b8 orb_vulkan_command_buffer_allocate(orb_vulkan_context *context, VkCommandPool
 void orb_vulkan_command_buffer_free(orb_vulkan_context *context, VkCommandPool pool,
                                     orb_vulkan_command_buffer *out_command_buffer);
 
-typedef VkCommandBufferUsageFlagBits orb_command_buffer_begin_flags;
+typedef VkCommandBufferUsageFlags orb_command_buffer_begin_flags;
 b8 orb_vulkan_command_buffer_begin(orb_vulkan_command_buffer *command_buffer,
                                    orb_command_buffer_begin_flags flags);
 
