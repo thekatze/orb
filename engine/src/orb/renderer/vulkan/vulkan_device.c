@@ -350,8 +350,7 @@ u8 rank_physical_device(VkPhysicalDevice device, VkSurfaceKHR surface,
     default:
     case VK_PHYSICAL_DEVICE_TYPE_OTHER:
     case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:
-        ORB_ERROR("Unknown physical device type: %s",
-                  string_VkPhysicalDeviceType(properties->deviceType));
+        ORB_ERROR("Unknown physical device type");
         return 0;
         break;
     }

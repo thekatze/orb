@@ -4,7 +4,15 @@
 #include "../../core/logger.h"
 #include "../../core/types.h"
 
+#ifndef ORB_PLATFORM_WINDOWS
 #include <vulkan/vk_enum_string_helper.h>
+#else
+// TODO: fix the error that occurs when importing <vulkan/vk_enum_string_helper.h> on windows
+#define string_VkResult(param) "Can not get string representation of VkResult"
+#define string_VkFormat(param) "Can not get string representation of VkFormat"
+#define string_VkColorSpaceKHR(param) "Can not get string representation of VkColorSpaceKHR"
+#endif
+
 #include <vulkan/vulkan.h>
 
 #define ORB_VK_EXPECT(vk_api_call)                                                                 \
