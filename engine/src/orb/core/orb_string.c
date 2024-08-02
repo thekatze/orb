@@ -1,5 +1,9 @@
 #include "orb_string.h"
+#include "asserts.h"
 #include "orb_memory.h"
+
+#include <stdarg.h>
+#include <stdio.h>
 
 #define MAX_STRING_LENGTH 1024 * 1024 * 1024
 
@@ -30,4 +34,31 @@ b8 orb_string_equal(const char *this, const char *other) {
     }
 
     return true;
+}
+
+ORB_API usize orb_string_format(char *destination, const char *format, ...) {
+    __builtin_va_list arg_ptr;
+    va_start(arg_ptr, format);
+
+    usize written = orb_string_format_v(destination, format, arg_ptr);
+
+    va_end(arg_ptr);
+    return written;
+}
+
+ORB_API usize orb_string_format_v(char *destination, const char *format, void *va_list) {
+    ORB_DEBUG_ASSERT(destination != nullptr,
+                     "orb_string_format_v: destination must not be nullptr");
+
+    const usize FORMAT_BUFFER_SIZE = 32000;
+    char buffer[FORMAT_BUFFER_SIZE];
+    i32 written = vsnprintf(buffer, FORMAT_BUFFER_SIZE, format, va_list);
+    ORB_ASSERT(written != -1 && written,
+               "orb_string_format_v: buffer too small for resulting formatted string");
+    buffer[written] = '\0';
+    usize written_bytes = (usize)written;
+
+    orb_memory_copy(destination, buffer, written_bytes + 1);
+
+    return written_bytes;
 }
