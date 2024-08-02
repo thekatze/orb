@@ -1,7 +1,6 @@
 #include "dynamic_array.h"
 #include "../core/asserts.h"
 #include "../core/orb_memory.h"
-#include <strings.h>
 
 orb_dynamic_array _orb_dynamic_array_create(usize capacity, usize stride) {
     orb_dynamic_array array = {
