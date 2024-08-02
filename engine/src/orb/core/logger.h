@@ -22,7 +22,7 @@ typedef enum orb_log_level {
     LOG_LEVEL_TRACE = 5,
 } orb_log_level;
 
-b8 orb_logger_init();
+b8 orb_logger_init(u64 *memory_requirement, void *memory);
 void orb_logger_shutdown();
 
 ORB_API void orb_log(orb_log_level level, const char *message, ...);

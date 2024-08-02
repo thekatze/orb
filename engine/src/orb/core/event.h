@@ -22,7 +22,7 @@ typedef struct orb_event_context {
     } data;
 } orb_event_context;
 
-b8 orb_event_init();
+b8 orb_event_init(usize *memory_requirement, void *memory);
 void orb_event_shutdown();
 
 typedef u16 event_code;

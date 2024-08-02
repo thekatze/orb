@@ -10,13 +10,30 @@ void orb_report_assertion_failure(const char *expression, const char *message, c
     orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure: %s: '%s'", file, line, expression, message);
 }
 
-b8 orb_logger_init() {
+typedef struct logger_system_state {
+    b8 dummy_data;
+} logger_system_state;
+
+logger_system_state *state;
+
+b8 orb_logger_init(u64 *memory_requirement, void *memory) {
+    *memory_requirement = sizeof(logger_system_state);
+    if (memory == nullptr) {
+        return true;
+    }
+
+    state = memory;
+
     // TODO: init log to file
+    state->dummy_data = true;
+
     return true;
 }
 
 void orb_logger_shutdown() {
     // TODO: close file handle, write queued entries
+
+    state = nullptr;
 }
 
 static const char *level_strings[6] = {

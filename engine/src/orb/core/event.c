@@ -1,7 +1,7 @@
 #include "event.h"
 #include "../containers/dynamic_array.h"
 #include "asserts.h"
-#include "memory.h"
+#include "orb_memory.h"
 
 typedef struct registered_handler {
     void *listener;
@@ -18,26 +18,35 @@ typedef struct event_system_state {
     struct event_code_handlers registered[MAX_MESSAGE_CODES];
 } event_system_state;
 
-static event_system_state state = {0};
+static event_system_state *state;
 
-b8 orb_event_init() {
-    // state is statically zero initialized, nothing to do here
+b8 orb_event_init(usize *memory_requirement, void *memory) {
+    *memory_requirement = sizeof(event_system_state);
+    if (memory == nullptr) {
+        return true;
+    }
+
+    state = memory;
+    orb_memory_zero(state, sizeof(event_system_state));
+
     return true;
 }
 
 void orb_event_shutdown() {
     for (u16 i = 0; i < MAX_MESSAGE_CODES; ++i) {
-        auto event_handlers = &state.registered[i].registered_event_handlers;
+        auto event_handlers = &state->registered[i].registered_event_handlers;
 
         // check if this dynamic_array has been initialized
         if (event_handlers->items != 0) {
             orb_dynamic_array_destroy(event_handlers);
         }
     }
+
+    state = nullptr;
 }
 
 b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
-    orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
+    orb_dynamic_array *storage = &state->registered[code].registered_event_handlers;
 
     if (storage->items == 0) {
         *storage = orb_dynamic_array_create(registered_handler);
@@ -62,7 +71,7 @@ b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn 
 }
 
 b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_fn on_event) {
-    orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
+    orb_dynamic_array *storage = &state->registered[code].registered_event_handlers;
     registered_handler *handlers = (registered_handler *)storage->items;
 
     if (handlers == 0) {
@@ -84,7 +93,7 @@ b8 orb_event_remove_listener(event_code code, void *listener, orb_event_handler_
 
 b8 orb_event_send(event_code code, void *sender, orb_event_context context) {
 
-    orb_dynamic_array *storage = &state.registered[code].registered_event_handlers;
+    orb_dynamic_array *storage = &state->registered[code].registered_event_handlers;
     registered_handler *handlers = (registered_handler *)storage->items;
 
     if (handlers == nullptr) {

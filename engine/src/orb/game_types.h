@@ -15,4 +15,7 @@ typedef struct orb_game {
 
     // game specific state managed by the game
     void *state;
+
+    // application state managed by the engine
+    void *application_state;
 } orb_game;
