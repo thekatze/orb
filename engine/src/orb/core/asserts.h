@@ -4,14 +4,7 @@
 
 #include "types.h"
 
-#ifdef _MSC_VER
-#include <intrin.h>
-#define orb_debug_break() __debugbreak()
-
-#else
 #define orb_debug_break() __builtin_trap()
-
-#endif
 
 // defined in logger.c
 ORB_API void orb_report_assertion_failure(const char *expression, const char *message,

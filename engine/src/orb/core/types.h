@@ -44,19 +44,9 @@ typedef bool b8;
 
 #ifdef ORB_EXPORT
 
-#ifdef _MSC_VER
-#define ORB_API __declspec(dllexport)
-#else
 #define ORB_API __attribute__((visibility("default")))
-#endif
-
-#else
-
-#ifdef _MSC_VER
-#define ORB_API __declspec(dllimport)
 #else
 #define ORB_API
-#endif
 
 #endif
 
@@ -75,10 +65,5 @@ typedef bool b8;
 #define likely(expression) __builtin_expect(!!(expression), 1)
 #define unlikely(expression) __builtin_expect(!!(expression), 0)
 
-#ifdef _MSC_VER
-#define ORB_INLINE static inline __forceinline
-#define ORB_NOINLINE __declspec(noinline)
-#else
 #define ORB_INLINE static inline __attribute__((always_inline))
 #define ORB_NOINLINE
-#endif
