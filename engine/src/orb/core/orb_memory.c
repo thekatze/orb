@@ -6,12 +6,21 @@
 
 #include <stdio.h>
 
-struct memory_stats {
+typedef struct memory_stats {
     u64 total_allocated;
     u64 tagged_allocations[MEMORY_TAG_MAX_TAGS];
+} memory_stats;
+
+// TODO: in the kohi series this was moved to the subsystem linear allocator
+// it would be great if this were in the linear allocator, but id rather track
+// ALL allocations
+// find a way to allow both (mounting/dismounting into the linear allocator?)
+struct memory_system_state {
+    memory_stats stats;
+    usize allocation_count;
 };
 
-static struct memory_stats stats;
+static struct memory_system_state state;
 
 static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
     "UNKNOWN           ", "ARRAY             ", "DYNAMIC_ARRAY     ", "DICTIONARY        ",
@@ -21,14 +30,15 @@ static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
     "SCENE             ",
 };
 
-void orb_memory_init() { orb_memory_zero(&stats, sizeof(stats)); }
+void orb_memory_init() { orb_memory_zero(&state, sizeof(state)); }
+
 void orb_memory_shutdown() {
 #ifndef ORB_RELEASE
     // print leaked allocations
     for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i) {
-        u64 allocation = stats.tagged_allocations[i];
+        u64 allocation = state.stats.tagged_allocations[i];
         if (allocation != 0) {
-            ORB_ERROR("%u bytes of memory leaked in %s", allocation, memory_tag_strings[i]);
+            ORB_ERROR("%llu bytes of memory leaked in %s", allocation, memory_tag_strings[i]);
         }
     }
 #endif
@@ -39,8 +49,10 @@ void *orb_allocate(u64 size, orb_memory_tag tag) {
         ORB_WARN("orb_allocate called using MEMORY_TAG_UNKNOWN.");
     }
 
-    stats.total_allocated += size;
-    stats.tagged_allocations[tag] += size;
+    state.stats.total_allocated += size;
+    state.stats.tagged_allocations[tag] += size;
+
+    state.allocation_count += 1;
 
     void *block = orb_platform_allocate(size, false);
 
@@ -57,8 +69,8 @@ void orb_free(void *block, u64 size, orb_memory_tag tag) {
         ORB_WARN("orb_free called using MEMORY_TAG_UNKNOWN.");
     }
 
-    stats.total_allocated -= size;
-    stats.tagged_allocations[tag] -= size;
+    state.stats.total_allocated -= size;
+    state.stats.tagged_allocations[tag] -= size;
 
     orb_platform_free(block, false);
 }
@@ -82,7 +94,7 @@ char *orb_memory_debug_stats() {
 
     for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i) {
         char unit[4] = "_iB";
-        u64 allocation = stats.tagged_allocations[i];
+        u64 allocation = state.stats.tagged_allocations[i];
         f32 displayed_allocation;
 
         if (allocation >= gib) {
@@ -111,3 +123,5 @@ char *orb_memory_debug_stats() {
 
     return out_string;
 }
+
+usize orb_memory_allocation_count() { return state.allocation_count; }

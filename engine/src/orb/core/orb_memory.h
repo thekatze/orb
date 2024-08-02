@@ -35,3 +35,6 @@ ORB_API void *orb_memory_set(void *destination, i32 value, u64 size);
 
 // must be freed by caller
 ORB_API char *orb_memory_debug_stats();
+
+// @brief gets total number of orb_allocate calls. free calls are not subtracted from this.
+ORB_API usize orb_memory_allocation_count();
