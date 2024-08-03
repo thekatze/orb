@@ -86,11 +86,15 @@ b8 orb_application_create(orb_game *game_instance) {
     ORB_DEBUG_ASSERT(game_instance->application_state == nullptr,
                      "application create must not be called more than once");
 
+    orb_application_config config = game_instance->app_config;
+
     game_instance->application_state =
         orb_allocate(sizeof(application_state), MEMORY_TAG_APPLICATION);
 
     app = game_instance->application_state;
     app->game_instance = game_instance;
+    app->width = config.width;
+    app->height = config.height;
 
     u64 systems_allocator_total_size = 16 * 1024 * 1024; // 16MB for now
     void *systems_memory =
@@ -106,7 +110,6 @@ b8 orb_application_create(orb_game *game_instance) {
     orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr, orb_on_event_shutdown);
     orb_event_add_listener(ORB_EVENT_RESIZED, nullptr, orb_on_event_resize);
 
-    orb_application_config config = app->game_instance->app_config;
     if (!orb_platform_init(&app->platform, config.name, config.x, config.y, config.width,
                            config.height)) {
 
