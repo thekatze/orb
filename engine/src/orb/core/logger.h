@@ -20,6 +20,8 @@ typedef enum orb_log_level {
     LOG_LEVEL_INFO = 3,
     LOG_LEVEL_DEBUG = 4,
     LOG_LEVEL_TRACE = 5,
+
+    LOG_LEVEL_MAX_ENUM,
 } orb_log_level;
 
 b8 orb_logger_init(u64 *memory_requirement, void *memory);

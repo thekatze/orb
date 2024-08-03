@@ -48,7 +48,7 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
 
     if (context->device.queue_info.graphics_family_index !=
         context->device.queue_info.transfer_family_index) {
-        queue_indices[used_queues++] = context->device.queue_info.present_family_index;
+        queue_indices[used_queues++] = context->device.queue_info.transfer_family_index;
     }
 
     for (u32 i = 0; i < used_queues; ++i) {

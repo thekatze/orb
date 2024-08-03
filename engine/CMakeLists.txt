@@ -16,6 +16,7 @@ add_library(orb
     ./src/orb/core/clock.c
 
     "${MAC_PLATFORM_SRC}"
+    ./src/orb/platform/platform_windows.c
     ./src/orb/platform/platform_linux.c
 
     ./src/orb/containers/dynamic_array.c
@@ -38,6 +39,7 @@ add_library(orb
     ./src/orb/renderer/vulkan/vulkan_fence.c
 
     ./src/orb/renderer/vulkan/platform/vulkan_platform_mac.c
+    ./src/orb/renderer/vulkan/platform/vulkan_platform_windows.c
     ./src/orb/renderer/vulkan/platform/vulkan_platform_linux.c
 )
 

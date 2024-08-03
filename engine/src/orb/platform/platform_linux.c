@@ -246,7 +246,8 @@ void *orb_platform_memory_set(void *destination, i32 value, u64 size) {
 }
 
 // FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-const char *color_escape_codes[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
+const char *color_escape_codes[LOG_LEVEL_MAX_ENUM] = {"0;41", "1;31", "1;33",
+                                                      "1;32", "1;34", "1;30"};
 
 void orb_platform_console_write(const char *message, u8 color) {
     printf("\033[%sm%s\033[0m", color_escape_codes[color], message);

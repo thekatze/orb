@@ -35,6 +35,8 @@ const char *required_extensions[] = {
     "VK_EXT_metal_surface",
 #elifdef ORB_PLATFORM_LINUX
     "VK_KHR_xcb_surface",
+#elifdef ORB_PLATFORM_WINDOWS
+    "VK_KHR_win32_surface",
 #endif
 
 };
