@@ -23,23 +23,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct orb_internal_state {
+typedef struct internal_state {
     Display *display;
     xcb_connection_t *connection;
     xcb_window_t window;
     xcb_screen_t *screen;
     xcb_atom_t wm_protocols;
     xcb_atom_t wm_delete_win;
-} orb_internal_state;
+} internal_state;
 
-orb_internal_state *state = 0;
+static internal_state *state = 0;
 
 orb_keyboard_keys translate_keycode(KeySym key_sym);
 
 b8 orb_platform_init(orb_platform_state *platform, const char *application_name, i32 x, i32 y,
                      i32 width, i32 height) {
-    platform->internal_state = orb_platform_allocate(sizeof(orb_internal_state), false);
-    state = (orb_internal_state *)platform->internal_state;
+    platform->internal_state = orb_platform_allocate(sizeof(internal_state), false);
+    state = (internal_state *)platform->internal_state;
 
     state->display = XOpenDisplay(NULL);
 
