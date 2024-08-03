@@ -14,7 +14,7 @@ typedef struct logger_system_state {
     b8 dummy_data;
 } logger_system_state;
 
-logger_system_state *state;
+static logger_system_state *state;
 
 b8 orb_logger_init(u64 *memory_requirement, void *memory) {
     *memory_requirement = sizeof(logger_system_state);
