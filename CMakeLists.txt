@@ -36,14 +36,6 @@ SET(CMAKE_C_FLAGS "${DEBUG_C_FLAGS} ${RELEASE_C_FLAGS} -Werror -Wall ${PEDANTIC}
 # for clangd
 SET(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-if (CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message("Building orb in release mode")
-    SET(ORB_RELEASE TRUE)
-else()
-    message("Building orb in debug mode")
-    SET(ORB_RELEASE FALSE)
-endif()
-
 project(
     orb
     VERSION 0.1.0
