@@ -265,12 +265,14 @@ b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, V
         return false;
     }
 
-    if (!out_support_info->formats) {
+    // some drivers report more formats after resizing, so we need to reallocate if that happens
+    if (out_support_info->format_count > previous_format_count) {
+        if (out_support_info->formats != nullptr) {
+            orb_free(out_support_info->formats, previous_format_count * sizeof(VkSurfaceFormatKHR), MEMORY_TAG_RENDERER);
+        }
+
         out_support_info->formats = (VkSurfaceFormatKHR *)orb_allocate(
             out_support_info->format_count * sizeof(VkSurfaceFormatKHR), MEMORY_TAG_RENDERER);
-    } else {
-        ORB_ASSERT(out_support_info->format_count == previous_format_count,
-                   "amount of supported image formats must not change");
     }
 
     ORB_VK_EXPECT(vkGetPhysicalDeviceSurfaceFormatsKHR(
