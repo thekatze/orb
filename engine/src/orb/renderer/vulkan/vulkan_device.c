@@ -47,7 +47,9 @@ b8 orb_vulkan_device_init(orb_vulkan_context *context) {
     }
 
     if (context->device.queue_info.graphics_family_index !=
-        context->device.queue_info.transfer_family_index) {
+            context->device.queue_info.transfer_family_index &&
+        context->device.queue_info.present_family_index !=
+            context->device.queue_info.transfer_family_index) {
         queue_indices[used_queues++] = context->device.queue_info.transfer_family_index;
     }
 
@@ -268,7 +270,8 @@ b8 orb_vulkan_device_query_swapchain_support(VkPhysicalDevice physical_device, V
     // some drivers report more formats after resizing, so we need to reallocate if that happens
     if (out_support_info->format_count > previous_format_count) {
         if (out_support_info->formats != nullptr) {
-            orb_free(out_support_info->formats, previous_format_count * sizeof(VkSurfaceFormatKHR), MEMORY_TAG_RENDERER);
+            orb_free(out_support_info->formats, previous_format_count * sizeof(VkSurfaceFormatKHR),
+                     MEMORY_TAG_RENDERER);
         }
 
         out_support_info->formats = (VkSurfaceFormatKHR *)orb_allocate(
