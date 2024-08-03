@@ -1,4 +1,4 @@
-#orb engine
+# orb engine
 
 learning low level programming in c by architecting a game engine (...and game?)
 
@@ -10,19 +10,22 @@ right handed coordinate system
 
 requirements:
 - cmake
-- a c compiler supporting c23
+- clang (>= 18.0.0)
+- ninja
 - vulkan
 
-```sh
-$ cmake . -B build
-$ cmake --build build/
-$ ./build/orb
-```
-
-on unix-like systems using the ninja generator is strongly encouraged:
+on windows, use [llvm-mingw](https://github.com/mstorsjo/llvm-mingw/releases)
 
 ```sh
 $ cmake . -B build -G Ninja
+$ cmake --build build/
+$ ./build/example/example
+```
+
+for convenience this project uses just
+
+```sh
+$ just run example
 ```
 
 to build documentation:
@@ -36,18 +39,10 @@ $ doxygen Doxyfile
 ### release build
 
 ```sh
-$ cmake -DCMAKE_BUILD_TYPE=Release . -B build
-$ cmake --build build/
-$ ./build/orb
+$ just release
 ```
 
 ## notes:
-
-when developing on mac i like to use the metal debug hud:
-
-```sh
-$ cmake --build build && MTL_HUD_ENABLED=1 build/example/example
-```
 
 check dynamically linked libraries on mac:
 
@@ -56,7 +51,6 @@ $ otool -L build/example/example
 ```
 
 on linux
-
 
 ```sh
 $ lld build/example/example

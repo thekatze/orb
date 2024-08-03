@@ -12,11 +12,10 @@
 typedef struct internal_state {
     HINSTANCE h_instance;
     HWND hwnd;
-    f64 clock_frequency;
-    LARGE_INTEGER start_time;
 } internal_state;
 
 static internal_state *state;
+static LARGE_INTEGER start_time;
 
 LRESULT CALLBACK process_win32_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
@@ -74,11 +73,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 
     ShowWindow(state->hwnd, SW_SHOW);
 
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    state->clock_frequency = 1.0 / (f64)frequency.QuadPart;
-
-    QueryPerformanceCounter(&state->start_time);
+    QueryPerformanceCounter(&start_time);
 
     return true;
 }
@@ -166,10 +161,17 @@ void orb_platform_get_window_handle_info(usize *out_size, void *memory) {
 }
 
 f64 orb_platform_time_now() {
+    static f64 clock_frequency = 0.0;
+    if (unlikely(clock_frequency == 0.0)) {
+        LARGE_INTEGER frequency;
+        QueryPerformanceFrequency(&frequency);
+        clock_frequency = 1.0 / (f64)frequency.QuadPart;
+    }
+
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
 
-    return (f64)now.QuadPart * state->clock_frequency;
+    return (f64)now.QuadPart * clock_frequency;
 }
 
 void orb_platform_time_sleep(u64 ms) { Sleep((DWORD)ms); }

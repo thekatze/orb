@@ -7,7 +7,7 @@ if (ORB_RELEASE)
     add_custom_command(
         TARGET example 
         POST_BUILD
-        COMMAND ${CMAKE_STRIP} example)
+        COMMAND ${CMAKE_STRIP} "$<TARGET_FILE:example>")
 
     # could not get lto working on apple silicon
     if (NOT APPLE)

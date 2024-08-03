@@ -68,4 +68,3 @@ if(LINUX)
 elseif(APPLE)
     target_link_libraries(orb PRIVATE "-framework Foundation -framework AppKit -framework QuartzCore")
 endif()
-
