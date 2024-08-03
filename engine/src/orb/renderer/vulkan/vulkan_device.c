@@ -223,7 +223,7 @@ b8 select_physical_device(orb_vulkan_context *context) {
         }
 
         ORB_INFO("Using render device %s (GPU Driver %d.%d.%d | Vulkan "
-                 "API %d.%d.%d]",
+                 "API %d.%d.%d)",
                  device->properties.deviceName, VK_VERSION_MAJOR(device->properties.driverVersion),
                  VK_VERSION_MINOR(device->properties.driverVersion),
                  VK_VERSION_PATCH(device->properties.driverVersion),
