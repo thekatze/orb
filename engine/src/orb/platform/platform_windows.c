@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <windowsx.h>
 
-
-
 typedef struct internal_state {
     HINSTANCE h_instance;
     HWND hwnd;
@@ -86,7 +84,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 }
 
 void orb_platform_shutdown(orb_platform_state *platform) {
-    (void) platform;
+    (void)platform;
     if (state->hwnd) {
         DestroyWindow(state->hwnd);
         state->hwnd = 0;
@@ -94,7 +92,7 @@ void orb_platform_shutdown(orb_platform_state *platform) {
 }
 
 b8 orb_platform_events_pump(orb_platform_state *platform) {
-    (void) platform;
+    (void)platform;
     MSG message;
     while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
         TranslateMessage(&message);
@@ -114,7 +112,9 @@ void orb_platform_free(void *block, b8 aligned) {
     free(block);
 }
 
-void *orb_platform_memory_zero(void *block, u64 size) { return orb_platform_memory_set(block, 0, size); }
+void *orb_platform_memory_zero(void *block, u64 size) {
+    return orb_platform_memory_set(block, 0, size);
+}
 
 void *orb_platform_memory_copy(void *destination, const void *source, u64 size) {
     return memcpy(destination, source, size);
@@ -205,12 +205,32 @@ LRESULT CALLBACK process_win32_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
     case WM_KEYUP:
     case WM_SYSKEYUP: {
         b8 pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
+        orb_keyboard_keys key;
 
-        orb_input_process_key(0, pressed);
+        switch (w_param) {
+        case VK_MENU: {
+            b8 extended = (HIWORD(l_param) & KF_EXTENDED) == KF_EXTENDED;
+            key = extended ? KEY_RALT : KEY_LALT;
+        } break;
+        case VK_SHIFT: {
+            u32 left_shift = MapVirtualKey(VK_LSHIFT, MAPVK_VK_TO_VSC);
+            u32 scancode = ((l_param & (0xFF << 16)) >> 16);
+            key = scancode == left_shift ? KEY_LSHIFT : KEY_RSHIFT;
+        } break;
+        case VK_CONTROL: {
+            b8 extended = (HIWORD(l_param) & KF_EXTENDED) == KF_EXTENDED;
+            key = extended ? KEY_RCONTROL : KEY_LCONTROL;
+        } break;
+        default:
+            key = (orb_keyboard_keys)w_param;
+            break;
+        }
+
+        orb_input_process_key(key, pressed);
     } break;
     case WM_MOUSEMOVE: {
-        i16 x_position = (i16) GET_X_LPARAM(l_param);
-        i16 y_position = (i16) GET_Y_LPARAM(l_param);
+        i16 x_position = (i16)GET_X_LPARAM(l_param);
+        i16 y_position = (i16)GET_Y_LPARAM(l_param);
 
         orb_input_process_mouse_move(x_position, y_position);
     } break;
@@ -231,7 +251,26 @@ LRESULT CALLBACK process_win32_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
     case WM_RBUTTONUP: {
         b8 pressed = msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN;
 
-        orb_input_process_mouse_button(0, pressed);
+        orb_mouse_buttons mouse_button = MOUSE_BUTTON_MAX_BUTTONS;
+
+        switch (msg) {
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+            mouse_button = MOUSE_BUTTON_LEFT;
+            break;
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+            mouse_button = MOUSE_BUTTON_MIDDLE;
+            break;
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+            mouse_button = MOUSE_BUTTON_RIGHT;
+            break;
+        }
+
+        if (mouse_button != MOUSE_BUTTON_MAX_BUTTONS) {
+            orb_input_process_mouse_button(mouse_button, pressed);
+        }
     } break;
     }
 
