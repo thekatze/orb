@@ -1,7 +1,7 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
-build: configure
-    cmake --build build/
+build TARGET="example": configure
+    cmake --build build/ --target {{TARGET}}
 
 configure:
     cmake . -B build -G Ninja
@@ -15,11 +15,11 @@ clean:
     -rm -rf build/
 
 [macos]
-run TARGET: build
+run TARGET="example": (build TARGET)
     MTL_HUD_ENABLED=1 ./build/{{TARGET}}/{{TARGET}}
 
 [windows, linux]
-run TARGET: build
+run TARGET="example": (build TARGET)
     ./build/{{TARGET}}/{{TARGET}}
 
 release: clean
