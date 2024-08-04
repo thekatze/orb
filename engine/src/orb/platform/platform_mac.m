@@ -352,12 +352,15 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 
 @end // WindowDelegate
 
-b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
-                     i32 x, i32 y, i32 width, i32 height) {
+b8 orb_platform_init(usize *memory_requirement, void *memory,
+                     struct orb_application_config *config) {
+  *memory_requirement = sizeof(internal_state);
+  if (memory == NULL) {
+    return true;
+  }
+
   // application_config *typed_config = (application_config *)config;
-  platform->internal_state =
-      orb_platform_allocate(sizeof(internal_state), false);
-  state_ptr = platform->internal_state;
+  state_ptr = (internal_state *)memory;
   state_ptr->device_pixel_ratio = 1.0f;
 
   @autoreleasepool {
@@ -380,14 +383,15 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     }
 
     // Window creation
-    state_ptr->window =
-        [[NSWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height)
-                                    styleMask:NSWindowStyleMaskMiniaturizable |
-                                              NSWindowStyleMaskTitled |
-                                              NSWindowStyleMaskClosable |
-                                              NSWindowStyleMaskResizable
-                                      backing:NSBackingStoreBuffered
-                                        defer:NO];
+    state_ptr->window = [[NSWindow alloc]
+        initWithContentRect:NSMakeRect(config->x, config->y, config->width,
+                                       config->height)
+                  styleMask:NSWindowStyleMaskMiniaturizable |
+                            NSWindowStyleMaskTitled |
+                            NSWindowStyleMaskClosable |
+                            NSWindowStyleMaskResizable
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
     if (!state_ptr->window) {
       ORB_ERROR("Failed to create window");
       return false;
@@ -407,7 +411,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     [state_ptr->window setLevel:NSNormalWindowLevel];
     [state_ptr->window setContentView:state_ptr->view];
     [state_ptr->window makeFirstResponder:state_ptr->view];
-    [state_ptr->window setTitle:@(application_name)];
+    [state_ptr->window setTitle:@(config->name)];
     [state_ptr->window setDelegate:state_ptr->wnd_delegate];
     [state_ptr->window setAcceptsMouseMovedEvents:YES];
     [state_ptr->window setRestorable:NO];
@@ -463,21 +467,20 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 void orb_platform_shutdown(orb_platform_state *platform) {
   if (state_ptr) {
     @autoreleasepool {
-      // HACK: just let the os free this, this currently causes a segfault
-      // [state_ptr->window orderOut:nil];
+      [state_ptr->window orderOut:nil];
 
-      // [state_ptr->window setDelegate:nil];
-      // [state_ptr->wnd_delegate release];
+      [state_ptr->window setDelegate:nil];
+      [state_ptr->wnd_delegate release];
 
-      // [state_ptr->view release];
-      // state_ptr->view = nil;
+      [state_ptr->view release];
+      state_ptr->view = nil;
 
-      // [state_ptr->window close];
-      // state_ptr->window = nil;
+      [state_ptr->window close];
+      state_ptr->window = nil;
 
-      // [NSApp setDelegate:nil];
-      // [state_ptr->app_delegate release];
-      // state_ptr->app_delegate = nil;
+      [NSApp setDelegate:nil];
+      [state_ptr->app_delegate release];
+      state_ptr->app_delegate = nil;
 
     } // autoreleasepool
   }

@@ -110,12 +110,7 @@ b8 orb_application_create(orb_game *game_instance) {
     orb_event_add_listener(ORB_EVENT_APPLICATION_QUIT, nullptr, orb_on_event_shutdown);
     orb_event_add_listener(ORB_EVENT_RESIZED, nullptr, orb_on_event_resize);
 
-    if (!orb_platform_init(&app->platform, config.name, config.x, config.y, config.width,
-                           config.height)) {
-
-        ORB_FATAL("Could not initialize platform layer");
-        return false;
-    }
+    SUBSYSTEM_INIT(platform, &config);
 
     SUBSYSTEM_INIT(input);
 

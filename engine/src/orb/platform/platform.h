@@ -2,12 +2,13 @@
 
 #include "../core/types.h"
 
+struct orb_application_config;
+
 typedef struct orb_platform_state {
     void *internal_state;
 } orb_platform_state;
 
-b8 orb_platform_init(orb_platform_state *platform, const char *application_name, i32 x, i32 y,
-                     i32 width, i32 height);
+b8 orb_platform_init(usize* memory_requirement, void* memory, struct orb_application_config* config);
 
 void orb_platform_shutdown(orb_platform_state *platform);
 
