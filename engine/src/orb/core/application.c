@@ -96,7 +96,7 @@ b8 orb_application_create(orb_game *game_instance) {
     app->width = config.width;
     app->height = config.height;
 
-    u64 systems_allocator_total_size = 16 * 1024 * 1024; // 16MB for now
+    u64 systems_allocator_total_size = 1 * 1024 * 1024; // 1MB for now
     void *systems_memory =
         orb_allocate(sizeof(u8) * systems_allocator_total_size, MEMORY_TAG_APPLICATION);
 
@@ -114,17 +114,14 @@ b8 orb_application_create(orb_game *game_instance) {
 
     SUBSYSTEM_INIT(input);
 
-    ORB_DEBUG("Systems allocator using %llukB out of %llukB",
-              app->systems_allocator.allocated / 1024, app->systems_allocator.total_size / 1024);
-
     // during window creation the platform might have given us scaled window values
     config.width = app->width;
     config.height = app->height;
 
-    if (!orb_renderer_init(&config)) {
-        ORB_FATAL("Could not initialize renderer");
-        return false;
-    }
+    SUBSYSTEM_INIT(renderer, &config);
+
+    ORB_DEBUG("Systems allocator using %llukB out of %llukB",
+              app->systems_allocator.allocated / 1024, app->systems_allocator.total_size / 1024);
 
     if (!app->game_instance->initialize(app->game_instance)) {
         ORB_FATAL("Game failed to initialize");
