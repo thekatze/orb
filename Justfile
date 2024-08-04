@@ -1,6 +1,6 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
-build TARGET="example": configure
+build TARGET="game": configure
     cmake --build build/ --target {{TARGET}}
 
 configure:
@@ -15,11 +15,11 @@ clean:
     -rm -rf build/
 
 [macos]
-run TARGET="example": (build TARGET)
+run TARGET="game": (build TARGET)
     MTL_HUD_ENABLED=1 ./build/{{TARGET}}/{{TARGET}}
 
 [windows, linux]
-run TARGET="example": (build TARGET)
+run TARGET="game": (build TARGET)
     ./build/{{TARGET}}/{{TARGET}}
 
 release: clean
