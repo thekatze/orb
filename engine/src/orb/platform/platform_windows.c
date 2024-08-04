@@ -19,10 +19,14 @@ static LARGE_INTEGER start_time;
 
 LRESULT CALLBACK process_win32_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
-b8 orb_platform_init(orb_platform_state *platform, const char *application_name, i32 x, i32 y,
-                     i32 width, i32 height) {
-    platform->internal_state = orb_platform_allocate(sizeof(internal_state), false);
-    state = (internal_state *)platform->internal_state;
+b8 orb_platform_init(usize *memory_requirement, void *memory,
+                     struct orb_application_config *config) {
+    *memory_requirement = sizeof(internal_state);
+    if (memory == nullptr) {
+        return true;
+    }
+
+    state = (internal_state *)memory;
 
     state->h_instance = GetModuleHandleA(nullptr);
     HICON icon = LoadIcon(state->h_instance, IDI_APPLICATION);
@@ -45,10 +49,10 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
 
     // client size and window size are different; window size includes borders and title bar
     // we want our config to be the client size
-    i32 window_x = x;
-    i32 window_y = y;
-    i32 window_width = width;
-    i32 window_height = height;
+    i32 window_x = config->x;
+    i32 window_y = config->y;
+    i32 window_width = config->width;
+    i32 window_height = config->height;
 
     u32 window_style =
         WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
@@ -62,7 +66,7 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     window_width += border_rect.right - border_rect.left;
     window_height += border_rect.bottom - border_rect.top;
 
-    state->hwnd = CreateWindowExA(window_ex_style, WINDOW_CLASS_NAME, application_name,
+    state->hwnd = CreateWindowExA(window_ex_style, WINDOW_CLASS_NAME, config->name,
                                   window_style, window_x, window_y, window_width, window_height,
                                   nullptr, nullptr, state->h_instance, nullptr);
 
