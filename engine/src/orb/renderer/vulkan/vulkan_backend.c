@@ -82,10 +82,8 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend, orb_vulkan_swapchain *
 b8 recreate_swapchain(orb_renderer_backend *backend);
 
 b8 vulkan_backend_initialize(orb_renderer_backend *backend,
-                             orb_application_config *application_config,
-                             struct orb_platform_state *platform_state) {
+                             orb_application_config *application_config) {
     (void)backend;
-    (void)platform_state;
 
     context.framebuffer_width = application_config->width;
     context.framebuffer_height = application_config->height;

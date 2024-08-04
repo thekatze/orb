@@ -69,14 +69,14 @@ b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_
     return false;
 }
 
-#define SUBSYSTEM_INIT(subsystem)                                                                  \
+#define SUBSYSTEM_INIT(subsystem, ...)                                                             \
     do {                                                                                           \
         usize memory_requirement = 0;                                                              \
-        orb_##subsystem##_init(&memory_requirement, nullptr);                                      \
+        orb_##subsystem##_init(&memory_requirement, nullptr, ##__VA_ARGS__);                       \
                                                                                                    \
         void *block = orb_linear_allocator_allocate(&app->systems_allocator, memory_requirement);  \
                                                                                                    \
-        if (!orb_##subsystem##_init(&memory_requirement, block)) {                                 \
+        if (!orb_##subsystem##_init(&memory_requirement, block, ##__VA_ARGS__)) {                  \
             ORB_FATAL("Could not initialize " #subsystem " subsystem");                            \
             return false;                                                                          \
         };                                                                                         \
@@ -126,7 +126,7 @@ b8 orb_application_create(orb_game *game_instance) {
     config.width = app->width;
     config.height = app->height;
 
-    if (!orb_renderer_init(&config, &app->platform)) {
+    if (!orb_renderer_init(&config)) {
         ORB_FATAL("Could not initialize renderer");
         return false;
     }

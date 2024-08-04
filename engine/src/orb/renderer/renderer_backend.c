@@ -2,10 +2,7 @@
 
 #include "vulkan/vulkan_backend.h"
 
-b8 orb_renderer_backend_init(struct orb_platform_state *platform_state,
-                             orb_renderer_backend *out_renderer_backend) {
-    out_renderer_backend->platform_state = platform_state;
-
+b8 orb_renderer_backend_init(orb_renderer_backend *out_renderer_backend) {
     out_renderer_backend->initialize = vulkan_backend_initialize;
     out_renderer_backend->shutdown = vulkan_backend_shutdown;
     out_renderer_backend->begin_frame = vulkan_backend_begin_frame;

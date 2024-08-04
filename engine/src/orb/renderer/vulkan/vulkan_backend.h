@@ -3,8 +3,7 @@
 #include "../renderer_backend.h"
 
 b8 vulkan_backend_initialize(orb_renderer_backend *backend,
-                             struct orb_application_config *application_config,
-                             struct orb_platform_state *platform_state);
+                             struct orb_application_config *application_config);
 
 void vulkan_backend_shutdown(orb_renderer_backend *backend);
 

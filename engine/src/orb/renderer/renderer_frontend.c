@@ -7,14 +7,13 @@
 
 static orb_renderer_backend *backend = nullptr;
 
-b8 orb_renderer_init(struct orb_application_config *application_config,
-                     struct orb_platform_state *platform_state) {
+b8 orb_renderer_init(struct orb_application_config *application_config) {
     backend = orb_allocate(sizeof(*backend), MEMORY_TAG_RENDERER);
     backend->frame_number = 0;
 
-    orb_renderer_backend_init(platform_state, backend);
+    orb_renderer_backend_init(backend);
 
-    if (!backend->initialize(backend, application_config, platform_state)) {
+    if (!backend->initialize(backend, application_config)) {
         ORB_FATAL("Renderer backend initialization failed.");
         return false;
     }
