@@ -36,10 +36,14 @@ static internal_state *state = 0;
 
 orb_keyboard_keys translate_keycode(KeySym key_sym);
 
-b8 orb_platform_init(orb_platform_state *platform, const char *application_name, i32 x, i32 y,
-                     i32 width, i32 height) {
-    platform->internal_state = orb_platform_allocate(sizeof(internal_state), false);
-    state = (internal_state *)platform->internal_state;
+b8 orb_platform_init(usize *memory_requirement, void *memory,
+                     struct orb_application_config *config) {
+    *memory_requirement = sizeof(internal_state);
+    if (memory == nullptr) {
+        return true;
+    }
+
+    state = (internal_state *)memory;
 
     state->display = XOpenDisplay(NULL);
 
@@ -76,12 +80,12 @@ b8 orb_platform_init(orb_platform_state *platform, const char *application_name,
     u32 value_list[] = {state->screen->black_pixel, event_values};
     // xcb_void_cookie_t cookie =
     xcb_create_window(state->connection, XCB_COPY_FROM_PARENT, state->window, state->screen->root,
-                      (i16)x, (i16)y, (u16)width, (u16)height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                      state->screen->root_visual, event_mask, value_list);
+                      (i16)config->x, (i16)config->y, (u16)config->width, (u16)config->height, 0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, state->screen->root_visual, event_mask,
+                      value_list);
 
     xcb_change_property(state->connection, XCB_PROP_MODE_REPLACE, state->window, XCB_ATOM_WM_NAME,
-                        XCB_ATOM_STRING, sizeof(char) * 8, (u32)strlen(application_name),
-                        application_name);
+                        XCB_ATOM_STRING, sizeof(char) * 8, (u32)strlen(config->name), config->name);
 
     const char *WM_DELETE_WINDOW = "WM_DELETE_WINDOW";
     xcb_intern_atom_cookie_t wm_delete_cookie =
