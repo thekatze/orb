@@ -19,6 +19,8 @@ add_library(orb
     ./src/orb/platform/platform_windows.c
     ./src/orb/platform/platform_linux.c
 
+    ./src/orb/platform/filesystem_posix.c
+
     ./src/orb/containers/dynamic_array.c
 
     ./src/orb/allocators/linear_allocator.c
