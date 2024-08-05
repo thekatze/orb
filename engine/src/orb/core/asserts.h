@@ -8,12 +8,12 @@
 
 // defined in logger.c
 ORB_API void orb_report_assertion_failure(const char *expression, const char *message,
-                                          const char *file, i32 line);
+                                          const char *file, i32 line, const char* function);
 
 #define ORB_ASSERT(expr, message)                                                                  \
     {                                                                                              \
         if (unlikely(!(expr))) {                                                                   \
-            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
+            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__, __func__);            \
             orb_debug_break();                                                                     \
         }                                                                                          \
     }
@@ -22,7 +22,7 @@ ORB_API void orb_report_assertion_failure(const char *expression, const char *me
 #define ORB_DEBUG_ASSERT(expr, message)                                                            \
     {                                                                                              \
         if (unlikely(!(expr))) {                                                                   \
-            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__);                      \
+            orb_report_assertion_failure(#expr, message, __FILE__, __LINE__, __func__);            \
             orb_debug_break();                                                                     \
         }                                                                                          \
     }

@@ -56,8 +56,7 @@ b8 orb_event_add_listener(event_code code, void *listener, orb_event_handler_fn 
 #ifndef ORB_RELEASE
     registered_handler *handlers = (registered_handler *)storage->items;
     for (u64 i = 0; i < storage->length; ++i) {
-        ORB_DEBUG_ASSERT(handlers[i].listener == listener,
-                         "add_listener failed: listener already added for this event");
+        ORB_DEBUG_ASSERT(handlers[i].listener == listener, "listener already added for this event");
     }
 #endif
 

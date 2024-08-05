@@ -47,14 +47,12 @@ ORB_API usize orb_string_format(char *destination, const char *format, ...) {
 }
 
 ORB_API usize orb_string_format_v(char *destination, const char *format, void *va_list) {
-    ORB_DEBUG_ASSERT(destination != nullptr,
-                     "orb_string_format_v: destination must not be nullptr");
+    ORB_DEBUG_ASSERT(destination != nullptr, "destination must not be nullptr");
 
     const usize FORMAT_BUFFER_SIZE = 32000;
     char buffer[FORMAT_BUFFER_SIZE];
     i32 written = vsnprintf(buffer, FORMAT_BUFFER_SIZE, format, va_list);
-    ORB_ASSERT(written != -1 && written,
-               "orb_string_format_v: buffer too small for resulting formatted string");
+    ORB_ASSERT(written != -1 && written, "buffer too small for resulting formatted string");
     buffer[written] = '\0';
     usize written_bytes = (usize)written;
 

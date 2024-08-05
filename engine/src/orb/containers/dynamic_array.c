@@ -51,7 +51,7 @@ void orb_dynamic_array_pop(orb_dynamic_array *array, void *destination) {
 }
 
 void _orb_dynamic_array_insert_at(orb_dynamic_array *array, usize index, const void *value_ptr) {
-    ORB_DEBUG_ASSERT(index < array->length, "insert_at failed: index out of bounds");
+    ORB_DEBUG_ASSERT(index < array->length, "index out of bounds");
 
     if (array->length >= array->capacity) {
         _orb_dynamic_array_resize(array);
@@ -71,7 +71,7 @@ void _orb_dynamic_array_insert_at(orb_dynamic_array *array, usize index, const v
 }
 
 void orb_dynamic_array_remove_at(orb_dynamic_array *array, usize index, void *destination) {
-    ORB_DEBUG_ASSERT(index < array->length, "remove_at failed: index out of bounds");
+    ORB_DEBUG_ASSERT(index < array->length, "index out of bounds");
 
     usize remove_address = (usize)array->items;
     remove_address += (index * array->stride);

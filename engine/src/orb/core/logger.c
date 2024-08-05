@@ -6,8 +6,8 @@
 #include <string.h>
 
 void orb_report_assertion_failure(const char *expression, const char *message, const char *file,
-                                  i32 line) {
-    orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure: %s: '%s'", file, line, expression, message);
+                                  i32 line, const char* function) {
+    orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure in %s: %s: '%s'", file, line, function, expression, message);
 }
 
 typedef struct logger_system_state {
