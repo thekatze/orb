@@ -39,6 +39,9 @@ add_library(orb
     ./src/orb/renderer/vulkan/vulkan_command_buffer.c
     ./src/orb/renderer/vulkan/vulkan_framebuffer.c
     ./src/orb/renderer/vulkan/vulkan_fence.c
+    ./src/orb/renderer/vulkan/vulkan_shader_utils.c
+
+    ./src/orb/renderer/vulkan/shaders/vulkan_object_shader.c
 
     ./src/orb/renderer/vulkan/platform/vulkan_platform_mac.c
     ./src/orb/renderer/vulkan/platform/vulkan_platform_windows.c
@@ -55,8 +58,8 @@ endif()
 find_package(Vulkan REQUIRED COMPONENTS glslc)
 
 add_shaders(orb
-    ./src/orb/renderer/shaders/vertex.vert
-    ./src/orb/renderer/shaders/fragment.frag
+    ./../assets/shaders/orb.builtin.object.vert
+    ./../assets/shaders/orb.builtin.object.frag
 )
 
 target_include_directories(orb PRIVATE "${Vulkan_INCLUDE_DIR}")

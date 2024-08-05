@@ -136,6 +136,26 @@ typedef struct orb_vulkan_fence {
     b8 is_signalled;
 } orb_vulkan_fence;
 
+typedef struct orb_vulkan_shader_stage {
+    VkShaderModuleCreateInfo module_create_info;
+    VkShaderModule handle;
+    VkPipelineShaderStageCreateInfo shader_stage_create_info;
+} orb_vulkan_shader_stage;
+
+typedef struct orb_vulkan_pipeline {
+    VkPipeline handle;
+    VkPipelineLayout layout;
+} orb_vulkan_pipeline;
+
+// {vertex, fragment}
+#define ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT 2
+
+typedef struct orb_vulkan_object_shader {
+    orb_vulkan_shader_stage stages[ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT];
+
+    orb_vulkan_pipeline pipeline;
+} orb_vulkan_object_shader;
+
 typedef struct orb_vulkan_context {
     VkInstance instance;
     VkAllocationCallbacks *allocator;
@@ -163,6 +183,8 @@ typedef struct orb_vulkan_context {
     orb_vulkan_fence *in_flight_fences;
 
     orb_vulkan_fence **images_in_flight;
+
+    orb_vulkan_object_shader object_shader;
 
 #ifndef ORB_RELEASE
     VkDebugUtilsMessengerEXT debug_messenger;

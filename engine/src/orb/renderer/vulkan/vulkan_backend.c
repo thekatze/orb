@@ -5,6 +5,7 @@
 #include "../../core/orb_memory.h"
 
 #include "platform/vulkan_platform.h"
+#include "shaders/vulkan_object_shader.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
 #include "vulkan_fence.h"
@@ -214,6 +215,12 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
         sizeof(orb_vulkan_fence *) * context.swapchain.image_count, MEMORY_TAG_RENDERER);
     orb_memory_zero(context.images_in_flight,
                     sizeof(*context.images_in_flight) * context.swapchain.image_count);
+
+    ORB_DEBUG("Creating default shader");
+    if (!orb_vulkan_object_shader_create(&context, &context.object_shader)) {
+        ORB_ERROR("Failed to create default shader");
+        return false;
+    }
 
     ORB_INFO("Vulkan renderer initialized successfully.");
 
