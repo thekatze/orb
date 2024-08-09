@@ -35,8 +35,11 @@ b8 orb_vulkan_object_shader_create(orb_vulkan_context *context,
 
 void orb_vulkan_object_shader_destroy(orb_vulkan_context *context,
                                       orb_vulkan_object_shader *shader) {
-    (void)context;
-    (void)shader;
+    for (u32 i = 0; i < ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT; ++i) {
+        vkDestroyShaderModule(context->device.logical_device, shader->stages[i].handle,
+                              context->allocator);
+        shader->stages[i].handle = 0;
+    }
 }
 
 void orb_vulkan_object_shader_use(orb_vulkan_context *context, orb_vulkan_object_shader *shader) {

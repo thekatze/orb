@@ -233,6 +233,8 @@ void vulkan_backend_shutdown(orb_renderer_backend *backend) {
     // wait for all operations to finish
     vkDeviceWaitIdle(context.device.logical_device);
 
+    orb_vulkan_object_shader_destroy(&context, &context.object_shader);
+
     u8 max_frames_in_flight = context.swapchain.max_frames_in_flight;
     for (u8 i = 0; i < max_frames_in_flight; ++i) {
         if (context.image_available_semaphores[i]) {
