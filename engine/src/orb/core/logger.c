@@ -1,17 +1,20 @@
 #include "logger.h"
+#include "../platform/filesystem.h"
 #include "../platform/platform.h"
+#include "orb_string.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 void orb_report_assertion_failure(const char *expression, const char *message, const char *file,
-                                  i32 line, const char* function) {
-    orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure in %s: %s: '%s'", file, line, function, expression, message);
+                                  i32 line, const char *function) {
+    orb_log(LOG_LEVEL_FATAL, "%s:%d Assertion Failure in %s: %s: '%s'", file, line, function,
+            expression, message);
 }
 
 typedef struct logger_system_state {
-    b8 dummy_data;
+    orb_file_handle log_file;
 } logger_system_state;
 
 static logger_system_state *state;
@@ -24,15 +27,17 @@ b8 orb_logger_init(u64 *memory_requirement, void *memory) {
 
     state = memory;
 
-    // TODO: init log to file
-    state->dummy_data = true;
+    if (!orb_filesystem_file_open("RUN_TIMESTAMP.log", FILE_MODE_WRITE_FLAG, false,
+                                  &state->log_file)) {
+        orb_platform_console_write_error("[ERROR]: Unable to open logfile.", LOG_LEVEL_ERROR);
+        return false;
+    }
 
     return true;
 }
 
 void orb_logger_shutdown() {
-    // TODO: close file handle, write queued entries
-
+    orb_filesystem_file_close(&state->log_file);
     state = nullptr;
 }
 
@@ -53,6 +58,13 @@ void orb_log(orb_log_level level, const char *message, ...) {
 
     char out_message[max_message_len];
     sprintf(out_message, "%s%s\n", level_strings[level], formatted_message);
+
+    usize message_length = orb_string_length(out_message);
+    usize written = 0;
+    if (!orb_filesystem_file_append_bytes(&state->log_file, message_length, out_message,
+                                          &written)) {
+        orb_platform_console_write_error("[ERROR]: Failed to write to logfile.", LOG_LEVEL_ERROR);
+    }
 
     if (level < LOG_LEVEL_WARN) {
         orb_platform_console_write_error(out_message, (u8)level);

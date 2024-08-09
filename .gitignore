@@ -8,3 +8,5 @@ build/
 # doxygen
 docs/
 
+# logfiles
+*.log
