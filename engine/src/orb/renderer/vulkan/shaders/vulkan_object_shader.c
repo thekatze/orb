@@ -3,19 +3,26 @@
 
 #include "../vulkan_shader_utils.h"
 
-// HACK: this is highly temporary, find out how to better refer to assets
-#define ORB_BUILTIN_OBJECT_VERTEX_SHADER_PATH "./build/engine/orb.builtin.object.vert.spv"
-#define ORB_BUILTIN_OBJECT_FRAGMENT_SHADER_PATH "./build/engine/orb.builtin.object.frag.spv"
+alignas(u32) const u8 vertex_shader_bin[] = {
+#embed "orb-shaders/orb.builtin.object.vert.spv"
+};
+
+alignas(u32) const u8 fragment_shader_bin[] = {
+#embed "orb-shaders/orb.builtin.object.frag.spv"
+};
 
 b8 orb_vulkan_object_shader_create(orb_vulkan_context *context,
                                    orb_vulkan_object_shader *out_shader) {
-    if (!orb_create_shader_module(context, ORB_BUILTIN_OBJECT_VERTEX_SHADER_PATH,
-                                  VK_SHADER_STAGE_VERTEX_BIT, &out_shader->stages[0])) {
+
+    if (!orb_create_shader_module(context, (const u32 *)vertex_shader_bin,
+                                  ORB_ARRAY_LENGTH(vertex_shader_bin), VK_SHADER_STAGE_VERTEX_BIT,
+                                  &out_shader->stages[0])) {
         ORB_ERROR("Unable to create builtin object vertex shader");
         return false;
     }
 
-    if (!orb_create_shader_module(context, ORB_BUILTIN_OBJECT_FRAGMENT_SHADER_PATH,
+    if (!orb_create_shader_module(context, (const u32 *)fragment_shader_bin,
+                                  ORB_ARRAY_LENGTH(fragment_shader_bin),
                                   VK_SHADER_STAGE_FRAGMENT_BIT, &out_shader->stages[1])) {
         ORB_ERROR("Unable to create builtin object fragment shader");
         return false;

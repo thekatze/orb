@@ -58,8 +58,8 @@ endif()
 find_package(Vulkan REQUIRED COMPONENTS glslc)
 
 add_shaders(orb
-    ./../assets/shaders/orb.builtin.object.vert
-    ./../assets/shaders/orb.builtin.object.frag
+    ./src/orb/renderer/vulkan/shaders/orb.builtin.object.vert
+    ./src/orb/renderer/vulkan/shaders/orb.builtin.object.frag
 )
 
 target_include_directories(orb PRIVATE "${Vulkan_INCLUDE_DIR}")
