@@ -40,6 +40,7 @@ add_library(orb
     ./src/orb/renderer/vulkan/vulkan_framebuffer.c
     ./src/orb/renderer/vulkan/vulkan_fence.c
     ./src/orb/renderer/vulkan/vulkan_shader_utils.c
+    ./src/orb/renderer/vulkan/vulkan_pipeline.c
 
     ./src/orb/renderer/vulkan/shaders/vulkan_object_shader.c
 

@@ -348,36 +348,6 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
     orb_vulkan_command_buffer_reset(command_buffer);
     orb_vulkan_command_buffer_begin(command_buffer, 0);
 
-    // TODO: test if we really need this, i don't want multiple backends and im
-    // fine with this not having opengl compat
-    // {
-    //   VkViewport viewport = {
-    //       .x = 0.0f,
-    //       .y = (f32)context.framebuffer_height,
-    //       .width = (f32)context.framebuffer_width,
-    //       .height = (f32)-context.framebuffer_height,
-    //       .minDepth = 0.0f,
-    //       .maxDepth = 0.0f,
-    //   };
-
-    //   vkCmdSetViewport(command_buffer->handle, 0, 1, &viewport);
-
-    //   VkRect2D scissor = {
-    //       .offset =
-    //           {
-    //               .x = 0,
-    //               .y = 0,
-    //           },
-    //       .extent =
-    //           {
-    //               .width = context.framebuffer_width,
-    //               .height = context.framebuffer_height,
-    //           },
-    //   };
-
-    //   vkCmdSetScissor(command_buffer->handle, 0, 1, &scissor);
-    // }
-
     // TODO: we dont need to do this every frame, find a better spot for this
     // (resize?)
     context.main_renderpass.w = context.framebuffer_width;

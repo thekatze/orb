@@ -53,3 +53,7 @@ typedef union orb_mat4_u {
     f32 elements[16];
     orb_vec4 rows[4];
 } orb_mat4;
+
+typedef struct orb_vertex_3d {
+    orb_vec3 position;
+} orb_vertex_3d;
