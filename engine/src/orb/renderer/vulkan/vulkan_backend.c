@@ -216,7 +216,7 @@ b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
     orb_memory_zero(context.images_in_flight,
                     sizeof(*context.images_in_flight) * context.swapchain.image_count);
 
-    ORB_DEBUG("Creating default shader");
+    ORB_DEBUG("Creating default object shader");
     if (!orb_vulkan_object_shader_create(&context, &context.object_shader)) {
         ORB_ERROR("Failed to create default shader");
         return false;

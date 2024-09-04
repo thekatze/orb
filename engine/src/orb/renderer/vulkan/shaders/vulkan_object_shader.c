@@ -90,8 +90,6 @@ b8 orb_vulkan_object_shader_create(orb_vulkan_context *context,
         return false;
     }
 
-    ORB_DEBUG("Default object shader pipeline created");
-
     return true;
 }
 
