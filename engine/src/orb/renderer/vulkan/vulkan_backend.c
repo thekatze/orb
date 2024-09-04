@@ -82,7 +82,7 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend, orb_vulkan_swapchain *
                            orb_vulkan_renderpass *renderpass);
 b8 recreate_swapchain(orb_renderer_backend *backend);
 
-b8 vulkan_backend_initialize(orb_renderer_backend *backend,
+b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
                              orb_application_config *application_config) {
     (void)backend;
 
@@ -227,7 +227,7 @@ b8 vulkan_backend_initialize(orb_renderer_backend *backend,
     return true;
 }
 
-void vulkan_backend_shutdown(orb_renderer_backend *backend) {
+void orb_vulkan_backend_shutdown(orb_renderer_backend *backend) {
     (void)backend;
 
     // wait for all operations to finish
@@ -292,7 +292,7 @@ void vulkan_backend_shutdown(orb_renderer_backend *backend) {
     vkDestroyInstance(context.instance, context.allocator);
 }
 
-void vulkan_backend_resize(orb_renderer_backend *backend, u16 width, u16 height) {
+void orb_vulkan_backend_resize(orb_renderer_backend *backend, u16 width, u16 height) {
     (void)backend;
 
     context.framebuffer_width = width;
@@ -303,7 +303,7 @@ void vulkan_backend_resize(orb_renderer_backend *backend, u16 width, u16 height)
               context.framebuffer_size_generation);
 }
 
-b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
+b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
     (void)backend;
     (void)delta_time;
 
@@ -359,7 +359,7 @@ b8 vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time) {
     return true;
 }
 
-b8 vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
+b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
     (void)backend;
     (void)delta_time;
 
