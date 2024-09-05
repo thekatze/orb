@@ -106,10 +106,11 @@ b8 orb_vulkan_renderpass_create(orb_vulkan_context *context,
 }
 
 void orb_vulkan_renderpass_destroy(orb_vulkan_context *context, orb_vulkan_renderpass *renderpass) {
-    if (renderpass && renderpass->handle) {
+    if (renderpass->handle) {
         vkDestroyRenderPass(context->device.logical_device, renderpass->handle, context->allocator);
-        renderpass->handle = nullptr;
     }
+
+    *renderpass = (orb_vulkan_renderpass){0};
 }
 
 void orb_vulkan_renderpass_begin(orb_vulkan_command_buffer *command_buffer,

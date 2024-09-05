@@ -17,8 +17,9 @@ b8 orb_vulkan_fence_create(orb_vulkan_context *context, b8 create_signalled,
 void orb_vulkan_fence_destroy(orb_vulkan_context *context, orb_vulkan_fence *fence) {
     if (fence->handle) {
         vkDestroyFence(context->device.logical_device, fence->handle, context->allocator);
-        fence->handle = 0;
     }
+
+    *fence = (orb_vulkan_fence){0};
 }
 
 b8 orb_vulkan_fence_wait(orb_vulkan_context *context, orb_vulkan_fence *fence, u64 timeout_ns) {

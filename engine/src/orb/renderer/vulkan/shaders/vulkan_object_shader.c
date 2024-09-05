@@ -102,9 +102,11 @@ void orb_vulkan_object_shader_destroy(orb_vulkan_context *context,
                               context->allocator);
         shader->stages[i].handle = 0;
     }
+
+    *shader = (orb_vulkan_object_shader){0};
 }
 
 void orb_vulkan_object_shader_use(orb_vulkan_context *context, orb_vulkan_object_shader *shader) {
-    (void)context;
-    (void)shader;
+    orb_vulkan_graphics_pipeline_bind(&context->graphics_command_buffers[context->image_index],
+                                      VK_PIPELINE_BIND_POINT_GRAPHICS, &shader->pipeline);
 }

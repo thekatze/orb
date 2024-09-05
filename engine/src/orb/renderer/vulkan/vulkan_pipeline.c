@@ -147,8 +147,6 @@ b8 orb_vulkan_graphics_pipeline_create(orb_vulkan_context *context,
 
 void orb_vulkan_graphics_pipeline_destroy(orb_vulkan_context *context,
                                           orb_vulkan_pipeline *pipeline) {
-    ORB_DEBUG_ASSERT(pipeline != nullptr, "");
-
     if (pipeline->handle) {
         vkDestroyPipeline(context->device.logical_device, pipeline->handle, context->allocator);
         pipeline->handle = nullptr;
@@ -159,6 +157,8 @@ void orb_vulkan_graphics_pipeline_destroy(orb_vulkan_context *context,
                                 context->allocator);
         pipeline->layout = nullptr;
     }
+
+    *pipeline = (orb_vulkan_pipeline){0};
 }
 
 void orb_vulkan_graphics_pipeline_bind(orb_vulkan_command_buffer *command_buffer,

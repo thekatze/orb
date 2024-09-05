@@ -82,16 +82,15 @@ b8 orb_vulkan_image_view_create(orb_vulkan_context *context, VkFormat format,
 void orb_vulkan_image_destroy(orb_vulkan_context *context, orb_vulkan_image *image) {
     if (image->view) {
         vkDestroyImageView(context->device.logical_device, image->view, context->allocator);
-        image->view = 0;
     }
 
     if (image->memory) {
         vkFreeMemory(context->device.logical_device, image->memory, context->allocator);
-        image->memory = 0;
     }
 
     if (image->handle) {
         vkDestroyImage(context->device.logical_device, image->handle, context->allocator);
-        image->handle = 0;
     }
+
+    *image = (orb_vulkan_image){0};
 }

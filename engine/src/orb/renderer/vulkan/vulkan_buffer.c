@@ -68,7 +68,7 @@ b8 orb_vulkan_buffer_bind(orb_vulkan_context *context, orb_vulkan_buffer *buffer
 
 b8 orb_vulkan_buffer_resize(orb_vulkan_context *context, usize new_size, orb_vulkan_buffer *buffer,
                             VkQueue queue, VkCommandPool pool) {
-    ORB_ASSERT(buffer->handle != nullptr || buffer->memory != nullptr,
+    ORB_ASSERT(buffer->handle != nullptr && buffer->memory != nullptr,
                "can not resize uninitialized buffer");
 
     VkBufferCreateInfo buffer_info = {

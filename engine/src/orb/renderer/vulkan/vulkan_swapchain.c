@@ -241,12 +241,11 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
 void cleanup_swapchain(orb_vulkan_context *context, orb_vulkan_swapchain *swapchain) {
     vkDeviceWaitIdle(context->device.logical_device);
 
-    // NOTE: we might need to set swapchain_images and views to 0
     orb_vulkan_image_destroy(context, &swapchain->depth_attachment);
 
     if (swapchain->images) {
-        swapchain->images = 0;
         orb_free(swapchain->images, sizeof(VkImage) * swapchain->image_count, MEMORY_TAG_RENDERER);
+        swapchain->images = nullptr;
     }
 
     if (swapchain->views) {
@@ -259,7 +258,7 @@ void cleanup_swapchain(orb_vulkan_context *context, orb_vulkan_swapchain *swapch
         orb_free(swapchain->views, sizeof(VkImageView) * swapchain->image_count,
                  MEMORY_TAG_RENDERER);
 
-        swapchain->views = 0;
+        swapchain->views = nullptr;
     }
 
     vkDestroySwapchainKHR(context->device.logical_device, swapchain->handle, context->allocator);

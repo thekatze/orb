@@ -15,6 +15,7 @@ orb_dynamic_array _orb_dynamic_array_create(usize capacity, usize stride) {
 
 void orb_dynamic_array_destroy(orb_dynamic_array *array) {
     orb_free(array->items, array->capacity * array->stride, MEMORY_TAG_DYNAMIC_ARRAY);
+    *array = (orb_dynamic_array) {0};
 }
 
 void _orb_dynamic_array_resize(orb_dynamic_array *array) {

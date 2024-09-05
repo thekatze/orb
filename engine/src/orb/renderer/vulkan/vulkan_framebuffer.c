@@ -38,7 +38,7 @@ void orb_vulkan_framebuffer_destroy(orb_vulkan_context *context,
     if (framebuffer->attachments) {
         orb_free(framebuffer->attachments, sizeof(VkImageView) * framebuffer->attachment_count,
                  MEMORY_TAG_RENDERER);
-        framebuffer->attachments = 0;
-        framebuffer->attachment_count = 0;
     }
+
+    *framebuffer = (orb_vulkan_framebuffer){0};
 }
