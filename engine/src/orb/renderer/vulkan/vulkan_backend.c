@@ -4,8 +4,11 @@
 #include "../../core/asserts.h"
 #include "../../core/orb_memory.h"
 
+#include "../../math/math_types.h"
+
 #include "platform/vulkan_platform.h"
 #include "shaders/vulkan_object_shader.h"
+#include "vulkan_buffer.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
 #include "vulkan_fence.h"
@@ -50,6 +53,8 @@ const char *validation_layers[] = {"VK_LAYER_KHRONOS_validation"};
 u32 validation_layers_count = ORB_ARRAY_LENGTH(validation_layers);
 #endif
 
+b8 create_buffers();
+
 VKAPI_ATTR VkBool32 VKAPI_CALL
 orb_vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
                       VkDebugUtilsMessageTypeFlagsEXT message_types,
@@ -83,7 +88,7 @@ b8 regenerate_framebuffers(orb_renderer_backend *backend, orb_vulkan_swapchain *
 b8 recreate_swapchain(orb_renderer_backend *backend);
 
 b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
-                             orb_application_config *application_config) {
+                                 orb_application_config *application_config) {
     (void)backend;
 
     context.framebuffer_width = application_config->width;
@@ -214,11 +219,17 @@ b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
     context.images_in_flight = orb_allocate(
         sizeof(orb_vulkan_fence *) * context.swapchain.image_count, MEMORY_TAG_RENDERER);
     orb_memory_zero(context.images_in_flight,
-                    sizeof(*context.images_in_flight) * context.swapchain.image_count);
+                    sizeof(context.images_in_flight) * context.swapchain.image_count);
 
     ORB_DEBUG("Creating default object shader");
     if (!orb_vulkan_object_shader_create(&context, &context.object_shader)) {
         ORB_ERROR("Failed to create default shader");
+        return false;
+    }
+
+    ORB_DEBUG("Creating Vulkan buffers");
+    if (!create_buffers()) {
+        ORB_ERROR("Failed to buffers");
         return false;
     }
 
@@ -232,6 +243,9 @@ void orb_vulkan_backend_shutdown(orb_renderer_backend *backend) {
 
     // wait for all operations to finish
     vkDeviceWaitIdle(context.device.logical_device);
+
+    orb_vulkan_buffer_destroy(&context, &context.object_vertex_buffer);
+    orb_vulkan_buffer_destroy(&context, &context.object_index_buffer);
 
     orb_vulkan_object_shader_destroy(&context, &context.object_shader);
 
@@ -426,7 +440,7 @@ u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {
         }
     }
 
-    return UINT32_MAX;
+    return ORB_INVALID_INDEX;
 }
 
 b8 create_command_buffers(orb_renderer_backend *backend) {
@@ -518,6 +532,42 @@ b8 recreate_swapchain(orb_renderer_backend *backend) {
 
     context.framebuffer_size_last_generation = context.framebuffer_size_generation;
     context.recreating_swapchain = false;
+
+    return true;
+}
+
+b8 create_buffers() {
+    VkMemoryPropertyFlagBits memory_property_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    const usize vertex_buffer_size = sizeof(orb_vertex_3d) * 1024 * 1024;
+    const usize index_buffer_size = sizeof(u32) * 1024 * 1024;
+
+    ORB_DEBUG("Creating vertex buffer");
+    if (!orb_vulkan_buffer_create(&context, vertex_buffer_size,
+                                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                                      VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  memory_property_flags, &context.object_vertex_buffer)) {
+        ORB_ERROR("Could not create vertex buffer");
+        return false;
+    }
+
+    context.geometry_vertex_offset = 0;
+
+    ORB_DEBUG("Creating index buffer");
+    if (!orb_vulkan_buffer_create(&context, index_buffer_size,
+                                  VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+                                      VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  memory_property_flags, &context.object_index_buffer)) {
+        ORB_ERROR("Could not create index buffer");
+        return false;
+    }
+
+    context.geometry_index_offset = 0;
+
+    orb_vulkan_buffer_bind(&context, &context.object_vertex_buffer, 0);
+    orb_vulkan_buffer_bind(&context, &context.object_index_buffer, 0);
 
     return true;
 }

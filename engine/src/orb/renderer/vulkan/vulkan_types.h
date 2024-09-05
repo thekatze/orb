@@ -24,7 +24,19 @@
         }                                                                                          \
     } while (0)
 
+#define ORB_INVALID_INDEX 4294967295U
+
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags);
+
+typedef struct orb_vulkan_buffer {
+    VkBuffer handle;
+    usize total_size;
+    VkBufferUsageFlagBits usage;
+    b8 is_locked;
+    VkDeviceMemory memory;
+    u32 memory_index;
+    u32 memory_property_flags;
+} orb_vulkan_buffer;
 
 typedef struct orb_vulkan_swapchain_support_info {
     VkSurfaceCapabilitiesKHR capabilities;
@@ -174,6 +186,12 @@ typedef struct orb_vulkan_context {
     u32 framebuffer_size_last_generation;
 
     orb_vulkan_renderpass main_renderpass;
+
+    orb_vulkan_buffer object_vertex_buffer;
+    orb_vulkan_buffer object_index_buffer;
+
+    usize geometry_vertex_offset;
+    usize geometry_index_offset;
 
     orb_vulkan_command_buffer *graphics_command_buffers;
 
