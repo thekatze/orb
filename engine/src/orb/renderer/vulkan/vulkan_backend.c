@@ -229,8 +229,32 @@ b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
 
     ORB_DEBUG("Creating Vulkan buffers");
     if (!create_buffers()) {
-        ORB_ERROR("Failed to buffers");
+        ORB_ERROR("Failed to create buffers");
         return false;
+    }
+
+    // TODO: remove this test code
+    {
+#define VERTEX_COUNT 4U
+#define INDEX_COUNT 6U
+        orb_vertex_3d vertices[VERTEX_COUNT] = {
+            (orb_vertex_3d){.position = {.x = -0.25, .y = -0.25}},
+            (orb_vertex_3d){.position = {.x = -0.25, .y = 0.25}},
+            (orb_vertex_3d){.position = {.x = 0.25, .y = -0.25}},
+            (orb_vertex_3d){.position = {.x = 0.25, .y = 0.25}},
+        };
+
+        const u32 indices[INDEX_COUNT] = {0, 1, 2, 1, 3, 2};
+
+        orb_vulkan_buffer_load_data_staged(&context, context.device.graphics_command_pool,
+                                           VK_NULL_HANDLE, context.device.graphics_queue,
+                                           &context.object_vertex_buffer, 0,
+                                           sizeof(orb_vertex_3d) * VERTEX_COUNT, vertices);
+
+        orb_vulkan_buffer_load_data_staged(&context, context.device.graphics_command_pool,
+                                           VK_NULL_HANDLE, context.device.graphics_queue,
+                                           &context.object_index_buffer, 0,
+                                           sizeof(u32) * INDEX_COUNT, indices);
     }
 
     ORB_INFO("Vulkan renderer initialized successfully.");
@@ -369,6 +393,50 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
 
     orb_vulkan_renderpass_begin(command_buffer, &context.main_renderpass,
                                 context.swapchain.framebuffers[context.image_index].handle);
+
+    // TODO: test if we really need this, i don't want multiple backends and im
+    // fine with this not having opengl compat
+    {
+        VkViewport viewport = {
+            .x = 0.0f,
+            .y = 0.0f,
+            .width = (f32)context.framebuffer_width,
+            .height = (f32)context.framebuffer_height,
+            .minDepth = 0.0f,
+            .maxDepth = 0.0f,
+        };
+
+        vkCmdSetViewport(command_buffer->handle, 0, 1, &viewport);
+
+        VkRect2D scissor = {
+            .offset =
+                {
+                    .x = 0,
+                    .y = 0,
+                },
+            .extent =
+                {
+                    .width = context.framebuffer_width,
+                    .height = context.framebuffer_height,
+                },
+        };
+
+        vkCmdSetScissor(command_buffer->handle, 0, 1, &scissor);
+    }
+
+    // TODO: remove this test code
+    {
+        orb_vulkan_object_shader_use(&context, &context.object_shader);
+
+        VkDeviceSize offsets[1] = {0};
+        vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle,
+                               offsets);
+
+        vkCmdBindIndexBuffer(command_buffer->handle, context.object_index_buffer.handle, 0,
+                             VK_INDEX_TYPE_UINT32);
+
+        vkCmdDrawIndexed(command_buffer->handle, INDEX_COUNT, 1, 0, 0, 0);
+    }
 
     return true;
 }

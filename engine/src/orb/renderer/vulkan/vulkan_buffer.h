@@ -16,7 +16,10 @@ b8 orb_vulkan_buffer_memory_lock(orb_vulkan_context *context, orb_vulkan_buffer 
                                     usize offset, usize size, u32 flags, void* out_data);
 void orb_vulkan_buffer_memory_unlock(orb_vulkan_context *context, orb_vulkan_buffer *buffer);
 
-b8 orb_vulkan_buffer_load_data(orb_vulkan_context *context, orb_vulkan_buffer *buffer,
+b8 orb_vulkan_buffer_load_data_staged(orb_vulkan_context *context, VkCommandPool pool, VkFence fence, VkQueue queue, orb_vulkan_buffer *buffer,
+                                 usize offset, usize size, const void *data);
+
+b8 orb_vulkan_buffer_load_data_raw(orb_vulkan_context *context, orb_vulkan_buffer *buffer,
                                  usize offset, usize size, u32 flags, const void *data);
 
 void orb_vulkan_buffer_memory_copy(orb_vulkan_context *context, VkCommandPool pool, VkFence fence,

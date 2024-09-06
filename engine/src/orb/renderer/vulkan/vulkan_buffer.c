@@ -124,8 +124,28 @@ void orb_vulkan_buffer_memory_unlock(orb_vulkan_context *context, orb_vulkan_buf
     vkUnmapMemory(context->device.logical_device, buffer->memory);
 }
 
-b8 orb_vulkan_buffer_load_data(orb_vulkan_context *context, orb_vulkan_buffer *buffer, usize offset,
-                               usize size, u32 flags, const void *data) {
+b8 orb_vulkan_buffer_load_data_staged(orb_vulkan_context *context, VkCommandPool pool,
+                                      VkFence fence, VkQueue queue, orb_vulkan_buffer *buffer,
+                                      usize offset, usize size, const void *data) {
+    VkBufferUsageFlags staging_flags =
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    orb_vulkan_buffer staging;
+    orb_vulkan_buffer_create(context, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, staging_flags,
+                             &staging);
+    orb_vulkan_buffer_bind(context, &staging, 0);
+
+    orb_vulkan_buffer_load_data_raw(context, &staging, 0, size, 0, data);
+
+    orb_vulkan_buffer_memory_copy(context, pool, fence, queue, staging.handle, 0, buffer->handle,
+                                  offset, size);
+
+    orb_vulkan_buffer_destroy(context, &staging);
+
+    return true;
+}
+
+b8 orb_vulkan_buffer_load_data_raw(orb_vulkan_context *context, orb_vulkan_buffer *buffer,
+                                   usize offset, usize size, u32 flags, const void *data) {
     void *destination;
     ORB_VK_EXPECT(vkMapMemory(context->device.logical_device, buffer->memory, offset, size, flags,
                               &destination));
