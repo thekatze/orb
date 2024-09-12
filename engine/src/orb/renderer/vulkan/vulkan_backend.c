@@ -237,11 +237,13 @@ b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
     {
 #define VERTEX_COUNT 4U
 #define INDEX_COUNT 6U
+        const f32 scale = 10.0f;
+
         orb_vertex_3d vertices[VERTEX_COUNT] = {
-            (orb_vertex_3d){.position = {.x = -0.25, .y = -0.25}},
-            (orb_vertex_3d){.position = {.x = -0.25, .y = 0.25}},
-            (orb_vertex_3d){.position = {.x = 0.25, .y = -0.25}},
-            (orb_vertex_3d){.position = {.x = 0.25, .y = 0.25}},
+            (orb_vertex_3d){.position = {.x = -0.25 * scale, .y = -0.25 * scale}},
+            (orb_vertex_3d){.position = {.x = -0.25 * scale, .y = 0.25 * scale}},
+            (orb_vertex_3d){.position = {.x = 0.25 * scale, .y = -0.25 * scale}},
+            (orb_vertex_3d){.position = {.x = 0.25 * scale, .y = 0.25 * scale}},
         };
 
         const u32 indices[INDEX_COUNT] = {0, 1, 2, 1, 3, 2};
@@ -394,8 +396,6 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
     orb_vulkan_renderpass_begin(command_buffer, &context.main_renderpass,
                                 context.swapchain.framebuffers[context.image_index].handle);
 
-    // TODO: test if we really need this, i don't want multiple backends and im
-    // fine with this not having opengl compat
     {
         VkViewport viewport = {
             .x = 0.0f,
@@ -424,8 +424,22 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
         vkCmdSetScissor(command_buffer->handle, 0, 1, &scissor);
     }
 
+    return true;
+}
+
+void orb_vulkan_backend_update_global_state(const orb_global_uniform_object *global_state) {
+    orb_vulkan_object_shader_use(&context, &context.object_shader);
+
+    orb_memory_copy(&context.object_shader.global_uniform_object, global_state,
+                    sizeof(orb_global_uniform_object));
+
+    orb_vulkan_object_shader_update_global_state(&context, &context.object_shader);
+
     // TODO: remove this test code
     {
+        orb_vulkan_command_buffer *command_buffer =
+            &context.graphics_command_buffers[context.image_index];
+
         orb_vulkan_object_shader_use(&context, &context.object_shader);
 
         VkDeviceSize offsets[1] = {0};
@@ -437,8 +451,6 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
 
         vkCmdDrawIndexed(command_buffer->handle, INDEX_COUNT, 1, 0, 0, 0);
     }
-
-    return true;
 }
 
 b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {

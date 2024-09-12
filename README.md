@@ -10,7 +10,7 @@ right handed coordinate system
 
 requirements:
 - cmake
-- clang (>= 18.0.0)
+- a c23 compiler (clang 19 or newer)
 - ninja
 - vulkan
 
@@ -25,7 +25,7 @@ $ ./build/example/example
 for convenience this project uses just
 
 ```sh
-$ just run example
+$ just run
 ```
 
 to build documentation:

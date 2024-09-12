@@ -9,10 +9,12 @@ configure:
 [windows]
 clean:
     -rm -Recurse build/
+    -rm -Recurse docs/
 
 [unix]
 clean:
     -rm -rf build/
+    -rm -rf docs/
 
 [macos]
 run TARGET="game": (build TARGET)
@@ -26,3 +28,6 @@ release: clean
     cmake -DCMAKE_BUILD_TYPE=Release . -B build -G Ninja
     cmake --build build/
     ./build/tests/tests
+
+docs:
+    doxygen Doxyfile

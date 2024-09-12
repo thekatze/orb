@@ -2,6 +2,7 @@
 #include "renderer_backend.h"
 
 #include "../core/logger.h"
+#include "../math/orb_math.h"
 #include "renderer_types.h"
 
 typedef struct renderer_state {
@@ -49,6 +50,16 @@ b8 orb_renderer_draw_frame(orb_render_packet *packet) {
     if (!state->backend.begin_frame(&state->backend, packet->delta_time)) {
         return true;
     }
+
+    orb_mat4 camera_projection =
+        orb_mat4_perspective(orb_degrees_to_radians(50.0f), 1600.0f / 900.0f, 0.1f, 1000.0f);
+    static f32 z = -3.0f;
+    z -= 2.0f * packet->delta_time;
+    orb_mat4 camera_position = orb_mat4_from_translation((orb_vec3){.x = 0, .y = 0, .z = z});
+
+    state->backend.update_global_state(&(orb_global_uniform_object){
+        .camera_projection = orb_mat4_mul(&camera_position, &camera_projection),
+    });
 
     if (!state->backend.end_frame(&state->backend, packet->delta_time)) {
         return false;

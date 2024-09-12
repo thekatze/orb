@@ -182,6 +182,9 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
     ORB_VK_EXPECT(vkGetSwapchainImagesKHR(context->device.logical_device, out_swapchain->handle,
                                           &out_swapchain->image_count, nullptr));
 
+    ORB_ASSERT(out_swapchain->image_count <= ORB_MAX_IMAGE_BUFFERS,
+               "Swapchain must not have more images than ORB_MAX_IMAGE_BUFFERS");
+
     if (out_swapchain->image_count == 0) {
         ORB_ERROR("getting swapchain images failed");
         return false;

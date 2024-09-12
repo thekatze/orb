@@ -3,6 +3,7 @@
 #include "../../containers/dynamic_array.h"
 #include "../../core/logger.h"
 #include "../../core/types.h"
+#include "../renderer_types.h"
 
 #ifndef ORB_PLATFORM_WINDOWS
 #include <vulkan/vk_enum_string_helper.h>
@@ -25,6 +26,7 @@
     } while (0)
 
 #define ORB_INVALID_INDEX 4294967295U
+#define ORB_MAX_IMAGE_BUFFERS 3U
 
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags);
 
@@ -134,11 +136,11 @@ typedef struct orb_vulkan_swapchain {
 
     VkSurfaceFormatKHR image_format;
     u32 image_count;
-    VkImage *images;
-    VkImageView *views;
+    VkImage *images;    // TODO: statically allocate using ORB_MAX_IMAGE_BUFFERS
+    VkImageView *views; // TODO: statically allocate using ORB_MAX_IMAGE_BUFFERS
 
     orb_vulkan_image depth_attachment;
-    orb_vulkan_framebuffer *framebuffers;
+    orb_vulkan_framebuffer *framebuffers; // TODO: statically allocate using ORB_MAX_IMAGE_BUFFERS
 
     u8 max_frames_in_flight;
 } orb_vulkan_swapchain;
@@ -164,6 +166,13 @@ typedef struct orb_vulkan_pipeline {
 
 typedef struct orb_vulkan_object_shader {
     orb_vulkan_shader_stage stages[ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT];
+
+    VkDescriptorPool global_descriptor_pool;
+    VkDescriptorSetLayout global_descriptor_set_layout;
+    VkDescriptorSet global_descriptor_sets[ORB_MAX_IMAGE_BUFFERS];
+
+    orb_global_uniform_object global_uniform_object;
+    orb_vulkan_buffer global_uniform_buffer; // the global uniform object on the gpu
 
     orb_vulkan_pipeline pipeline;
 } orb_vulkan_object_shader;
