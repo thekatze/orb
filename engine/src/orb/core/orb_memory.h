@@ -27,6 +27,7 @@ typedef enum orb_memory_tag {
 void orb_memory_init();
 void orb_memory_shutdown();
 
+[[nodiscard]]
 ORB_API void *orb_allocate(u64 size, orb_memory_tag tag);
 ORB_API void orb_free(void *block, u64 size, orb_memory_tag tag);
 ORB_API void *orb_memory_zero(void *block, u64 size);
@@ -34,6 +35,7 @@ ORB_API void *orb_memory_copy(void *destination, const void *source, u64 size);
 ORB_API void *orb_memory_set(void *destination, i32 value, u64 size);
 
 // must be freed by caller
+[[nodiscard]]
 ORB_API char *orb_memory_debug_stats();
 
 // @brief gets total number of orb_allocate calls. free calls are not subtracted from this.

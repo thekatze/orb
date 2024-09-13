@@ -72,7 +72,8 @@ b8 orb_on_event_resize(event_code code, void *sender, void *listener, orb_event_
 #define SUBSYSTEM_INIT(subsystem, ...)                                                             \
     do {                                                                                           \
         usize memory_requirement = 0;                                                              \
-        orb_##subsystem##_init(&memory_requirement, nullptr, ##__VA_ARGS__);                       \
+        [[maybe_unused]] auto _ =                                                                  \
+            orb_##subsystem##_init(&memory_requirement, nullptr, ##__VA_ARGS__);                   \
                                                                                                    \
         void *block = orb_linear_allocator_allocate(&app->systems_allocator, memory_requirement);  \
                                                                                                    \

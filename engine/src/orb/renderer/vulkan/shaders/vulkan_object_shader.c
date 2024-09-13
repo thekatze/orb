@@ -1,5 +1,5 @@
 #include "vulkan_object_shader.h"
-#include "../../../core/logger.h"
+#include "../../../core/expect.h"
 #include "../../../math/math_types.h"
 
 #include "../vulkan_buffer.h"
@@ -20,19 +20,15 @@ alignas(u32) const u8 fragment_shader_bin[] = {
 b8 orb_vulkan_object_shader_create(orb_vulkan_context *context,
                                    orb_vulkan_object_shader *out_shader) {
 
-    if (!orb_create_shader_module(context, (const u32 *)vertex_shader_bin,
-                                  ORB_ARRAY_LENGTH(vertex_shader_bin), VK_SHADER_STAGE_VERTEX_BIT,
-                                  &out_shader->stages[0])) {
-        ORB_ERROR("Unable to create builtin object vertex shader");
-        return false;
-    }
+    ORB_EXPECT(orb_create_shader_module(context, (const u32 *)vertex_shader_bin,
+                                        ORB_ARRAY_LENGTH(vertex_shader_bin),
+                                        VK_SHADER_STAGE_VERTEX_BIT, &out_shader->stages[0]),
+               "Unable to create builtin object vertex shader");
 
-    if (!orb_create_shader_module(context, (const u32 *)fragment_shader_bin,
-                                  ORB_ARRAY_LENGTH(fragment_shader_bin),
-                                  VK_SHADER_STAGE_FRAGMENT_BIT, &out_shader->stages[1])) {
-        ORB_ERROR("Unable to create builtin object fragment shader");
-        return false;
-    }
+    ORB_EXPECT(orb_create_shader_module(context, (const u32 *)fragment_shader_bin,
+                                        ORB_ARRAY_LENGTH(fragment_shader_bin),
+                                        VK_SHADER_STAGE_FRAGMENT_BIT, &out_shader->stages[1]),
+               "Unable to create builtin object fragment shader");
 
     // Descriptors
     VkDescriptorSetLayoutBinding global_uniform_buffer_layout_binding = {
@@ -120,26 +116,23 @@ b8 orb_vulkan_object_shader_create(orb_vulkan_context *context,
         stage_create_infos[i] = out_shader->stages[i].shader_stage_create_info;
     }
 
-    if (!orb_vulkan_graphics_pipeline_create(
-            context, &context->main_renderpass, ORB_OBJECT_SHADER_VERTEX_ATTRIBUTE_COUNT,
-            vertex_attribute_descriptions, ORB_OBJECT_SHADER_UNIFORM_ATTRIBUTE_COUNT, layouts,
-            ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT, stage_create_infos, viewport, scissor, false,
-            &out_shader->pipeline)) {
-        ORB_ERROR("Failed to create graphics pipeline for object shader");
-        return false;
-    }
+    ORB_EXPECT(orb_vulkan_graphics_pipeline_create(
+                   context, &context->main_renderpass, ORB_OBJECT_SHADER_VERTEX_ATTRIBUTE_COUNT,
+                   vertex_attribute_descriptions, ORB_OBJECT_SHADER_UNIFORM_ATTRIBUTE_COUNT,
+                   layouts, ORB_VULKAN_OBJECT_SHADER_STAGE_COUNT, stage_create_infos, viewport,
+                   scissor, false, &out_shader->pipeline),
+               "Failed to create graphics pipeline for object shader");
 
-    if (!orb_vulkan_buffer_create(
-            context, sizeof(orb_global_uniform_object) * context->swapchain.image_count,
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &out_shader->global_uniform_buffer)) {
-        ORB_ERROR("Failed to create buffer for object shader uniforms");
-        return false;
-    }
+    ORB_EXPECT(orb_vulkan_buffer_create(
+                   context, sizeof(orb_global_uniform_object) * context->swapchain.image_count,
+                   VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                   &out_shader->global_uniform_buffer),
+               "Failed to create buffer for object shader uniforms");
 
-    orb_vulkan_buffer_bind(context, &out_shader->global_uniform_buffer, 0);
+    ORB_EXPECT(orb_vulkan_buffer_bind(context, &out_shader->global_uniform_buffer, 0),
+               "Binding uniform buffer failed");
 
     VkDescriptorSetLayout global_layouts[ORB_MAX_IMAGE_BUFFERS] = {
         out_shader->global_descriptor_set_layout,
@@ -186,7 +179,7 @@ void orb_vulkan_object_shader_use(orb_vulkan_context *context, orb_vulkan_object
                                       VK_PIPELINE_BIND_POINT_GRAPHICS, &shader->pipeline);
 }
 
-void orb_vulkan_object_shader_update_global_state(orb_vulkan_context *context,
+b8 orb_vulkan_object_shader_update_global_state(orb_vulkan_context *context,
                                                   orb_vulkan_object_shader *shader) {
     u32 image_index = context->image_index;
     VkCommandBuffer command_buffer = context->graphics_command_buffers[image_index].handle;
@@ -196,8 +189,9 @@ void orb_vulkan_object_shader_update_global_state(orb_vulkan_context *context,
     usize offset = sizeof(orb_global_uniform_object) * image_index;
 
     // upload object to buffer
-    orb_vulkan_buffer_load_data_raw(context, &shader->global_uniform_buffer, offset, range, 0,
-                                    &shader->global_uniform_object);
+    ORB_EXPECT(orb_vulkan_buffer_load_data_raw(context, &shader->global_uniform_buffer, offset,
+                                               range, 0, &shader->global_uniform_object),
+               "Failed to upload uniform state to buffer");
 
     VkDescriptorBufferInfo buffer_info = {
         .buffer = shader->global_uniform_buffer.handle,
@@ -219,10 +213,13 @@ void orb_vulkan_object_shader_update_global_state(orb_vulkan_context *context,
 
     vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             shader->pipeline.layout, 0, 1, &global_descriptor, 0, VK_NULL_HANDLE);
+
+    return true;
 }
 
-void orb_vulkan_object_shader_update_object(orb_vulkan_context *context, orb_vulkan_object_shader *shader,
-                                     orb_mat4 model_transform) {
+void orb_vulkan_object_shader_update_object(orb_vulkan_context *context,
+                                            orb_vulkan_object_shader *shader,
+                                            orb_mat4 model_transform) {
     u32 image_index = context->image_index;
     VkCommandBuffer command_buffer = context->graphics_command_buffers[image_index].handle;
 

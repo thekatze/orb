@@ -1,3 +1,4 @@
+#include "../../core/asserts.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_types.h"
 
@@ -27,7 +28,7 @@ void orb_vulkan_command_buffer_free(orb_vulkan_context *context, VkCommandPool p
 }
 
 b8 orb_vulkan_command_buffer_begin(orb_vulkan_command_buffer *command_buffer,
-                                   orb_command_buffer_begin_flags flags) {
+                                   VkCommandBufferUsageFlags flags) {
 
     VkCommandBufferBeginInfo begin_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -41,7 +42,8 @@ b8 orb_vulkan_command_buffer_begin(orb_vulkan_command_buffer *command_buffer,
 }
 
 b8 orb_vulkan_command_buffer_end(orb_vulkan_command_buffer *command_buffer) {
-    // TODO: ORB_DEBUG_ASSERT(expr, "command buffer must be in recording state")
+    ORB_DEBUG_ASSERT(command_buffer->state == COMMAND_BUFFER_STATE_RECORDING,
+                     "command buffer must be in recording state")
     ORB_VK_EXPECT(vkEndCommandBuffer(command_buffer->handle));
     command_buffer->state = COMMAND_BUFFER_STATE_RECORDING_ENDED;
 

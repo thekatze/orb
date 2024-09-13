@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../containers/dynamic_array.h"
 #include "../../core/logger.h"
 #include "../../core/types.h"
 #include "../renderer_types.h"
@@ -16,18 +15,32 @@
 
 #include <vulkan/vulkan.h>
 
+#ifdef ORB_RELEASE
 #define ORB_VK_EXPECT(vk_api_call)                                                                 \
     do {                                                                                           \
         VkResult result = vk_api_call;                                                             \
         if (unlikely(result != VK_SUCCESS)) {                                                      \
-            ORB_FATAL(#vk_api_call " failed with result: %s", string_VkResult(result));            \
+            ORB_ERROR("#vk_api_call " failed with result: %s",                                     \
+                      string_VkResult(result));                                                    \
             return false;                                                                          \
         }                                                                                          \
     } while (0)
+#else
+#define ORB_VK_EXPECT(vk_api_call)                                                                 \
+    do {                                                                                           \
+        VkResult result = vk_api_call;                                                             \
+        if (unlikely(result != VK_SUCCESS)) {                                                      \
+            ORB_ERROR("%s:%d " #vk_api_call " failed with result: %s", __FILE__, __LINE__,         \
+                      string_VkResult(result));                                                    \
+            return false;                                                                          \
+        }                                                                                          \
+    } while (0)
+#endif
 
 #define ORB_INVALID_INDEX 4294967295U
 #define ORB_MAX_IMAGE_BUFFERS 3U
 
+[[nodiscard]]
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags);
 
 typedef struct orb_vulkan_buffer {

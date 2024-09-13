@@ -2,6 +2,7 @@
 
 #include "../../core/application.h"
 #include "../../core/asserts.h"
+#include "../../core/expect.h"
 #include "../../core/orb_memory.h"
 
 #include "../../math/math_types.h"
@@ -248,15 +249,17 @@ b8 orb_vulkan_backend_initialize(orb_renderer_backend *backend,
 
         const u32 indices[INDEX_COUNT] = {0, 1, 2, 1, 3, 2};
 
-        orb_vulkan_buffer_load_data_staged(&context, context.device.graphics_command_pool,
-                                           VK_NULL_HANDLE, context.device.graphics_queue,
-                                           &context.object_vertex_buffer, 0,
-                                           sizeof(orb_vertex_3d) * VERTEX_COUNT, vertices);
+        ORB_EXPECT(orb_vulkan_buffer_load_data_staged(
+                       &context, context.device.graphics_command_pool, VK_NULL_HANDLE,
+                       context.device.graphics_queue, &context.object_vertex_buffer, 0,
+                       sizeof(orb_vertex_3d) * VERTEX_COUNT, vertices),
+                   "Failed to upload vertex buffer to gpu");
 
-        orb_vulkan_buffer_load_data_staged(&context, context.device.graphics_command_pool,
-                                           VK_NULL_HANDLE, context.device.graphics_queue,
-                                           &context.object_index_buffer, 0,
-                                           sizeof(u32) * INDEX_COUNT, indices);
+        ORB_EXPECT(orb_vulkan_buffer_load_data_staged(
+                       &context, context.device.graphics_command_pool, VK_NULL_HANDLE,
+                       context.device.graphics_queue, &context.object_index_buffer, 0,
+                       sizeof(u32) * INDEX_COUNT, indices),
+                   "Failed to upload index buffer to gpu");
     }
 
     ORB_INFO("Vulkan renderer initialized successfully.");
@@ -386,7 +389,8 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
         &context.graphics_command_buffers[context.image_index];
 
     orb_vulkan_command_buffer_reset(command_buffer);
-    orb_vulkan_command_buffer_begin(command_buffer, 0);
+    ORB_EXPECT(orb_vulkan_command_buffer_begin(command_buffer, 0),
+               "Could not start recording command buffer");
 
     // TODO: we dont need to do this every frame, find a better spot for this
     // (resize?)
@@ -427,13 +431,13 @@ b8 orb_vulkan_backend_begin_frame(orb_renderer_backend *backend, f32 delta_time)
     return true;
 }
 
-void orb_vulkan_backend_update_global_state(const orb_global_uniform_object *global_state) {
+b8 orb_vulkan_backend_update_global_state(const orb_global_uniform_object *global_state) {
     orb_vulkan_object_shader_use(&context, &context.object_shader);
 
     orb_memory_copy(&context.object_shader.global_uniform_object, global_state,
                     sizeof(orb_global_uniform_object));
 
-    orb_vulkan_object_shader_update_global_state(&context, &context.object_shader);
+    return orb_vulkan_object_shader_update_global_state(&context, &context.object_shader);
 }
 
 b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
@@ -444,18 +448,21 @@ b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
         &context.graphics_command_buffers[context.image_index];
 
     orb_vulkan_renderpass_end(command_buffer, &context.main_renderpass);
-    orb_vulkan_command_buffer_end(command_buffer);
+    ORB_EXPECT(orb_vulkan_command_buffer_end(command_buffer), "failed finalizing command buffer");
 
     // make sure the previous frame is not using this image
     if (context.images_in_flight[context.image_index] != VK_NULL_HANDLE) {
-        orb_vulkan_fence_wait(&context, context.images_in_flight[context.image_index], UINT64_MAX);
+        ORB_EXPECT(orb_vulkan_fence_wait(&context, context.images_in_flight[context.image_index],
+                                         UINT64_MAX),
+                   "failed waiting on image to render to");
     }
 
     // mark the image as in-use by this frame
     context.images_in_flight[context.image_index] =
         &context.in_flight_fences[context.current_frame];
 
-    orb_vulkan_fence_reset(&context, &context.in_flight_fences[context.current_frame]);
+    ORB_EXPECT(orb_vulkan_fence_reset(&context, &context.in_flight_fences[context.current_frame]),
+               "failed resetting fence guarding current frame");
 
     // has to be equal to waitSemaphoreCount
     VkPipelineStageFlags flags[1] = {
@@ -483,13 +490,11 @@ b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
 
     orb_vulkan_command_buffer_update_submitted(command_buffer);
 
-    if (!orb_vulkan_swapchain_present(&context, &context.swapchain, context.device.graphics_queue,
-                                      context.device.present_queue,
-                                      context.queue_complete_semaphores[context.current_frame],
-                                      context.image_index)) {
-        ORB_ERROR("Failed presenting image");
-        return false;
-    };
+    ORB_EXPECT(orb_vulkan_swapchain_present(
+                   &context, &context.swapchain, context.device.graphics_queue,
+                   context.device.present_queue,
+                   context.queue_complete_semaphores[context.current_frame], context.image_index),
+               "Failed presenting image");
 
     return true;
 }
@@ -587,13 +592,16 @@ b8 recreate_swapchain(orb_renderer_backend *backend) {
     orb_memory_zero(context.images_in_flight,
                     sizeof(*context.images_in_flight) * context.swapchain.image_count);
 
-    orb_vulkan_device_query_swapchain_support(context.device.physical_device, context.surface,
-                                              &context.device.swapchain);
+    ORB_EXPECT(orb_vulkan_device_query_swapchain_support(
+                   context.device.physical_device, context.surface, &context.device.swapchain),
+               "failed querying swapchain info for render device");
 
-    orb_vulkan_device_detect_depth_format(&context.device);
+    ORB_EXPECT(orb_vulkan_device_detect_depth_format(&context.device),
+               "failed detecting depth format");
 
-    orb_vulkan_swapchain_recreate(&context, context.framebuffer_width, context.framebuffer_height,
-                                  &context.swapchain);
+    ORB_EXPECT(orb_vulkan_swapchain_recreate(&context, context.framebuffer_width,
+                                             context.framebuffer_height, &context.swapchain),
+               "failed recreating swapchain");
 
     // cleanup swapchain
     for (u32 i = 0; i < context.swapchain.image_count; ++i) {
@@ -650,8 +658,10 @@ b8 create_buffers() {
 
     context.geometry_index_offset = 0;
 
-    orb_vulkan_buffer_bind(&context, &context.object_vertex_buffer, 0);
-    orb_vulkan_buffer_bind(&context, &context.object_index_buffer, 0);
+    ORB_EXPECT(orb_vulkan_buffer_bind(&context, &context.object_vertex_buffer, 0),
+               "failed binding vertex buffer");
+    ORB_EXPECT(orb_vulkan_buffer_bind(&context, &context.object_index_buffer, 0),
+               "failed binding index buffer");
 
     return true;
 }

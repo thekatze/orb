@@ -17,17 +17,32 @@
 
 #define ORB_FLOAT_EPSILON 1.192092896e-07f
 
+[[nodiscard]]
 ORB_API f32 orb_sin(f32 x);
+[[nodiscard]]
 ORB_API f32 orb_cos(f32 x);
+[[nodiscard]]
 ORB_API f32 orb_tan(f32 x);
+[[nodiscard]]
 ORB_API f32 orb_acos(f32 x);
+[[nodiscard]]
 ORB_API f32 orb_sqrt(f32 x);
+[[nodiscard]]
 ORB_API f32 orb_abs(f32 x);
 
-ORB_INLINE b8 orb_is_power_of_2(u64 value) { return (value != 0) && ((value & (value - 1)) == 0); }
+[[nodiscard]]
+ORB_INLINE b8 orb_is_power_of_2(u64 value) {
+    return (value != 0) && ((value & (value - 1)) == 0);
+}
 
-ORB_INLINE f32 orb_degrees_to_radians(f32 degrees) { return degrees * ORB_PI / 180.0f; }
-ORB_INLINE f32 orb_radians_to_degrees(f32 radians) { return radians * 180.0f / ORB_PI; }
+[[nodiscard]]
+ORB_INLINE f32 orb_degrees_to_radians(f32 degrees) {
+    return degrees * ORB_PI / 180.0f;
+}
+[[nodiscard]]
+ORB_INLINE f32 orb_radians_to_degrees(f32 radians) {
+    return radians * 180.0f / ORB_PI;
+}
 
 // TODO:
 // Split into SIMD and non-SIMD
@@ -43,6 +58,7 @@ ORB_INLINE f32 orb_radians_to_degrees(f32 radians) { return radians * 180.0f / O
 // #include <orb_math_fallback.h>
 #endif
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_new(f32 x, f32 y) {
     return (orb_vec2){
         .x = x,
@@ -50,6 +66,7 @@ ORB_INLINE orb_vec2 orb_vec2_new(f32 x, f32 y) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_zero() {
     return (orb_vec2){
         .x = 0,
@@ -57,6 +74,7 @@ ORB_INLINE orb_vec2 orb_vec2_zero() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_right() {
     return (orb_vec2){
         .x = 1,
@@ -64,6 +82,7 @@ ORB_INLINE orb_vec2 orb_vec2_right() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_left() {
     return (orb_vec2){
         .x = -1,
@@ -71,6 +90,7 @@ ORB_INLINE orb_vec2 orb_vec2_left() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_up() {
     return (orb_vec2){
         .x = 0,
@@ -78,6 +98,7 @@ ORB_INLINE orb_vec2 orb_vec2_up() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_down() {
     return (orb_vec2){
         .x = 0,
@@ -85,6 +106,7 @@ ORB_INLINE orb_vec2 orb_vec2_down() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_add(orb_vec2 lhs, orb_vec2 rhs) {
     return (orb_vec2){
         .x = lhs.x + rhs.x,
@@ -92,6 +114,7 @@ ORB_INLINE orb_vec2 orb_vec2_add(orb_vec2 lhs, orb_vec2 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_sub(orb_vec2 lhs, orb_vec2 rhs) {
     return (orb_vec2){
         .x = lhs.x - rhs.x,
@@ -99,6 +122,7 @@ ORB_INLINE orb_vec2 orb_vec2_sub(orb_vec2 lhs, orb_vec2 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_scale(orb_vec2 lhs, f32 rhs) {
     return (orb_vec2){
         .x = lhs.x * rhs,
@@ -109,11 +133,15 @@ ORB_INLINE orb_vec2 orb_vec2_scale(orb_vec2 lhs, f32 rhs) {
 /**
  * @brief dot product.
  */
-ORB_INLINE f32 orb_vec2_dot(orb_vec2 lhs, orb_vec2 rhs) { return lhs.x * rhs.x + lhs.y * rhs.y; }
+[[nodiscard]]
+ORB_INLINE f32 orb_vec2_dot(orb_vec2 lhs, orb_vec2 rhs) {
+    return lhs.x * rhs.x + lhs.y * rhs.y;
+}
 
 /**
  * @brief element-wise multiplication.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_hadamard_prod(orb_vec2 lhs, orb_vec2 rhs) {
     return (orb_vec2){
         .x = lhs.x * rhs.x,
@@ -124,6 +152,7 @@ ORB_INLINE orb_vec2 orb_vec2_hadamard_prod(orb_vec2 lhs, orb_vec2 rhs) {
 /**
  * @brief element-wise division.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_hadamard_div(orb_vec2 lhs, orb_vec2 rhs) {
     return (orb_vec2){
         .x = lhs.x / rhs.x,
@@ -131,8 +160,14 @@ ORB_INLINE orb_vec2 orb_vec2_hadamard_div(orb_vec2 lhs, orb_vec2 rhs) {
     };
 }
 
-ORB_INLINE f32 orb_vec2_magnitude_sqr(orb_vec2 vec) { return vec.x * vec.x + vec.y * vec.y; }
-ORB_INLINE f32 orb_vec2_magnitude(orb_vec2 vec) { return orb_sqrt(orb_vec2_magnitude_sqr(vec)); }
+[[nodiscard]]
+ORB_INLINE f32 orb_vec2_magnitude_sqr(orb_vec2 vec) {
+    return vec.x * vec.x + vec.y * vec.y;
+}
+[[nodiscard]]
+ORB_INLINE f32 orb_vec2_magnitude(orb_vec2 vec) {
+    return orb_sqrt(orb_vec2_magnitude_sqr(vec));
+}
 
 /**
  * @brief normalize in place
@@ -146,6 +181,7 @@ ORB_INLINE void orb_vec2_normalize(orb_vec2 *vec) {
 /**
  * @brief create new normalized vector
  */
+[[nodiscard]]
 ORB_INLINE orb_vec2 orb_vec2_normalized(orb_vec2 vec) {
     orb_vec2_normalize(&vec);
     return vec;
@@ -154,6 +190,7 @@ ORB_INLINE orb_vec2 orb_vec2_normalized(orb_vec2 vec) {
 /**
  * @brief returns true if all elements are equal within some tolerance; usually ORB_FLOAT_EPSILON
  */
+[[nodiscard]]
 ORB_INLINE b8 orb_vec2_equal(const orb_vec2 *lhs, const orb_vec2 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
         return false;
@@ -165,6 +202,7 @@ ORB_INLINE b8 orb_vec2_equal(const orb_vec2 *lhs, const orb_vec2 *rhs, f32 toler
     return true;
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_vec2_distance(orb_vec2 lhs, orb_vec2 rhs) {
     return orb_vec2_magnitude(orb_vec2_sub(lhs, rhs));
 }
@@ -173,6 +211,7 @@ ORB_INLINE f32 orb_vec2_distance(orb_vec2 lhs, orb_vec2 rhs) {
 // vec3
 //
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_new(f32 x, f32 y, f32 z) {
     return (orb_vec3){
         .x = x,
@@ -181,6 +220,7 @@ ORB_INLINE orb_vec3 orb_vec3_new(f32 x, f32 y, f32 z) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_zero() {
     return (orb_vec3){
         .x = 0,
@@ -189,6 +229,7 @@ ORB_INLINE orb_vec3 orb_vec3_zero() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_x() {
     return (orb_vec3){
         .x = 1,
@@ -197,6 +238,7 @@ ORB_INLINE orb_vec3 orb_vec3_x() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_neg_x() {
     return (orb_vec3){
         .x = -1,
@@ -205,6 +247,7 @@ ORB_INLINE orb_vec3 orb_vec3_neg_x() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_y() {
     return (orb_vec3){
         .x = 0,
@@ -213,6 +256,7 @@ ORB_INLINE orb_vec3 orb_vec3_y() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_neg_y() {
     return (orb_vec3){
         .x = 0,
@@ -221,6 +265,7 @@ ORB_INLINE orb_vec3 orb_vec3_neg_y() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_z() {
     return (orb_vec3){
         .x = 0,
@@ -229,6 +274,7 @@ ORB_INLINE orb_vec3 orb_vec3_z() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_neg_z() {
     return (orb_vec3){
         .x = 0,
@@ -237,6 +283,7 @@ ORB_INLINE orb_vec3 orb_vec3_neg_z() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_add(orb_vec3 lhs, orb_vec3 rhs) {
     return (orb_vec3){
         .x = lhs.x + rhs.x,
@@ -245,6 +292,7 @@ ORB_INLINE orb_vec3 orb_vec3_add(orb_vec3 lhs, orb_vec3 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_sub(orb_vec3 lhs, orb_vec3 rhs) {
     return (orb_vec3){
         .x = lhs.x - rhs.x,
@@ -253,6 +301,7 @@ ORB_INLINE orb_vec3 orb_vec3_sub(orb_vec3 lhs, orb_vec3 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_scale(orb_vec3 lhs, f32 rhs) {
     return (orb_vec3){
         .x = lhs.x * rhs,
@@ -264,6 +313,7 @@ ORB_INLINE orb_vec3 orb_vec3_scale(orb_vec3 lhs, f32 rhs) {
 /**
  * @brief dot product.
  */
+[[nodiscard]]
 ORB_INLINE f32 orb_vec3_dot(orb_vec3 lhs, orb_vec3 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
@@ -271,6 +321,7 @@ ORB_INLINE f32 orb_vec3_dot(orb_vec3 lhs, orb_vec3 rhs) {
 /**
  * @brief cross product.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_cross(orb_vec3 lhs, orb_vec3 rhs) {
     return (orb_vec3){
         .x = lhs.y * rhs.z - lhs.z * rhs.y,
@@ -282,6 +333,7 @@ ORB_INLINE orb_vec3 orb_vec3_cross(orb_vec3 lhs, orb_vec3 rhs) {
 /**
  * @brief element-wise multiplication.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_hadamard_prod(orb_vec3 lhs, orb_vec3 rhs) {
     return (orb_vec3){
         .x = lhs.x * rhs.x,
@@ -293,6 +345,7 @@ ORB_INLINE orb_vec3 orb_vec3_hadamard_prod(orb_vec3 lhs, orb_vec3 rhs) {
 /**
  * @brief element-wise division.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_hadamard_div(orb_vec3 lhs, orb_vec3 rhs) {
     return (orb_vec3){
         .x = lhs.x / rhs.x,
@@ -301,11 +354,15 @@ ORB_INLINE orb_vec3 orb_vec3_hadamard_div(orb_vec3 lhs, orb_vec3 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_vec3_magnitude_sqr(orb_vec3 vec) {
     return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
 }
 
-ORB_INLINE f32 orb_vec3_magnitude(orb_vec3 vec) { return orb_sqrt(orb_vec3_magnitude_sqr(vec)); }
+[[nodiscard]]
+ORB_INLINE f32 orb_vec3_magnitude(orb_vec3 vec) {
+    return orb_sqrt(orb_vec3_magnitude_sqr(vec));
+}
 
 /**
  * @brief normalize in place
@@ -320,6 +377,7 @@ ORB_INLINE void orb_vec3_normalize(orb_vec3 *vec) {
 /**
  * @brief create new normalized vector
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_normalized(orb_vec3 vec) {
     orb_vec3_normalize(&vec);
     return vec;
@@ -328,6 +386,7 @@ ORB_INLINE orb_vec3 orb_vec3_normalized(orb_vec3 vec) {
 /**
  * @brief returns true if all elements are equal within some tolerance; usually ORB_FLOAT_EPSILON
  */
+[[nodiscard]]
 ORB_INLINE b8 orb_vec3_equal(const orb_vec3 *lhs, const orb_vec3 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
         return false;
@@ -344,6 +403,7 @@ ORB_INLINE b8 orb_vec3_equal(const orb_vec3 *lhs, const orb_vec3 *rhs, f32 toler
     return true;
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_vec3_distance(orb_vec3 lhs, orb_vec3 rhs) {
     return orb_vec3_magnitude(orb_vec3_sub(lhs, rhs));
 }
@@ -352,6 +412,7 @@ ORB_INLINE f32 orb_vec3_distance(orb_vec3 lhs, orb_vec3 rhs) {
 // vec4
 //
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_new(f32 x, f32 y, f32 z, f32 w) {
     return (orb_vec4){
         .x = x,
@@ -361,6 +422,7 @@ ORB_INLINE orb_vec4 orb_vec4_new(f32 x, f32 y, f32 z, f32 w) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_zero() {
     return (orb_vec4){
         .x = 0,
@@ -370,6 +432,7 @@ ORB_INLINE orb_vec4 orb_vec4_zero() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_add(orb_vec4 lhs, orb_vec4 rhs) {
     return (orb_vec4){
         .x = lhs.x + rhs.x,
@@ -379,6 +442,7 @@ ORB_INLINE orb_vec4 orb_vec4_add(orb_vec4 lhs, orb_vec4 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_sub(orb_vec4 lhs, orb_vec4 rhs) {
     return (orb_vec4){
         .x = lhs.x - rhs.x,
@@ -388,6 +452,7 @@ ORB_INLINE orb_vec4 orb_vec4_sub(orb_vec4 lhs, orb_vec4 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_scale(orb_vec4 lhs, f32 rhs) {
     return (orb_vec4){
         .x = lhs.x * rhs,
@@ -400,6 +465,7 @@ ORB_INLINE orb_vec4 orb_vec4_scale(orb_vec4 lhs, f32 rhs) {
 /**
  * @brief dot product.
  */
+[[nodiscard]]
 ORB_INLINE f32 orb_vec4_dot(orb_vec4 lhs, orb_vec4 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
@@ -407,6 +473,7 @@ ORB_INLINE f32 orb_vec4_dot(orb_vec4 lhs, orb_vec4 rhs) {
 /**
  * @brief element-wise multiplication.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_hadamard_prod(orb_vec4 lhs, orb_vec4 rhs) {
     return (orb_vec4){
         .x = lhs.x * rhs.x,
@@ -419,6 +486,7 @@ ORB_INLINE orb_vec4 orb_vec4_hadamard_prod(orb_vec4 lhs, orb_vec4 rhs) {
 /**
  * @brief element-wise division.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_hadamard_div(orb_vec4 lhs, orb_vec4 rhs) {
     return (orb_vec4){
         .x = lhs.x / rhs.x,
@@ -428,11 +496,15 @@ ORB_INLINE orb_vec4 orb_vec4_hadamard_div(orb_vec4 lhs, orb_vec4 rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_vec4_magnitude_sqr(orb_vec4 vec) {
     return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w;
 }
 
-ORB_INLINE f32 orb_vec4_magnitude(orb_vec4 vec) { return orb_sqrt(orb_vec4_magnitude_sqr(vec)); }
+[[nodiscard]]
+ORB_INLINE f32 orb_vec4_magnitude(orb_vec4 vec) {
+    return orb_sqrt(orb_vec4_magnitude_sqr(vec));
+}
 
 /**
  * @brief normalize in place
@@ -448,6 +520,7 @@ ORB_INLINE void orb_vec4_normalize(orb_vec4 *vec) {
 /**
  * @brief create new normalized vector
  */
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_normalized(orb_vec4 vec) {
     orb_vec4_normalize(&vec);
     return vec;
@@ -456,6 +529,7 @@ ORB_INLINE orb_vec4 orb_vec4_normalized(orb_vec4 vec) {
 /**
  * @brief returns true if all elements are equal within some tolerance; usually ORB_FLOAT_EPSILON
  */
+[[nodiscard]]
 ORB_INLINE b8 orb_vec4_equal(const orb_vec4 *lhs, const orb_vec4 *rhs, f32 tolerance) {
     if (orb_abs(lhs->x - rhs->x) > tolerance) {
         return false;
@@ -476,6 +550,7 @@ ORB_INLINE b8 orb_vec4_equal(const orb_vec4 *lhs, const orb_vec4 *rhs, f32 toler
     return true;
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_vec4_distance(orb_vec4 lhs, orb_vec4 rhs) {
     return orb_vec4_magnitude(orb_vec4_sub(lhs, rhs));
 }
@@ -484,6 +559,7 @@ ORB_INLINE f32 orb_vec4_distance(orb_vec4 lhs, orb_vec4 rhs) {
 // conversion between dimensions
 //
 
+[[nodiscard]]
 ORB_INLINE orb_vec4 orb_vec4_from_vec3(orb_vec3 vec, f32 w) {
     return (orb_vec4){
         .x = vec.x,
@@ -493,6 +569,7 @@ ORB_INLINE orb_vec4 orb_vec4_from_vec3(orb_vec3 vec, f32 w) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_vec3_from_vec4(orb_vec4 vec) {
     return (orb_vec3){
         .x = vec.x,
@@ -505,6 +582,7 @@ ORB_INLINE orb_vec3 orb_vec3_from_vec4(orb_vec4 vec) {
 // matrices
 //
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_identity() {
     orb_mat4 mat = {0};
 
@@ -516,6 +594,7 @@ ORB_INLINE orb_mat4 orb_mat4_identity() {
     return mat;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_mul(const orb_mat4 *lhs, const orb_mat4 *rhs) {
     // no need to zero init because we write into all values
     orb_mat4 result;
@@ -538,6 +617,7 @@ ORB_INLINE orb_mat4 orb_mat4_mul(const orb_mat4 *lhs, const orb_mat4 *rhs) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 near_clip,
                                           f32 far_clip) {
     orb_mat4 result = orb_mat4_identity();
@@ -557,6 +637,7 @@ ORB_INLINE orb_mat4 orb_mat4_orthographic(f32 left, f32 right, f32 bottom, f32 t
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_clip,
                                          f32 far_clip) {
     orb_mat4 result = {0};
@@ -572,6 +653,7 @@ ORB_INLINE orb_mat4 orb_mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_look_at(orb_vec3 position, orb_vec3 target, orb_vec3 up) {
     orb_mat4 result = {0};
 
@@ -602,6 +684,7 @@ ORB_INLINE orb_mat4 orb_mat4_look_at(orb_vec3 position, orb_vec3 target, orb_vec
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_transposed(const orb_mat4 *mat) {
     orb_mat4 result;
 
@@ -625,6 +708,7 @@ ORB_INLINE orb_mat4 orb_mat4_transposed(const orb_mat4 *mat) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_inverse(const orb_mat4 *mat) {
     orb_mat4 result;
 
@@ -692,6 +776,7 @@ ORB_INLINE orb_mat4 orb_mat4_inverse(const orb_mat4 *mat) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_translation(orb_vec3 position) {
     orb_mat4 result = orb_mat4_identity();
 
@@ -702,6 +787,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_translation(orb_vec3 position) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_scale(orb_vec3 scale) {
     orb_mat4 result = orb_mat4_identity();
 
@@ -712,6 +798,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_scale(orb_vec3 scale) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_x(f32 angle_radians) {
     orb_mat4 result = orb_mat4_identity();
 
@@ -726,6 +813,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_x(f32 angle_radians) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_y(f32 angle_radians) {
     orb_mat4 result = orb_mat4_identity();
 
@@ -740,6 +828,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_y(f32 angle_radians) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_z(f32 angle_radians) {
     orb_mat4 result = orb_mat4_identity();
 
@@ -754,6 +843,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_z(f32 angle_radians) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_xyz(f32 x_radians, f32 y_radians, f32 z_radians) {
     orb_mat4 x = orb_mat4_from_euler_rotation_x(x_radians);
     orb_mat4 y = orb_mat4_from_euler_rotation_y(y_radians);
@@ -768,6 +858,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_euler_rotation_xyz(f32 x_radians, f32 y_radian
 /**
  * @brief Returns a forward vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_forward(const orb_mat4 *matrix) {
     // -orb_vec3_from_vec4(matrix.cols[2]);
     orb_vec3 forward = {
@@ -784,6 +875,7 @@ ORB_INLINE orb_vec3 orb_mat4_forward(const orb_mat4 *matrix) {
 /**
  * @brief Returns a backward vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_backward(const orb_mat4 *matrix) {
     // orb_vec3_from_vec4(matrix.cols[2]);
     orb_vec3 backward = {
@@ -800,6 +892,7 @@ ORB_INLINE orb_vec3 orb_mat4_backward(const orb_mat4 *matrix) {
 /**
  * @brief Returns an upward vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_up(const orb_mat4 *matrix) {
     // orb_vec3_from_vec4(matrix.cols[1]);
     orb_vec3 up = {
@@ -816,6 +909,7 @@ ORB_INLINE orb_vec3 orb_mat4_up(const orb_mat4 *matrix) {
 /**
  * @brief Returns a downward vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_down(const orb_mat4 *matrix) {
     // -orb_vec3_from_vec4(matrix.cols[1]);
     orb_vec3 down = {
@@ -832,6 +926,7 @@ ORB_INLINE orb_vec3 orb_mat4_down(const orb_mat4 *matrix) {
 /**
  * @brief Returns a left vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_left(const orb_mat4 *matrix) {
     // -worb_vec3_from_vec4(matrix.cols[0]);
     orb_vec3 left = {
@@ -848,6 +943,7 @@ ORB_INLINE orb_vec3 orb_mat4_left(const orb_mat4 *matrix) {
 /**
  * @brief Returns a right vector relative to the provided matrix.
  */
+[[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_right(const orb_mat4 *matrix) {
     // orb_vec3_from_vec4(matrix.cols[0]);
     orb_vec3 right = {
@@ -865,6 +961,7 @@ ORB_INLINE orb_vec3 orb_mat4_right(const orb_mat4 *matrix) {
 // Quaternions
 //
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_identity() {
     return (orb_quat){
         .x = 0,
@@ -874,6 +971,7 @@ ORB_INLINE orb_quat orb_quat_identity() {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_quat_normal(const orb_quat *q) {
     return orb_sqrt(q->x * q->x + q->y * q->y + q->z * q->z + q->w * q->w);
 }
@@ -886,11 +984,13 @@ ORB_INLINE void orb_quat_normalize(orb_quat *q) {
     q->w /= normal;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_normalized(orb_quat q) {
     orb_quat_normalize(&q);
     return q;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_conjugate(orb_quat q) {
     return (orb_quat){
         .x = -q.x,
@@ -900,10 +1000,12 @@ ORB_INLINE orb_quat orb_quat_conjugate(orb_quat q) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_inverse(orb_quat q) {
     return orb_quat_normalized(orb_quat_conjugate(q));
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_mul(const orb_quat *lhs, const orb_quat *rhs) {
     return (orb_quat){
         .x = rhs->x * lhs->w + rhs->y * lhs->z - rhs->z * lhs->y + rhs->w * lhs->x,
@@ -913,10 +1015,12 @@ ORB_INLINE orb_quat orb_quat_mul(const orb_quat *lhs, const orb_quat *rhs) {
     };
 }
 
+[[nodiscard]]
 ORB_INLINE f32 orb_quat_dot(const orb_quat *lhs, const orb_quat *rhs) {
     return lhs->x * rhs->x + lhs->y * rhs->y + lhs->z * rhs->z + lhs->w * rhs->w;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_quat(orb_quat q) {
     orb_mat4 result = {};
     f32 *o = (f32 *)&result.elements;
@@ -940,6 +1044,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_quat(orb_quat q) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_mat4 orb_mat4_from_quat_and_center(orb_quat q, orb_vec3 center) {
     orb_mat4 result = {};
     f32 *o = (f32 *)&result.elements;
@@ -966,6 +1071,7 @@ ORB_INLINE orb_mat4 orb_mat4_from_quat_and_center(orb_quat q, orb_vec3 center) {
     return result;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_from_axis_angle(orb_vec3 axis, f32 angle, b8 normalize) {
     const f32 half_angle = 0.5f * angle;
     f32 sin = orb_sin(half_angle);
@@ -985,6 +1091,7 @@ ORB_INLINE orb_quat orb_quat_from_axis_angle(orb_vec3 axis, f32 angle, b8 normal
     return q;
 }
 
+[[nodiscard]]
 ORB_INLINE orb_quat orb_quat_slerp(orb_quat from, orb_quat to, f32 t) {
     orb_quat_normalize(&from);
     orb_quat_normalize(&to);

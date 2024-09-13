@@ -1,6 +1,7 @@
 #include "vulkan_swapchain.h"
 
 #include "../../core/asserts.h"
+#include "../../core/expect.h"
 #include "../../core/logger.h"
 #include "../../core/orb_memory.h"
 #include "vulkan_device.h"
@@ -38,11 +39,13 @@ b8 orb_vulkan_swapchain_acquire_next_image_index(orb_vulkan_context *context,
         break;
     case VK_SUBOPTIMAL_KHR:
     case VK_ERROR_OUT_OF_DATE_KHR:
-        orb_vulkan_swapchain_recreate(context, context->framebuffer_width,
-                                      context->framebuffer_height, swapchain);
+        ORB_ASSERT(orb_vulkan_swapchain_recreate(context, context->framebuffer_width,
+                                                 context->framebuffer_height, swapchain),
+                   "Swapchain failed to recreate");
+
         return false;
     default:
-        ORB_FATAL("vkAcquireNextImageKHR failed with result: %s", string_VkResult(result));
+        ORB_ERROR("vkAcquireNextImageKHR failed with result: %s", string_VkResult(result));
         return false;
     }
 
@@ -70,8 +73,9 @@ b8 orb_vulkan_swapchain_present(orb_vulkan_context *context, orb_vulkan_swapchai
         break;
     case VK_SUBOPTIMAL_KHR:
     case VK_ERROR_OUT_OF_DATE_KHR:
-        orb_vulkan_swapchain_recreate(context, context->framebuffer_width,
-                                      context->framebuffer_height, swapchain);
+        ORB_ASSERT(orb_vulkan_swapchain_recreate(context, context->framebuffer_width,
+                                                 context->framebuffer_height, swapchain),
+                   "Swapchain failed to recreate");
         break;
     default:
         ORB_FATAL("vkAcquireNextImageKHR failed with result: %s", string_VkResult(result));
@@ -117,8 +121,9 @@ b8 create_swapchain(orb_vulkan_context *context, u32 width, u32 height,
     // NOTE: i would do this query at the beginning of creation, but i will keep
     // it here for now
 
-    orb_vulkan_device_query_swapchain_support(context->device.physical_device, context->surface,
-                                              &context->device.swapchain);
+    ORB_EXPECT(orb_vulkan_device_query_swapchain_support(
+                   context->device.physical_device, context->surface, &context->device.swapchain),
+               "failed querying swapchain support");
 
     VkExtent2D swapchain_extent = {
         .width = width,

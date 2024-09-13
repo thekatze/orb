@@ -24,6 +24,7 @@ typedef enum orb_log_level {
     LOG_LEVEL_MAX_ENUM,
 } orb_log_level;
 
+[[nodiscard]]
 b8 orb_logger_init(usize *memory_requirement, void *memory);
 void orb_logger_shutdown();
 

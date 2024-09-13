@@ -17,6 +17,7 @@ typedef struct orb_global_uniform_object {
 typedef struct orb_renderer_backend {
     u32 frame_number;
 
+    [[nodiscard]]
     b8 (*initialize)(struct orb_renderer_backend *backend,
                      struct orb_application_config *application_config);
 
@@ -24,8 +25,11 @@ typedef struct orb_renderer_backend {
 
     void (*resize)(struct orb_renderer_backend *backend, u16 width, u16 height);
 
+    [[nodiscard]]
     b8 (*begin_frame)(struct orb_renderer_backend *backend, f32 delta_time);
-    void (*update_global_state)(const orb_global_uniform_object* global_state);
+    [[nodiscard]]
+    b8 (*update_global_state)(const orb_global_uniform_object* global_state);
+    [[nodiscard]]
     b8 (*end_frame)(struct orb_renderer_backend *backend, f32 delta_time);
 
     void (*update_object)(orb_mat4 model);

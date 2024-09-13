@@ -16,5 +16,6 @@ ORB_API void orb_linear_allocator_create_view(usize total_size, void *memory,
 //                                                orb_linear_allocator *out_allocator);
 // ORB_API void orb_linear_allocator_destroy_owned(orb_linear_allocator *allocator);
 
+[[nodiscard]]
 ORB_API void *orb_linear_allocator_allocate(orb_linear_allocator *allocator, usize size);
 ORB_API void orb_linear_allocator_reset(orb_linear_allocator *allocator);

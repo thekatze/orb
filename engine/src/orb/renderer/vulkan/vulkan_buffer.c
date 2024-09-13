@@ -1,9 +1,9 @@
 #include "vulkan_buffer.h"
 
 #include "vulkan_command_buffer.h"
-#include "vulkan_device.h"
 
 #include "../../core/asserts.h"
+#include "../../core/expect.h"
 #include "../../core/logger.h"
 #include "../../core/orb_memory.h"
 
@@ -97,8 +97,9 @@ b8 orb_vulkan_buffer_resize(orb_vulkan_context *context, usize new_size, orb_vul
 
     ORB_VK_EXPECT(vkBindBufferMemory(context->device.logical_device, new_buffer, new_memory, 0));
 
-    orb_vulkan_buffer_memory_copy(context, pool, 0, queue, buffer->handle, 0, new_buffer, 0,
-                                  buffer->total_size);
+    ORB_EXPECT(orb_vulkan_buffer_memory_copy(context, pool, 0, queue, buffer->handle, 0, new_buffer,
+                                             0, buffer->total_size),
+               "failed copying buffer to new buffer");
 
     vkDeviceWaitIdle(context->device.logical_device);
 
@@ -130,14 +131,18 @@ b8 orb_vulkan_buffer_load_data_staged(orb_vulkan_context *context, VkCommandPool
     VkBufferUsageFlags staging_flags =
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     orb_vulkan_buffer staging;
-    orb_vulkan_buffer_create(context, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, staging_flags,
-                             &staging);
-    orb_vulkan_buffer_bind(context, &staging, 0);
+    ORB_EXPECT(orb_vulkan_buffer_create(context, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                        staging_flags, &staging),
+               "failed creating staging buffer");
 
-    orb_vulkan_buffer_load_data_raw(context, &staging, 0, size, 0, data);
+    ORB_EXPECT(orb_vulkan_buffer_bind(context, &staging, 0), "failed binding staging buffer");
 
-    orb_vulkan_buffer_memory_copy(context, pool, fence, queue, staging.handle, 0, buffer->handle,
-                                  offset, size);
+    ORB_EXPECT(orb_vulkan_buffer_load_data_raw(context, &staging, 0, size, 0, data),
+               "failed uploading data into staging buffer");
+
+    ORB_EXPECT(orb_vulkan_buffer_memory_copy(context, pool, fence, queue, staging.handle, 0,
+                                             buffer->handle, offset, size),
+               "failed copying into provided buffer from staging");
 
     orb_vulkan_buffer_destroy(context, &staging);
 
@@ -157,15 +162,17 @@ b8 orb_vulkan_buffer_load_data_raw(orb_vulkan_context *context, orb_vulkan_buffe
     return true;
 }
 
-void orb_vulkan_buffer_memory_copy(orb_vulkan_context *context, VkCommandPool pool, VkFence fence,
-                                   VkQueue queue, VkBuffer source, usize source_offset,
-                                   VkBuffer destination, usize destination_offset, usize size) {
+b8 orb_vulkan_buffer_memory_copy(orb_vulkan_context *context, VkCommandPool pool, VkFence fence,
+                                 VkQueue queue, VkBuffer source, usize source_offset,
+                                 VkBuffer destination, usize destination_offset, usize size) {
     (void)fence;
 
-    vkQueueWaitIdle(queue);
+    ORB_VK_EXPECT(vkQueueWaitIdle(queue));
 
     orb_vulkan_command_buffer copy_command_buffer;
-    orb_vulkan_command_buffer_allocate_and_begin_single_use(context, pool, &copy_command_buffer);
+    ORB_EXPECT(orb_vulkan_command_buffer_allocate_and_begin_single_use(context, pool,
+                                                                       &copy_command_buffer),
+               "failed creating copy command buffer");
 
     VkBufferCopy copy_region = {
         .srcOffset = source_offset,
@@ -175,5 +182,9 @@ void orb_vulkan_buffer_memory_copy(orb_vulkan_context *context, VkCommandPool po
 
     vkCmdCopyBuffer(copy_command_buffer.handle, source, destination, 1, &copy_region);
 
-    orb_vulkan_command_buffer_end_and_submit_single_use(context, pool, &copy_command_buffer, queue);
+    ORB_EXPECT(orb_vulkan_command_buffer_end_and_submit_single_use(context, pool,
+                                                                   &copy_command_buffer, queue),
+               "failed submitting copy command");
+
+    return true;
 }

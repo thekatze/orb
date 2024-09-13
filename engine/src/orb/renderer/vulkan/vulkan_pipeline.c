@@ -1,5 +1,4 @@
 #include "vulkan_pipeline.h"
-#include "../../core/asserts.h"
 #include "../../math/math_types.h"
 
 b8 orb_vulkan_graphics_pipeline_create(orb_vulkan_context *context,

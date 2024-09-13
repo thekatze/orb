@@ -1,7 +1,7 @@
 #include "renderer_frontend.h"
 #include "renderer_backend.h"
 
-#include "../core/logger.h"
+#include "../core/expect.h"
 #include "../math/orb_math.h"
 #include "renderer_types.h"
 
@@ -21,12 +21,9 @@ b8 orb_renderer_init(usize *memory_requirement, void *memory,
     state = (renderer_state *)memory;
     state->backend.frame_number = 0;
 
-    orb_renderer_backend_init(&state->backend);
-
-    if (!state->backend.initialize(&state->backend, application_config)) {
-        ORB_FATAL("Renderer backend initialization failed.");
-        return false;
-    }
+    ORB_EXPECT(orb_renderer_backend_init(&state->backend) &&
+                   state->backend.initialize(&state->backend, application_config),
+               "Renderer backend initialization failed");
 
     return true;
 }
@@ -64,15 +61,15 @@ b8 orb_renderer_draw_frame(orb_render_packet *packet) {
     orb_mat4 rotation_matrix = orb_mat4_from_euler_rotation_y(orb_degrees_to_radians(rotation));
     object_transform = orb_mat4_mul(&rotation_matrix, &object_transform);
 
-    state->backend.update_global_state(&(orb_global_uniform_object){
-        .camera_projection = orb_mat4_mul(&camera_position, &camera_projection),
-    });
+    ORB_EXPECT(state->backend.update_global_state(&(orb_global_uniform_object){
+                   .camera_projection = orb_mat4_mul(&camera_position, &camera_projection),
+               }),
+               "failed uploading uniform");
 
     state->backend.update_object(object_transform);
 
-    if (!state->backend.end_frame(&state->backend, packet->delta_time)) {
-        return false;
-    }
+    ORB_EXPECT(state->backend.end_frame(&state->backend, packet->delta_time),
+               "Submitting frame failed");
 
     state->backend.frame_number += 1;
 

@@ -9,6 +9,7 @@ typedef struct orb_dynamic_array {
     void *items;
 } orb_dynamic_array;
 
+[[nodiscard]]
 ORB_API orb_dynamic_array _orb_dynamic_array_create(usize capacity, usize stride);
 
 #define orb_dynamic_array_create(type)                                                             \

@@ -6,8 +6,11 @@
 typedef struct orb_game {
     orb_application_config app_config;
 
+    [[nodiscard]]
     b8 (*initialize)(struct orb_game *game_instance);
+    [[nodiscard]]
     b8 (*update)(struct orb_game *game_instance, f32 delta_time);
+    [[nodiscard]]
     b8 (*render)(struct orb_game *game_instance, f32 delta_time);
     void (*on_resize)(struct orb_game *game_instance, u16 width, u16 height);
 

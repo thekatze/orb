@@ -2,6 +2,7 @@
 
 #include "vulkan_types.h"
 
+[[nodiscard]]
 b8 orb_vulkan_graphics_pipeline_create(orb_vulkan_context *context,
                                        orb_vulkan_renderpass *renderpass, u32 attribute_count,
                                        VkVertexInputAttributeDescription *attributes,

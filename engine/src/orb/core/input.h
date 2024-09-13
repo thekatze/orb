@@ -2,7 +2,8 @@
 
 #include "types.h"
 
-b8 orb_input_init(usize* memory_requirement, void* memory);
+[[nodiscard]]
+b8 orb_input_init(usize *memory_requirement, void *memory);
 void orb_input_shutdown();
 
 void orb_input_update();
@@ -168,25 +169,33 @@ typedef enum : u16 {
 } orb_keyboard_keys;
 
 // is the key down
+[[nodiscard]]
 ORB_API b8 orb_input_is_key_down(orb_keyboard_keys key);
 // did the key get pressed this frame
+[[nodiscard]]
 ORB_API b8 orb_input_is_key_pressed(orb_keyboard_keys key);
 
 // is the key up
+[[nodiscard]]
 ORB_API b8 orb_input_is_key_up(orb_keyboard_keys key);
 // did the key get released this frame
+[[nodiscard]]
 ORB_API b8 orb_input_is_key_released(orb_keyboard_keys key);
 
 void orb_input_process_key(orb_keyboard_keys key, b8 pressed);
 
 // is the button down
+[[nodiscard]]
 ORB_API b8 orb_input_is_mouse_button_down(orb_mouse_buttons button);
 // did the button get pressed this frame
+[[nodiscard]]
 ORB_API b8 orb_input_is_mouse_button_pressed(orb_mouse_buttons button);
 
 // is the button up
+[[nodiscard]]
 ORB_API b8 orb_input_is_mouse_button_up(orb_mouse_buttons button);
 // did the button get released this frame
+[[nodiscard]]
 ORB_API b8 orb_input_is_mouse_button_released(orb_mouse_buttons button);
 
 ORB_API void orb_input_get_mouse_position(i32 *x, i32 *y);

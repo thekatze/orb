@@ -2,6 +2,7 @@
 
 #include "vulkan_types.h"
 
+[[nodiscard]]
 b8 orb_vulkan_renderpass_create(orb_vulkan_context *context,
                                 orb_vulkan_renderpass *out_renderpass, //
                                 i32 x, i32 y,                          // TODO: vec2 offset

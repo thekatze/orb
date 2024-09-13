@@ -8,10 +8,12 @@
 
 i32 main() {
     usize logger_memory_requirement;
-    orb_logger_init(&logger_memory_requirement, nullptr);
+    [[maybe_unused]] auto _ = orb_logger_init(&logger_memory_requirement, nullptr);
 
     void *logger_memory = orb_platform_allocate(logger_memory_requirement, false);
-    orb_logger_init(&logger_memory_requirement, logger_memory);
+    if (!orb_logger_init(&logger_memory_requirement, logger_memory)) {
+        return -1;
+    }
 
     ORB_DEBUG("Initializing test runner");
     test_runner_initialize();
