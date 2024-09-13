@@ -53,13 +53,22 @@ b8 orb_renderer_draw_frame(orb_render_packet *packet) {
 
     orb_mat4 camera_projection =
         orb_mat4_perspective(orb_degrees_to_radians(50.0f), 1600.0f / 900.0f, 0.1f, 1000.0f);
-    static f32 z = -3.0f;
-    z -= 2.0f * packet->delta_time;
+    static f32 z = +3.0f;
+    z += 2.0f * packet->delta_time;
     orb_mat4 camera_position = orb_mat4_from_translation((orb_vec3){.x = 0, .y = 0, .z = z});
+    camera_position = orb_mat4_inverse(&camera_position);
+
+    static f32 rotation = 0.0f;
+    rotation += 30.0f * packet->delta_time;
+    orb_mat4 object_transform = orb_mat4_identity();
+    orb_mat4 rotation_matrix = orb_mat4_from_euler_rotation_y(orb_degrees_to_radians(rotation));
+    object_transform = orb_mat4_mul(&rotation_matrix, &object_transform);
 
     state->backend.update_global_state(&(orb_global_uniform_object){
         .camera_projection = orb_mat4_mul(&camera_position, &camera_projection),
     });
+
+    state->backend.update_object(object_transform);
 
     if (!state->backend.end_frame(&state->backend, packet->delta_time)) {
         return false;

@@ -220,3 +220,12 @@ void orb_vulkan_object_shader_update_global_state(orb_vulkan_context *context,
     vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             shader->pipeline.layout, 0, 1, &global_descriptor, 0, VK_NULL_HANDLE);
 }
+
+void orb_vulkan_object_shader_update_object(orb_vulkan_context *context, orb_vulkan_object_shader *shader,
+                                     orb_mat4 model_transform) {
+    u32 image_index = context->image_index;
+    VkCommandBuffer command_buffer = context->graphics_command_buffers[image_index].handle;
+
+    vkCmdPushConstants(command_buffer, shader->pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                       sizeof(orb_mat4), &model_transform);
+}

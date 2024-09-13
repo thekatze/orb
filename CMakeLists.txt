@@ -6,9 +6,9 @@ if (APPLE)
     # when debugging platform_mac.m, comment out these lines and remove the -Werror compiler flag.
     # xcode only works with clang that doesnt support c23 yet, so we get extra warnings there
     SET(CMAKE_C_COMPILER "/usr/local/bin/clang-19")
+    # -fsanitize=address/leak does not work on arm mac
     SET(DEBUG_C_FLAGS "-ggdb")
 elseif(LINUX)
-    # -fsanitize=address does not work on mac
     SET(DEBUG_C_FLAGS "-g3") # -fsanitize=leak -fsanitize=address")
 else()
     # -fsanitize=leak does not work on windows

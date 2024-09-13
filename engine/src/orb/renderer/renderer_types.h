@@ -27,6 +27,8 @@ typedef struct orb_renderer_backend {
     b8 (*begin_frame)(struct orb_renderer_backend *backend, f32 delta_time);
     void (*update_global_state)(const orb_global_uniform_object* global_state);
     b8 (*end_frame)(struct orb_renderer_backend *backend, f32 delta_time);
+
+    void (*update_object)(orb_mat4 model);
 } orb_renderer_backend;
 
 typedef struct orb_render_packet {

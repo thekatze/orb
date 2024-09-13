@@ -434,23 +434,6 @@ void orb_vulkan_backend_update_global_state(const orb_global_uniform_object *glo
                     sizeof(orb_global_uniform_object));
 
     orb_vulkan_object_shader_update_global_state(&context, &context.object_shader);
-
-    // TODO: remove this test code
-    {
-        orb_vulkan_command_buffer *command_buffer =
-            &context.graphics_command_buffers[context.image_index];
-
-        orb_vulkan_object_shader_use(&context, &context.object_shader);
-
-        VkDeviceSize offsets[1] = {0};
-        vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle,
-                               offsets);
-
-        vkCmdBindIndexBuffer(command_buffer->handle, context.object_index_buffer.handle, 0,
-                             VK_INDEX_TYPE_UINT32);
-
-        vkCmdDrawIndexed(command_buffer->handle, INDEX_COUNT, 1, 0, 0, 0);
-    }
 }
 
 b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
@@ -509,6 +492,27 @@ b8 orb_vulkan_backend_end_frame(orb_renderer_backend *backend, f32 delta_time) {
     };
 
     return true;
+}
+
+void orb_vulkan_backend_update_object(orb_mat4 model) {
+    orb_vulkan_object_shader_update_object(&context, &context.object_shader, model);
+
+    // TODO: remove this test code
+    {
+        orb_vulkan_command_buffer *command_buffer =
+            &context.graphics_command_buffers[context.image_index];
+
+        orb_vulkan_object_shader_use(&context, &context.object_shader);
+
+        VkDeviceSize offsets[1] = {0};
+        vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle,
+                               offsets);
+
+        vkCmdBindIndexBuffer(command_buffer->handle, context.object_index_buffer.handle, 0,
+                             VK_INDEX_TYPE_UINT32);
+
+        vkCmdDrawIndexed(command_buffer->handle, INDEX_COUNT, 1, 0, 0, 0);
+    }
 }
 
 u32 orb_vulkan_find_memory_index(u32 type_filter, u32 property_flags) {

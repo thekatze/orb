@@ -22,7 +22,7 @@ b8 orb_vulkan_graphics_pipeline_create(orb_vulkan_context *context,
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
         .polygonMode = is_wireframe ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL,
         .lineWidth = 1.0f,
-        .cullMode = VK_CULL_MODE_BACK_BIT,
+        .cullMode = VK_CULL_MODE_NONE,
         .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 
         .depthClampEnable = VK_FALSE,
@@ -111,6 +111,13 @@ b8 orb_vulkan_graphics_pipeline_create(orb_vulkan_context *context,
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = descriptor_set_layout_count,
         .pSetLayouts = descriptor_set_layouts,
+        .pushConstantRangeCount = 1,
+        .pPushConstantRanges =
+            &(VkPushConstantRange){
+                .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                .offset = sizeof(orb_mat4) * 0,
+                .size = sizeof(orb_mat4) * 2,
+            },
     };
 
     ORB_VK_EXPECT(vkCreatePipelineLayout(context->device.logical_device,

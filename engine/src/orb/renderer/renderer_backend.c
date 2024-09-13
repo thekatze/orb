@@ -9,6 +9,7 @@ b8 orb_renderer_backend_init(orb_renderer_backend *out_renderer_backend) {
     out_renderer_backend->update_global_state = orb_vulkan_backend_update_global_state;
     out_renderer_backend->end_frame = orb_vulkan_backend_end_frame;
     out_renderer_backend->resize = orb_vulkan_backend_resize;
+    out_renderer_backend->update_object = orb_vulkan_backend_update_object;
 
     return true;
 }

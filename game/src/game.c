@@ -60,13 +60,13 @@ b8 initialize(orb_game *game_instance) {
     return true;
 }
 
-b8 update(orb_game *game_instance, float delta) {
+b8 update(orb_game *game_instance, f32 delta) {
     (void)game_instance;
     (void)delta;
     return true;
 }
 
-b8 render(orb_game *game_instance, float delta) {
+b8 render(orb_game *game_instance, f32 delta) {
     (void)game_instance;
     (void)delta;
     return true;
