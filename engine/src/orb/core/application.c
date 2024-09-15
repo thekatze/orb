@@ -155,8 +155,6 @@ b8 orb_application_run() {
         f32 delta = (f32)(current_frame_timestamp - app->last_frame_timestamp);
         f64 frame_start_time = orb_platform_time_now();
 
-        orb_input_update();
-
         if (!app->game_instance->update(app->game_instance, delta)) {
             ORB_FATAL("Update failed, shutting down");
             break;
@@ -183,6 +181,8 @@ b8 orb_application_run() {
             u64 sleep_ms = (u64)(remaining_seconds_in_frame * 1000);
             orb_platform_time_sleep(sleep_ms - 1);
         }
+
+        orb_input_update();
 
         app->last_frame_timestamp = current_frame_timestamp;
     }

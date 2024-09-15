@@ -645,10 +645,10 @@ ORB_INLINE orb_mat4 orb_mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 
     f32 half_tan_fov = orb_tan(fov_radians * 0.5f);
 
     result.elements[0] = 1.0f / (aspect_ratio * half_tan_fov);
-    result.elements[5] = 1.0f / half_tan_fov;
-    result.elements[10] = -((far_clip + near_clip) / (far_clip - near_clip));
+    result.elements[5] = -1.0f / half_tan_fov; // we use vulkan clip space, so y is flipped
+    result.elements[10] = -(far_clip + near_clip) / (far_clip - near_clip);
     result.elements[11] = -1.0f;
-    result.elements[14] = -((2.0f * far_clip * near_clip) / (far_clip - near_clip));
+    result.elements[14] = -(2.0f * far_clip * near_clip) / (far_clip - near_clip);
 
     return result;
 }
@@ -928,7 +928,7 @@ ORB_INLINE orb_vec3 orb_mat4_down(const orb_mat4 *matrix) {
  */
 [[nodiscard]]
 ORB_INLINE orb_vec3 orb_mat4_left(const orb_mat4 *matrix) {
-    // -worb_vec3_from_vec4(matrix.cols[0]);
+    // -orb_vec3_from_vec4(matrix.cols[0]);
     orb_vec3 left = {
         .x = -matrix->elements[0],
         .y = -matrix->elements[4],

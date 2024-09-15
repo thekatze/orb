@@ -1,11 +1,13 @@
 #pragma once
 
 #include <orb/game_types.h>
-#include <orb/math/random.h>
+#include <orb/math/math_types.h>
 
 typedef struct game_state {
-    f32 delta_time;
-    orb_rng_state rng;
+    orb_mat4 camera_transform;
+    orb_vec3 camera_position;
+    orb_vec3 camera_euler;
+    f32 camera_fov;
 } game_state;
 
 [[nodiscard]]
