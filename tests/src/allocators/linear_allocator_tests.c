@@ -63,7 +63,7 @@ b8 linear_allocator_should_reset() {
 
     // fill allocator up
     for (usize i = 0; i < items; ++i) {
-        orb_linear_allocator_allocate(&allocator, sizeof(i32));
+        [[maybe_unused]] u8* allocation = orb_linear_allocator_allocate(&allocator, sizeof(i32));
     }
 
     orb_linear_allocator_reset(&allocator);

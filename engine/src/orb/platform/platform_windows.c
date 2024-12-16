@@ -1,6 +1,7 @@
 #include "platform.h"
 
 #ifdef ORB_PLATFORM_WINDOWS
+#include "../core/application.h"
 #include "../core/event.h"
 #include "../core/input.h"
 #include "../core/logger.h"
